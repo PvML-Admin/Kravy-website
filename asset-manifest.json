@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Kravy-website/static/css/main.38923ed4.css",
-    "main.js": "/Kravy-website/static/js/main.aeb67cda.js",
+    "main.js": "/Kravy-website/static/js/main.ebdfb371.js",
     "index.html": "/Kravy-website/index.html",
     "main.38923ed4.css.map": "/Kravy-website/static/css/main.38923ed4.css.map",
-    "main.aeb67cda.js.map": "/Kravy-website/static/js/main.aeb67cda.js.map"
+    "main.ebdfb371.js.map": "/Kravy-website/static/js/main.ebdfb371.js.map"
   },
   "entrypoints": [
     "static/css/main.38923ed4.css",
-    "static/js/main.aeb67cda.js"
+    "static/js/main.ebdfb371.js"
   ]
 }
