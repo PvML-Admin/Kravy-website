@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Kravy-website/static/css/main.38923ed4.css",
+    "main.js": "/Kravy-website/static/js/main.9a0804c1.js",
+    "index.html": "/Kravy-website/index.html",
+    "main.38923ed4.css.map": "/Kravy-website/static/css/main.38923ed4.css.map",
+    "main.9a0804c1.js.map": "/Kravy-website/static/js/main.9a0804c1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.38923ed4.css",
+    "static/js/main.9a0804c1.js"
+  ]
+}
