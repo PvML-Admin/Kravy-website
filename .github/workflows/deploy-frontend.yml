@@ -19,10 +19,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies and build
-        working-directory: ./frontend
-        run: |
-          npm install
-          npm run build
+        run: cd frontend && npm install && npm run build
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
