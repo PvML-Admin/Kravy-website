@@ -1,0 +1,58 @@
+.sync-progress-box {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: var(--primary-dark);
+  border: 1px solid var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.sync-progress-box h4 {
+  margin: 0 0 10px 0;
+  color: var(--accent-blue);
+}
+
+.sync-progress-box strong {
+  color: var(--text-secondary);
+}
+
+.sync-progress-bar-container {
+  width: 100%;
+  background-color: var(--primary-light);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.sync-progress-bar {
+  background-color: var(--accent-green);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.rate-limited-text {
+  margin-left: 10px;
+  color: var(--accent-orange);
+}
+
+.sync-status-text {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.form-control {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}

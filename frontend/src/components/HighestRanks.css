@@ -1,0 +1,33 @@
+.highest-ranks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.highest-ranks-list li {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.highest-ranks-list li:last-child {
+  border-bottom: none;
+}
+
+.highest-ranks-list li:hover {
+  background-color: var(--background-light);
+}
+
+.rank-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+}
+
+.member-name {
+  font-weight: 500;
+}
+

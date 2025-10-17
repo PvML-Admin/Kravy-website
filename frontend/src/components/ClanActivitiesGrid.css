@@ -1,0 +1,90 @@
+.activities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--background-secondary);
+  padding: 20px;
+  margin: -20px -20px 20px -20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.activities-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.activities-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-btn {
+  background-color: var(--background-light);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--accent-blue);
+}
+
+.filter-btn.active {
+  background-color: var(--accent-green);
+  color: var(--background-primary);
+  border-color: var(--accent-green);
+  font-weight: 600;
+}
+
+.clan-activities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.activity-card {
+  background-color: var(--background-light);
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.activity-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.activity-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.activity-card-info {
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.activity-card-member {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.activity-card-time {
+  color: var(--text-muted);
+}
+
+.activity-card-body p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+

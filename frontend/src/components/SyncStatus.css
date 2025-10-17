@@ -1,0 +1,38 @@
+.sync-status-container {
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+  background-color: var(--primary-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.sync-status-container h4 {
+  margin: 0 0 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.progress-bar-container {
+  background-color: var(--primary-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  background-color: var(--accent-green);
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+  text-align: center;
+  line-height: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.sync-status-container p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}

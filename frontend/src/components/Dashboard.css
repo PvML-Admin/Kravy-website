@@ -1,0 +1,31 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 24px;
+}
+
+.grid-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grid-column-large {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.today-xp-card .table th,
+.today-xp-card .table td {
+  padding: 8px 12px;
+}
+
+.today-xp-card .table tbody tr:hover {
+  cursor: pointer;
+}
+
+.about-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

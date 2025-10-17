@@ -1,0 +1,133 @@
+.hiscores-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.hiscores-search input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.hiscores-container .card {
+  padding-top: 20px;
+}
+
+.hiscores-container h2 {
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.hiscores-table {
+  /* Table styles */
+}
+
+.hiscores-table tbody tr:hover {
+  cursor: pointer;
+  background-color: var(--background-light);
+}
+
+.member-name-cell {
+  display: flex;
+  align-items: center;
+}
+
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+.hiscores-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.skill-icon-wrapper {
+  padding: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.skill-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+  filter: saturate(2) contrast(1.2);
+  transition: filter 0.2s ease-in-out;
+}
+
+.skill-icon-wrapper:hover {
+  transform: scale(1.1);
+}
+
+.skill-icon-wrapper.active {
+  transform: scale(1.1);
+}
+
+.skill-icon-wrapper.active .skill-icon {
+  filter: saturate(2) contrast(1.2) drop-shadow(0 0 8px #fff);
+}
+
+.hiscores-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 20px;
+}
+
+.xp-brackets-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 20px 20px;
+}
+
+.bracket-btn {
+  background-color: var(--background-light);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bracket-btn:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--accent-blue);
+}
+
+.bracket-btn.active {
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.bracket-count {
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+.inactive-tag {
+  color: var(--accent-red);
+  font-weight: 600;
+  font-size: 0.85rem;
+}

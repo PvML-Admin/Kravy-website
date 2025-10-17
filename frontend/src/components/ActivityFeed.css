@@ -1,0 +1,59 @@
+.activity-feed {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 10px; /* For scrollbar */
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--primary-dark);
+  border-radius: 6px;
+  border-left: 4px solid var(--accent-blue);
+  transition: background-color 0.2s;
+}
+
+.activity-item.clickable {
+  cursor: pointer;
+}
+
+.activity-item.clickable:hover {
+  background-color: var(--primary-light);
+}
+
+.activity-icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 12px;
+  min-width: 28px;
+  object-fit: contain;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.activity-member-name {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.activity-timestamp {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  min-width: 80px;
+  text-align: right;
+}
