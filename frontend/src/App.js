@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import MemberList from './components/MemberList';
 import PlayerProfile from './components/PlayerProfile';
@@ -10,7 +10,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router basename="/Kravy-website">
+    <Router>
       <div className="app-container">
         <Sidebar />
         <div className="main-content">

@@ -42,14 +42,6 @@ app.use('/api/clan', clanRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/events', eventsRouter);
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../../frontend/build')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../../frontend/build', 'index.html'));
-  });
-}
-
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -65,7 +57,7 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
