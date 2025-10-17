@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './DashboardHeader.css';
 
 const TABS = ['About', 'List', 'Hiscore', 'XP tracker', 'XP analytics', 'Clan activities', 'Player activities', 'Competitions'];
 
-function DashboardHeader({ activeTab, onTabChange }) {
-  const clanName = "Kravy";
-  const [clanStats, setClanStats] = useState(null);
-
+function DashboardHeader({ clanName = "Kravy", activeTab, setActiveTab }) {
   // Use a local, static image for the clan banner to guarantee it loads.
   const clanBannerUrl = '/clan_banner.png';
 
@@ -18,6 +15,8 @@ function DashboardHeader({ activeTab, onTabChange }) {
     citadelLevel: 7,
     kdr: 2.21,
   };
+
+  const formatNumber = (num) => num.toLocaleString();
 
   return (
     <div className="dashboard-header">
@@ -58,7 +57,7 @@ function DashboardHeader({ activeTab, onTabChange }) {
             className={`nav-tab ${activeTab === tab ? 'active' : ''}`}
             onClick={(e) => {
               e.preventDefault();
-              onTabChange(tab);
+              setActiveTab(tab);
             }}
           >
             {tab}

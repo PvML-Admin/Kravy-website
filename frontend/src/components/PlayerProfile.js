@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { membersAPI, activitiesAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
@@ -12,44 +12,21 @@ function PlayerProfile() {
   const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState(null);
-
-  const loadMemberData = useCallback(async (memberId) => {
-    try {
-      const [statsResponse, activitiesResponse] = await Promise.all([
-        membersAPI.getStats(memberId, 'weekly'),
-        activitiesAPI.getMemberActivities(memberName).catch(() => ({ data: { activities: [] } }))
-      ]);
-      
-      setStats(statsResponse.data.stats);
-      setActivities(activitiesResponse.data.activities || []);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    }
-  }, [memberName]);
-
-  const handleSync = useCallback(async (memberId) => {
-    try {
-      setIsSyncing(true);
-      await membersAPI.sync(memberId);
-      const memberResponse = await membersAPI.getByName(memberName);
-      setMember(memberResponse.data.member);
-      await loadMemberData(memberId);
-    } catch (err) {
-      console.error("Background sync failed:", err.response?.data?.error || err.message);
-    } finally {
-      setIsSyncing(false);
-    }
-  }, [memberName, loadMemberData]);
+  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
 
   useEffect(() => {
     const initialSync = async () => {
       try {
         setLoading(true);
+        // First, load the initial data for the member to get their ID
         const memberResponse = await membersAPI.getByName(memberName);
         const memberData = memberResponse.data.member;
         setMember(memberData);
+
+        // Now that we have the member, we can load their stats
         await loadMemberData(memberData.id);
+
+        // And trigger the background sync
         handleSync(memberData.id);
       } catch (err) {
         setError(err.response?.data?.error || err.message);
@@ -59,11 +36,50 @@ function PlayerProfile() {
     };
 
     initialSync();
-  }, [memberName, loadMemberData, handleSync]);
+  }, [memberName]);
+
+  const loadMemberData = async (memberId) => {
+    try {
+      const [statsResponse, activitiesResponse] = await Promise.all([
+        membersAPI.getStats(memberId, selectedPeriod),
+        activitiesAPI.getMemberActivities(memberName).catch(() => ({ data: { activities: [] } }))
+      ]);
+      
+      setStats(statsResponse.data.stats);
+      setActivities(activitiesResponse.data.activities || []);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleSync = async (memberId) => {
+    try {
+      setIsSyncing(true);
+      await membersAPI.sync(memberId);
+      // After syncing, we need to re-fetch the member to get the updated top-level stats (like total xp)
+      // And then re-fetch the detailed stats.
+      const memberResponse = await membersAPI.getByName(memberName);
+      setMember(memberResponse.data.member);
+      await loadMemberData(memberId); // Reload all data after sync
+    } catch (err) {
+      console.error("Background sync failed:", err.response?.data?.error || err.message);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const formatXp = (xp) => {
     if (!xp) return '0';
     return parseInt(xp).toLocaleString('en-US');
+  };
+
+  const formatXpShort = (xp) => {
+    if (!xp) return '0';
+    if (xp >= 1000000000) return `${(xp / 1000000000).toFixed(2)}B`;
+    if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
+    if (xp >= 1000) return `${(xp / 1000).toFixed(2)}K`;
+    return xp.toLocaleString();
   };
 
   const formatRank = (rank) => {

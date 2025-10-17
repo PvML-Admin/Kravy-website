@@ -197,8 +197,8 @@ function AddMembers() {
           <div className="form-group">
             <label>Add Single Member (RSN)</label>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <input
-                type="text"
+        <input
+          type="text"
                 className="form-control"
                 value={newMember}
                 onChange={(e) => setNewMember(e.target.value)}
@@ -305,9 +305,9 @@ function AddMembers() {
                 <strong>Import Only:</strong> Adds new members, keeps existing ones<br/>
                 <strong>Sync Membership:</strong> Adds new members AND removes members who left the clan
               </div>
-            </div>
-          </div>
-        )}
+      </div>
+        </div>
+      )}
 
         {showBulkAdd && (
           <form onSubmit={handleBulkAdd} style={{ marginTop: '15px' }}>

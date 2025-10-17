@@ -1,43 +1,13 @@
 {
   "name": "kravy-tracker",
   "version": "1.0.0",
-  "private": true,
+  "description": "A full-stack RuneScape clan tracker.",
   "scripts": {
-    "start": "concurrently \"npm:start:client\" \"npm:start:server\"",
-    "start:client": "react-scripts start",
-    "start:server": "node src/server/server.js",
-    "build": "react-scripts build",
-    "test": "react-scripts test"
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm install && node src/server.js",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run start --prefix frontend\""
   },
   "dependencies": {
-    "axios": "^1.7.2",
-    "concurrently": "^8.2.2",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.1",
-    "react-scripts": "5.0.1",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "proxy": "http://localhost:3001"
+    "concurrently": "^8.2.2"
+  }
 }

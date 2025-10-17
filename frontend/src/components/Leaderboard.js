@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI } from '../services/api';
-import './Leaderboard.css';
 
 function Leaderboard() {
   const navigate = useNavigate();
@@ -10,7 +9,11 @@ function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadLeaderboard = useCallback(async () => {
+  useEffect(() => {
+    loadLeaderboard();
+  }, [period]);
+
+  const loadLeaderboard = async () => {
     try {
       setLoading(true);
       const response = await leaderboardAPI.getByPeriod(period, 50);
@@ -21,11 +24,7 @@ function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  }, [period]);
-
-  useEffect(() => {
-    loadLeaderboard();
-  }, [loadLeaderboard]);
+  };
 
   const formatXp = (xp) => {
     if (xp >= 1000000000) return `${(xp / 1000000000).toFixed(2)}B`;
