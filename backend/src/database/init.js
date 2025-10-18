@@ -45,6 +45,8 @@ async function initializeDatabase() {
       level INTEGER DEFAULT 1,
       xp INTEGER DEFAULT 0,
       rank INTEGER,
+      daily_xp_gain INTEGER DEFAULT 0,
+      weekly_xp_gain INTEGER DEFAULT 0,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
       UNIQUE(member_id, skill_id)
@@ -77,6 +79,22 @@ async function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_activities_member ON activities(member_id);
     CREATE INDEX IF NOT EXISTS idx_activities_date ON activities(activity_date DESC);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_unique ON activities(member_id, activity_date, text);
+
+    CREATE TABLE IF NOT EXISTS periodic_xp_gains (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      total_daily_xp_gain INTEGER DEFAULT 0,
+      total_weekly_xp_gain INTEGER DEFAULT 0,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_periodic_xp_timestamp ON periodic_xp_gains(timestamp);
+
+    CREATE TABLE IF NOT EXISTS clan_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      member_name TEXT NOT NULL,
+      event_type TEXT NOT NULL CHECK(event_type IN ('join', 'leave')),
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   console.log('Database initialized successfully!');

@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
 const { addLastSyncAttempt } = require('./database/migrate-add-last-sync-attempt');
+const { migrate: addPeriodicXpGains } = require('./database/migrate-add-periodic-xp-gains');
+const { up: addClanEvents } = require('./database/migrate-add-clan-events');
 const { scheduleDailyReset, scheduleWeeklyReset, startContinuousSync } = require('./utils/scheduler');
 
 const membersRouter = require('./api/members');
@@ -41,6 +43,8 @@ app.use((req, res, next) => {
   try {
     await initializeDatabase();
     await addLastSyncAttempt();
+    await addPeriodicXpGains();
+    await addClanEvents();
     console.log('Database initialization and migrations complete');
   } catch (error) {
     console.error('Database setup failed:', error);

@@ -1,11 +1,33 @@
 const db = require('../config/database');
 
-async function up() {
-  console.log('Applying migration: Add periodic XP gain columns...');
-  await db.execAsync(`
-    ALTER TABLE skills ADD COLUMN daily_xp_gain INTEGER DEFAULT 0;
-    ALTER TABLE skills ADD COLUMN weekly_xp_gain INTEGER DEFAULT 0;
-  `);
+async function migrate() {
+  console.log('Checking if periodic XP gain columns need to be added...');
+  
+  // Check if columns already exist
+  const tableInfo = await db.allAsync('PRAGMA table_info(skills)');
+  const hasDailyXpGain = tableInfo.some(col => col.name === 'daily_xp_gain');
+  const hasWeeklyXpGain = tableInfo.some(col => col.name === 'weekly_xp_gain');
+
+  if (hasDailyXpGain && hasWeeklyXpGain) {
+    console.log('Periodic XP gain columns already exist. Skipping migration.');
+    return;
+  }
+
+  console.log('Adding periodic XP gain columns...');
+  
+  try {
+    await db.execAsync(`
+      ALTER TABLE skills ADD COLUMN daily_xp_gain INTEGER DEFAULT 0;
+      ALTER TABLE skills ADD COLUMN weekly_xp_gain INTEGER DEFAULT 0;
+    `);
+  } catch (error) {
+    // If ALTER fails (likely because columns exist), we're good
+    if (error.message.includes('duplicate column name')) {
+      console.log('Columns already exist (from ALTER attempt).');
+      return;
+    }
+    throw error;
+  }
 
   // To preserve existing gains for the day, copy them over.
   await db.execAsync(`
@@ -46,7 +68,11 @@ async function up() {
   await db.execAsync('CREATE INDEX IF NOT EXISTS idx_skills_member ON skills(member_id);');
   await db.execAsync('CREATE INDEX IF NOT EXISTS idx_skills_name ON skills(skill_name);');
 
-  console.log('Migration completed successfully.');
+  console.log('Periodic XP gain migration completed successfully.');
+}
+
+async function up() {
+  return migrate();
 }
 
 async function down() {
@@ -88,7 +114,7 @@ async function down() {
   console.log('Migration reverted.');
 }
 
-module.exports = { up, down };
+module.exports = { migrate, up, down };
 
 // Allow running this script directly to apply the migration
 if (require.main === module) {
