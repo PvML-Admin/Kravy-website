@@ -17,7 +17,17 @@ const eventsRouter = require('./api/events');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS configuration - allow frontend domains
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',  // Local development
+    'https://kravy-frontend.onrender.com',  // Production frontend (update with your actual URL)
+    process.env.FRONTEND_URL  // Optional: set via environment variable
+  ].filter(Boolean),
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
