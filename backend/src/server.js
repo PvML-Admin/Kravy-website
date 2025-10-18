@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 3001;
 const corsOptions = {
   origin: [
     'http://localhost:3000',  // Local development
-    'https://kravy-frontend.onrender.com',  // Production frontend (update with your actual URL)
+    'https://kravy-website-1.onrender.com',  // Production frontend
     process.env.FRONTEND_URL  // Optional: set via environment variable
   ].filter(Boolean),
   credentials: true
