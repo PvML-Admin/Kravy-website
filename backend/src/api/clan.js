@@ -29,14 +29,150 @@ router.get('/banner/:clanName', async (req, res) => {
  * Fetch and import all clan members in one go
  */
 router.post('/import-members', async (req, res) => {
-  // ... [Implementation from previous turns]
+  try {
+    const { clanName } = req.body;
+    
+    if (!clanName) {
+      return res.status(400).json({ success: false, error: 'Clan name is required.' });
+    }
+
+    console.log(`Importing members from clan: ${clanName}`);
+    
+    // Fetch clan members from RuneScape API
+    const clanMembers = await fetchClanMembersFromAnywhere(clanName);
+    
+    if (!clanMembers || clanMembers.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Could not fetch clan members. Clan may not exist or API is unavailable.' 
+      });
+    }
+
+    console.log(`Found ${clanMembers.length} members in clan ${clanName}`);
+
+    // Import members into database
+    const imported = [];
+    const skipped = [];
+
+    for (const member of clanMembers) {
+      try {
+        const existing = await MemberModel.findByName(member.name);
+        
+        if (existing) {
+          skipped.push(member.name);
+        } else {
+          await MemberModel.create(member.name, member.name);
+          // Update clan rank separately
+          const newMember = await MemberModel.findByName(member.name);
+          if (newMember) {
+            await MemberModel.update(newMember.id, { clan_rank: member.rank });
+          }
+          imported.push(member.name);
+        }
+      } catch (error) {
+        console.error(`Error importing member ${member.name}:`, error);
+        skipped.push(member.name);
+      }
+    }
+
+    res.json({
+      success: true,
+      imported: imported.length,
+      skipped: skipped.length,
+      total: clanMembers.length,
+      message: `Imported ${imported.length} new members, skipped ${skipped.length} existing members.`
+    });
+  } catch (error) {
+    console.error('Error importing clan members:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to import clan members.' 
+    });
+  }
 });
 
 /**
  * Smart sync: Fetch clan members, add new ones, remove old ones
  */
 router.post('/sync-membership', async (req, res) => {
-  // ... [Implementation from previous turns]
+  try {
+    const { clanName } = req.body;
+    
+    if (!clanName) {
+      return res.status(400).json({ success: false, error: 'Clan name is required.' });
+    }
+
+    console.log(`Syncing membership for clan: ${clanName}`);
+    
+    // Fetch current clan members from RuneScape
+    const currentClanMembers = await fetchClanMembersFromAnywhere(clanName);
+    
+    if (!currentClanMembers || currentClanMembers.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Could not fetch clan members.' 
+      });
+    }
+
+    // Get current members from database
+    const dbMembers = await MemberModel.getAll(false); // Get all, including inactive
+    
+    const currentClanMemberNames = currentClanMembers.map(m => m.name.toLowerCase());
+    const dbMemberNames = dbMembers.map(m => m.name.toLowerCase());
+
+    // Find members to add (in clan but not in DB)
+    const membersToAdd = currentClanMembers.filter(
+      cm => !dbMemberNames.includes(cm.name.toLowerCase())
+    );
+
+    // Find members to remove (in DB but not in clan)
+    const membersToRemove = dbMembers.filter(
+      dm => !currentClanMemberNames.includes(dm.name.toLowerCase()) && dm.is_active
+    );
+
+    let added = 0;
+    let removed = 0;
+
+    // Add new members
+    for (const member of membersToAdd) {
+      try {
+        await MemberModel.create(member.name, member.name);
+        const newMember = await MemberModel.findByName(member.name);
+        if (newMember) {
+          await MemberModel.update(newMember.id, { clan_rank: member.rank });
+        }
+        await ClanEventModel.create(member.name, 'join');
+        added++;
+      } catch (error) {
+        console.error(`Error adding member ${member.name}:`, error);
+      }
+    }
+
+    // Mark removed members as inactive
+    for (const member of membersToRemove) {
+      try {
+        await MemberModel.setActive(member.id, 0);
+        await ClanEventModel.create(member.name, 'leave');
+        removed++;
+      } catch (error) {
+        console.error(`Error removing member ${member.name}:`, error);
+      }
+    }
+
+    res.json({
+      success: true,
+      added,
+      removed,
+      total: currentClanMembers.length,
+      message: `Added ${added} members, removed ${removed} members. Total active: ${currentClanMembers.length}`
+    });
+  } catch (error) {
+    console.error('Error syncing clan membership:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to sync clan membership.' 
+    });
+  }
 });
 
 module.exports = router;

@@ -18,6 +18,7 @@ async function initializeDatabase() {
       last_synced DATETIME,
       last_sync_attempt DATETIME,
       last_xp_gain DATETIME,
+      last_activity_date DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       is_active INTEGER DEFAULT 1
     );

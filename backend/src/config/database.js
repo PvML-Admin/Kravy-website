@@ -20,6 +20,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 db.run('PRAGMA journal_mode = WAL');
 db.run('PRAGMA foreign_keys = ON');
+db.run('PRAGMA encoding = "UTF-8"');
 
 function runAsync(sql, params = []) {
   return new Promise((resolve, reject) => {
