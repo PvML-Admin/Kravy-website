@@ -1,7 +1,13 @@
 node_modules/
 .env
+
+# Database files
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
+backend/database/
+
 .DS_Store
 dist/
 build/

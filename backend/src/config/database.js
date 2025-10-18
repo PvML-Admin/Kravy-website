@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../../database/clan.db');
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../database/clan.db');
 
 const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) {
