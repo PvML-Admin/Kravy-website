@@ -1,23 +1,58 @@
-const PET_KEYWORDS = ['pet', 'nibbler', 'tangleroot', 'giant squirrel', 'heron', 'rock golem', 'beaver', 'chompy'];
-const SKILL_KEYWORDS = ['levelled up', '200m xp', 'xp in'];
-const ACHIEVEMENT_KEYWORDS = ['quest complete', 'treasure trail', 'achievement diary'];
-const DROP_KEYWORDS = ['found', 'received', 'looted', 'i killed'];
+// A simple parser to categorize activities based on keywords in their text.
 
-function categorizeActivity(text) {
+function parseActivityCategory(text) {
   const lowerText = text.toLowerCase();
-  
-  if (DROP_KEYWORDS.some(kw => lowerText.includes(kw))) {
-    // Make sure it's not a pet
-    if (!PET_KEYWORDS.some(kw => lowerText.includes(kw))) {
-      return 'Drops';
-    }
+
+  // Check for Pets FIRST (before checking for "found a" to avoid miscategorization)
+  if (
+    lowerText.includes('pet') ||
+    lowerText.includes('grew to a') ||
+    lowerText.includes('is now a')
+  ) {
+    return 'Pets';
   }
-  if (PET_KEYWORDS.some(kw => lowerText.includes(kw))) return 'Pets';
-  if (SKILL_KEYWORDS.some(kw => lowerText.includes(kw))) return 'Skills';
-  if (ACHIEVEMENT_KEYWORDS.some(kw => lowerText.includes(kw))) return 'Achievement';
+
+  // Skills & XP Milestones
+  if (
+    lowerText.includes('xp in ') ||
+    lowerText.includes('levelled up') ||
+    lowerText.includes('leveled up') ||
+    lowerText.includes('experience points in') ||
+    lowerText.includes('reached level')
+  ) {
+    return 'Skills';
+  }
+
+  // Boss Kills (separate from item drops)
+  if (
+    lowerText.includes('i killed') ||
+    lowerText.includes('defeated')
+  ) {
+    return 'Achievement';
+  }
+
+  // Item Drops
+  if (
+    lowerText.includes('found a') ||
+    lowerText.includes('received a') ||
+    lowerText.includes('looted a')
+  ) {
+    return 'Drops';
+  }
+
+  // Quests and Milestones
+  if (
+    lowerText.includes('quest complete') ||
+    lowerText.includes('completed the') ||
+    lowerText.includes('unlocked') ||
+    lowerText.includes('quest points obtained')
+  ) {
+    return 'Achievement';
+  }
   
-  return 'All'; // Default category
+  // Default category if none of the above match
+  return 'Achievement';
 }
 
-module.exports = { categorizeActivity };
+module.exports = { parseActivityCategory };
 

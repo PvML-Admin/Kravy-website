@@ -22,6 +22,7 @@ export const membersAPI = {
   delete: (id) => api.delete(`/members/${id}`),
   deleteAll: () => api.delete('/members/all'),
   getStats: (id) => api.get(`/members/${id}/stats`),
+  sync: (id) => api.post(`/members/${id}/sync`),
 };
 
 export const syncAPI = {
@@ -37,14 +38,15 @@ export const clanAPI = {
 };
 
 export const leaderboardAPI = {
-  getByPeriod: (period, limit = 50) => api.get(`/leaderboard/${period}?limit=${limit}`),
+  getByPeriod: (period, limit = 50, skill = 'Overall') => api.get(`/leaderboard/${period}?limit=${limit}&skill=${encodeURIComponent(skill)}`),
   getTopGainers: (count = 10) => api.get(`/leaderboard/top/gainers?count=${count}`),
+  getDailyClanXpHistory: (limit = 15) => api.get(`/leaderboard/daily-clan-xp?limit=${limit}`),
   getClanStats: () => api.get('/leaderboard/clan/stats'),
 };
 
 export const activitiesAPI = {
-  getClanActivities: (limit = 20) => api.get(`/activities/clan?limit=${limit}`),
-  getMemberActivities: (name) => api.get(`/activities/member/${name}`),
+  getClanActivities: (limit = 100) => api.get(`/activities/clan?limit=${limit}`),
+  getMemberActivities: (memberName) => api.get(`/activities/member/${memberName}`),
 };
 
 export const eventsAPI = {

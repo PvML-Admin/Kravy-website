@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
+import SpecialName from './SpecialNames';
 import './ClanHiscores.css';
 
 // Custom hook for sorting
@@ -201,8 +202,16 @@ function ClanHiscores() {
               <tr key={member.id} onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}>
                 <td>{index + 1}</td>
                 <td className="member-name-cell">
-                  <img src={member.avatar_url} alt={member.name} className="member-avatar" />
-                  <span>{member.display_name || member.name}</span>
+                  <img 
+                    src={member.avatar_url} 
+                    alt={member.name} 
+                    className="member-avatar"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span><SpecialName name={member.display_name || member.name} /></span>
                 </td>
                 <td>{member.total_level || 'N/A'}</td>
                 <td>

@@ -300,6 +300,25 @@ class SkillModel {
       [memberId, skillName]
     );
   }
+
+  static async getTopGains(period = 'daily', limit = 10) {
+    const gainColumn = period === 'weekly' ? 'weekly_xp_gain' : 'daily_xp_gain';
+    const query = `
+      SELECT
+        m.id,
+        m.name,
+        m.display_name,
+        SUM(s.${gainColumn}) as xpGain
+      FROM skills s
+      JOIN members m ON s.member_id = m.id
+      WHERE m.is_active = 1
+      GROUP BY m.id
+      HAVING xpGain > 0
+      ORDER BY xpGain DESC
+      LIMIT ?
+    `;
+    return await db.allAsync(query, [limit]);
+  }
 }
 
 class SyncLogModel {
@@ -344,19 +363,29 @@ class ActivityModel {
       SELECT 
         a.*,
         m.name as member_name,
-        m.display_name
+        m.display_name,
+        CASE 
+          WHEN typeof(a.activity_date) = 'integer' THEN a.activity_date
+          ELSE a.id
+        END as sort_key
       FROM activities a
       JOIN members m ON a.member_id = m.id
-      ORDER BY a.activity_date DESC
+      ORDER BY sort_key DESC
       LIMIT ?
     `, [limit]);
   }
 
   static async getByMember(memberId, limit = 50) {
     return await db.allAsync(`
-      SELECT * FROM activities
+      SELECT 
+        *,
+        CASE
+          WHEN typeof(activity_date) = 'integer' THEN activity_date
+          ELSE id
+        END as sort_key
+      FROM activities
       WHERE member_id = ?
-      ORDER BY activity_date DESC
+      ORDER BY sort_key DESC
       LIMIT ?
     `, [memberId, limit]);
   }

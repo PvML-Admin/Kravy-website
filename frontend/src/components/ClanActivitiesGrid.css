@@ -13,37 +13,46 @@
   font-size: 1.5rem;
 }
 
-.activities-filters {
+/* Filter Pills */
+.filter-pills {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.filter-btn {
-  background-color: var(--background-light);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  padding: 8px 16px;
+.filter-pill {
+  padding: 8px 20px;
   border-radius: 20px;
+  border: none;
+  background-color: #3a3a3a;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-.filter-btn:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--accent-blue);
+.filter-pill:hover {
+  background-color: #4a4a4a;
+  transform: translateY(-1px);
 }
 
-.filter-btn.active {
-  background-color: var(--accent-green);
-  color: var(--background-primary);
-  border-color: var(--accent-green);
-  font-weight: 600;
+.filter-pill.active {
+  background-color: #2d9596;
+  color: #ffffff;
+}
+
+.filter-pill.active:hover {
+  background-color: #3aaba9;
 }
 
 .clan-activities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
+  min-height: 550px;
 }
 
 .activity-card {
@@ -51,6 +60,7 @@
   border-radius: 6px;
   padding: 16px;
   border: 1px solid var(--border-color);
+  min-height: 110px;
 }
 
 .activity-card-header {
@@ -84,7 +94,33 @@
 
 .activity-card-body p {
   margin: 0;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-pagination {
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background-color: var(--background-light);
+}
+
+.btn-pagination:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 

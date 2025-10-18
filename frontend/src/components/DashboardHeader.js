@@ -1,9 +1,7 @@
 import React from 'react';
 import './DashboardHeader.css';
 
-const TABS = ['About', 'List', 'Hiscore', 'XP tracker', 'XP analytics', 'Clan activities', 'Player activities', 'Competitions'];
-
-function DashboardHeader({ clanName = "Kravy", activeTab, setActiveTab }) {
+function DashboardHeader({ clanName = "Kravy" }) {
   // Use a local, static image for the clan banner to guarantee it loads.
   const clanBannerUrl = '/clan_banner.png';
 
@@ -49,21 +47,6 @@ function DashboardHeader({ clanName = "Kravy", activeTab, setActiveTab }) {
           </div>
         </div>
       )}
-      <nav className="dashboard-nav">
-        {TABS.map(tab => (
-          <a 
-            key={tab}
-            href="#" 
-            className={`nav-tab ${activeTab === tab ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab(tab);
-            }}
-          >
-            {tab}
-          </a>
-        ))}
-      </nav>
     </div>
   );
 }

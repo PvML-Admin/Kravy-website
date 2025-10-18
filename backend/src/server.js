@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
-const { scheduleDailyReset, scheduleWeeklyReset, scheduleMemberSync } = require('./utils/scheduler');
+const { scheduleDailyReset, scheduleWeeklyReset, startContinuousSync } = require('./utils/scheduler');
 
 const membersRouter = require('./api/members');
 const syncRouter = require('./api/sync');
@@ -65,14 +65,9 @@ app.listen(PORT, () => {
   scheduleDailyReset();
   scheduleWeeklyReset();
 
-  // Conditionally schedule the member sync based on environment
-  const syncSchedule = process.env.SYNC_SCHEDULE || '0 */6 * * *';
-  if (process.env.NODE_ENV !== 'development' && syncSchedule) {
-    console.log('Setting up scheduled member sync...');
-    scheduleMemberSync(syncSchedule);
-  } else {
-    console.log('Scheduled member sync is disabled in the current environment.');
-  }
+  // Start continuous rolling sync (10 members every 5 minutes)
+  console.log('Starting continuous rolling sync system...');
+  startContinuousSync();
 });
 
 module.exports = app;

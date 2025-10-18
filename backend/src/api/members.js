@@ -6,6 +6,21 @@ const { getPlayerStats } = require('../services/runemetrics');
 const { sortMembersByRank, getRankIcon, getRankColor } = require('../utils/clanRanks');
 const { getSkillMaxLevel, getXpToNextLevel, getPercentageToNextLevel } = require('../utils/skillLevels');
 
+// Cache for hiscores data (refreshes every hour)
+let hiscoresCache = {
+  data: null,
+  timestamp: null,
+  brackets: null,
+  bracketsTimestamp: null
+};
+
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+function isCacheValid(timestamp) {
+  if (!timestamp) return false;
+  return (Date.now() - timestamp) < CACHE_DURATION;
+}
+
 router.get('/', async (req, res) => {
   try {
     const activeOnly = req.query.active !== 'false';
@@ -73,12 +88,31 @@ router.get('/hiscores', async (req, res) => {
 
 router.get('/hiscores/xp-brackets', async (req, res) => {
   try {
+    // Check if we have valid cached brackets
+    if (isCacheValid(hiscoresCache.bracketsTimestamp)) {
+      console.log('Serving XP brackets from cache');
+      return res.json({
+        success: true,
+        brackets: hiscoresCache.brackets,
+        cached: true
+      });
+    }
+
+    // Cache is invalid or doesn't exist, fetch fresh data
+    console.log('Fetching fresh XP brackets data');
     const brackets = await MemberModel.getHiscoresXpBrackets();
+    
+    // Update cache
+    hiscoresCache.brackets = brackets;
+    hiscoresCache.bracketsTimestamp = Date.now();
+    
     res.json({
       success: true,
-      brackets
+      brackets,
+      cached: false
     });
   } catch (error) {
+    console.error('Error fetching XP brackets:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch XP brackets.'
@@ -88,12 +122,32 @@ router.get('/hiscores/xp-brackets', async (req, res) => {
 
 router.get('/all-hiscores', async (req, res) => {
   try {
+    // Check if we have valid cached data
+    if (isCacheValid(hiscoresCache.timestamp)) {
+      console.log('Serving hiscores from cache');
+      return res.json({
+        success: true,
+        members: hiscoresCache.data,
+        cached: true,
+        cacheAge: Math.floor((Date.now() - hiscoresCache.timestamp) / 1000 / 60) // age in minutes
+      });
+    }
+
+    // Cache is invalid or doesn't exist, fetch fresh data
+    console.log('Fetching fresh hiscores data');
     const members = await MemberModel.getAllHiscoresData();
+    
+    // Update cache
+    hiscoresCache.data = members;
+    hiscoresCache.timestamp = Date.now();
+    
     res.json({
       success: true,
-      members
+      members,
+      cached: false
     });
   } catch (error) {
+    console.error('Error fetching hiscores:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch all hiscores data.'
@@ -359,6 +413,28 @@ router.get('/highest-ranks', async (req, res) => {
     res.json({
       success: true,
       members
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Clear hiscores cache (useful for manual refresh or after bulk sync)
+router.post('/hiscores/clear-cache', async (req, res) => {
+  try {
+    hiscoresCache.data = null;
+    hiscoresCache.timestamp = null;
+    hiscoresCache.brackets = null;
+    hiscoresCache.bracketsTimestamp = null;
+    
+    console.log('Hiscores cache cleared');
+    
+    res.json({
+      success: true,
+      message: 'Hiscores cache cleared successfully'
     });
   } catch (error) {
     res.status(500).json({

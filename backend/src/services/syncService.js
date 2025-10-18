@@ -36,7 +36,8 @@ async function syncMember(memberId) {
       total_xp: totalXp,
       total_rank: hiscoresData.totalRank,
       last_synced: new Date().toISOString(),
-      display_name: hiscoresData.name,
+      // We no longer update display_name here, as HiScores may not have correct capitalization.
+      // We will only update it from RuneMetrics which is the source of truth for casing.
       combat_level: combatLevel // Save the calculated combat level immediately
     });
 
@@ -75,12 +76,19 @@ async function syncMember(memberId) {
     try {
       profileData = await fetchPlayerProfile(member.name);
       
+      console.log(`[Sync] RuneMetrics returned name: "${profileData.name}" for member: "${member.name}"`);
+      
       // Override with RuneMetrics combat level if available
       if (profileData.combatlevel) {
         combatLevel = profileData.combatlevel;
       }
       
-      // Update rank and combat level from RuneMetrics
+      // Cap combat level at 152
+      if (combatLevel > 152) {
+        combatLevel = 152;
+      }
+      
+      // Update rank, combat level, and display name from RuneMetrics
       const updateData = {};
       if (profileData.rank) {
         const rankNum = parseInt(String(profileData.rank).replace(/,/g, ''));
@@ -90,7 +98,19 @@ async function syncMember(memberId) {
       }
       updateData.combat_level = combatLevel;
       
+      // Update display_name with properly capitalized name from RuneMetrics
+      // RuneMetrics API returns the name with proper capitalization
+      if (profileData.name) {
+        updateData.display_name = profileData.name;
+        console.log(`[Sync] Updating display_name to: "${profileData.name}"`);
+      } else {
+        console.warn(`[Sync] No name returned from RuneMetrics for member: "${member.name}"`);
+      }
+      
       await MemberModel.update(memberId, updateData);
+      
+      // Track most recent activity date
+      let mostRecentActivityDate = null;
       
       if (profileData.activities && Array.isArray(profileData.activities)) {
         for (const activity of profileData.activities) {
@@ -101,20 +121,35 @@ async function syncMember(memberId) {
               activity.text,
               activity.details
             );
+            
+            // Track the most recent activity timestamp
+            if (!mostRecentActivityDate || activity.date > mostRecentActivityDate) {
+              mostRecentActivityDate = activity.date;
+            }
           } catch (error) {
             // Ignore duplicate activity errors
-            console.error(`Failed to save activity for ${member.name}:`, error.message);
+            if (!error.message.includes('UNIQUE constraint')) {
+              console.error(`Failed to save activity for ${member.name}:`, error.message);
+            }
           }
+        }
+        
+        // Update last_activity_date with the most recent activity
+        if (mostRecentActivityDate) {
+          await db.runAsync(
+            'UPDATE members SET last_activity_date = ? WHERE id = ?',
+            [mostRecentActivityDate, memberId]
+          );
         }
       }
     } catch (activityError) {
       console.error(`Failed to fetch activities for ${member.name}:`, activityError.message);
     }
 
-    // ONLY update last_xp_gain if the sum of individual skill gains is positive
+    // ONLY update last_xp_gain and last_activity_date if the sum of individual skill gains is positive
     if (totalXpDelta > 0) {
       await db.runAsync(
-        'UPDATE members SET last_xp_gain = CURRENT_TIMESTAMP WHERE id = ?',
+        'UPDATE members SET last_xp_gain = CURRENT_TIMESTAMP, last_activity_date = CURRENT_TIMESTAMP WHERE id = ?',
         [memberId]
       );
     }
@@ -124,7 +159,7 @@ async function syncMember(memberId) {
     return {
       success: true,
       member: member.name,
-      activities: profileData.activities ? profileData.activities.length : 0
+      activities: (profileData && profileData.activities) ? profileData.activities.length : 0
     };
   } catch (error) {
     await SyncLogModel.create(memberId, false, error.message);
@@ -316,6 +351,12 @@ async function getMemberStats(memberId, period = 'weekly') {
   const snapshots = await SnapshotModel.getByMember(memberId, 1000);
   const skills = await SkillModel.getByMember(memberId);
 
+  // Add xp_gain field based on period for frontend compatibility
+  const enrichedSkills = skills.map(skill => ({
+    ...skill,
+    xp_gain: period === 'daily' ? (skill.daily_xp_gain || 0) : (skill.weekly_xp_gain || 0)
+  }));
+
   const xpGains = {
     daily: skills.reduce((acc, s) => acc + (s.daily_xp_gain || 0), 0),
     weekly: skills.reduce((acc, s) => acc + (s.weekly_xp_gain || 0), 0)
@@ -323,7 +364,7 @@ async function getMemberStats(memberId, period = 'weekly') {
 
   return {
     member,
-    skills,
+    skills: enrichedSkills,
     xpGains,
     snapshotCount: snapshots.length,
     lastSnapshot: snapshots[0] || null

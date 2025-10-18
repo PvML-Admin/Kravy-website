@@ -5,11 +5,10 @@
 }
 
 .highest-ranks-list li {
-  display: flex;
-  align-items: center;
+  display: block;
   padding: 10px 0;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: opacity 0.2s;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -18,16 +17,18 @@
 }
 
 .highest-ranks-list li:hover {
-  background-color: var(--background-light);
+  opacity: 0.8;
 }
 
-.rank-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 12px;
+.player-avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  vertical-align: middle;
+  border-radius: 4px;
 }
 
 .member-name {
   font-weight: 500;
+  vertical-align: middle;
 }
-

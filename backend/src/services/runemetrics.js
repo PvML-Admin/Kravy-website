@@ -11,6 +11,19 @@ const SKILLS = [
   'Summoning', 'Dungeoneering', 'Divination', 'Invention', 'Archaeology', 'Necromancy'
 ];
 
+function parseRuneMetricsDate(dateString) {
+  // The date format from the API is "DD-Mon-YYYY HH:mm"
+  // e.g., "18-Oct-2025 16:20"
+  // new Date() can parse "18 Oct 2025 16:20", so we just replace the hyphens
+  const parsableDateString = dateString.replace(/-/g, ' ');
+  const date = new Date(parsableDateString);
+  // Return as a Unix timestamp in milliseconds, which is what the DB expects
+  return date.getTime();
+}
+
+/**
+ * Fetch a player's profile from the official RuneMetrics API
+ */
 async function fetchPlayerProfile(username, activities = 20) {
   return runemetricsRateLimiter.execute(async () => {
     try {
@@ -26,7 +39,22 @@ async function fetchPlayerProfile(username, activities = 20) {
         throw new Error(response.data.error);
       }
 
-      return response.data;
+      const profileData = response.data;
+
+      const parsedActivities = profileData.activities ? profileData.activities.map(a => ({
+        date: parseRuneMetricsDate(a.date),
+        text: a.text,
+        details: a.details,
+      })) : [];
+
+      return {
+        name: profileData.name,
+        rank: profileData.rank,
+        totalSkill: profileData.totalskill,
+        totalXp: profileData.totalxp,
+        combatLevel: profileData.combatlevel || 0,
+        activities: parsedActivities,
+      };
     } catch (error) {
       if (error.response) {
         if (error.response.status === 404) {

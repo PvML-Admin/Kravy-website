@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI } from '../services/api';
+import SpecialName from './SpecialNames';
 import './HighestRanks.css';
 
 function HighestRanks() {
@@ -38,9 +39,16 @@ function HighestRanks() {
       <ul className="highest-ranks-list">
         {highestRanks.map(member => (
           <li key={member.id} onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}>
-            <img src={member.rank_icon} alt={member.clan_rank} className="rank-icon" />
+            <img 
+              src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`} 
+              alt={member.display_name || member.name} 
+              className="player-avatar"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
             <span className="member-name" style={{ color: member.rank_color }}>
-              {member.display_name || member.name}
+              <SpecialName name={member.display_name || member.name} />
             </span>
           </li>
         ))}

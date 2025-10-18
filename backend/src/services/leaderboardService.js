@@ -1,8 +1,8 @@
-const { MemberModel } = require('../database/models');
+const { MemberModel, SkillModel, SnapshotModel } = require('../database/models');
 const { fetchClanStats } = require('./clanService');
 const db = require('../config/database');
 
-async function getLeaderboard(period = 'weekly', limit = 50) {
+async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') {
   let gainField;
   switch (period) {
     case 'daily':
@@ -17,31 +17,69 @@ async function getLeaderboard(period = 'weekly', limit = 50) {
       return [];
   }
 
-  const query = `
-    SELECT
-      m.id,
-      m.display_name as name,
-      m.total_xp as totalXp,
-      SUM(${gainField}) as xpGain,
-      m.combat_level as combatLevel,
-      m.last_synced as lastSynced
-    FROM members m
-    JOIN skills s ON m.id = s.member_id
-    WHERE ${gainField} > 0 AND m.is_active = 1
-    GROUP BY m.id
-    ORDER BY xpGain DESC
-    LIMIT ?;
-  `;
+  let query;
+  let params;
 
-  const leaderboard = await db.allAsync(query, [limit]);
+  if (skill === 'Overall') {
+    // Overall XP gains - sum all skills
+    query = `
+      SELECT
+        m.id,
+        m.display_name as name,
+        m.total_xp as totalXp,
+        SUM(${gainField}) as xpGain,
+        m.combat_level as combatLevel,
+        m.last_synced as lastSynced
+      FROM members m
+      JOIN skills s ON m.id = s.member_id
+      WHERE ${gainField} > 0 AND m.is_active = 1
+      GROUP BY m.id
+      ORDER BY xpGain DESC
+      LIMIT ?;
+    `;
+    params = [limit];
+  } else {
+    // Specific skill XP gains
+    query = `
+      SELECT
+        m.id,
+        m.display_name as name,
+        s.xp as totalXp,
+        ${gainField} as xpGain,
+        m.combat_level as combatLevel,
+        m.last_synced as lastSynced
+      FROM members m
+      JOIN skills s ON m.id = s.member_id
+      WHERE s.skill_name = ? AND ${gainField} > 0 AND m.is_active = 1
+      ORDER BY xpGain DESC
+      LIMIT ?;
+    `;
+    params = [skill, limit];
+  }
+
+  const leaderboard = await db.allAsync(query, params);
   return leaderboard;
 }
 
 async function getTopGainers(count = 10) {
-  return {
-    daily: await getLeaderboard('daily', count),
-    weekly: await getLeaderboard('weekly', count)
-  };
+  const dailyGainers = await SkillModel.getTopGains('daily', count);
+  const weeklyGainers = await SkillModel.getTopGains('weekly', count);
+
+  return { daily: dailyGainers, weekly: weeklyGainers };
+}
+
+async function getDailyClanXpHistory(limit = 30) {
+  const rows = await db.allAsync(
+    `SELECT
+      DATE(timestamp) as date,
+      MAX(total_daily_xp_gain) as total_xp
+    FROM periodic_xp_gains
+    GROUP BY DATE(timestamp)
+    ORDER BY DATE(timestamp) DESC
+    LIMIT ?`,
+    [limit]
+  );
+  return rows;
 }
 
 async function getClanStats() {
@@ -94,6 +132,7 @@ async function getClanStats() {
 module.exports = {
   getLeaderboard,
   getTopGainers,
+  getDailyClanXpHistory,
   getClanStats
 };
 

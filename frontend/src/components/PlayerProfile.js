@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { membersAPI, activitiesAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
+import SpecialName from './SpecialNames';
+
+// Format skill XP text to be more readable
+function formatActivityText(text) {
+  // Match patterns like "106000000XP in Attack"
+  const xpPattern = /(\d+)(XP\s+in\s+)/i;
+  return text.replace(xpPattern, (match, number, rest) => {
+    // Add commas to the number
+    const formattedNumber = parseInt(number).toLocaleString();
+    // Add space between number and XP
+    return `${formattedNumber} ${rest}`;
+  });
+}
 
 function PlayerProfile() {
   const { name: memberName } = useParams();
@@ -12,7 +25,16 @@ function PlayerProfile() {
   const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
+  const [isShortScreen, setIsShortScreen] = useState(window.innerHeight < 1080);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsShortScreen(window.innerHeight < 1080);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const initialSync = async () => {
@@ -36,12 +58,13 @@ function PlayerProfile() {
     };
 
     initialSync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberName]);
 
   const loadMemberData = async (memberId) => {
     try {
       const [statsResponse, activitiesResponse] = await Promise.all([
-        membersAPI.getStats(memberId, selectedPeriod),
+        membersAPI.getStats(memberId, 'weekly'),
         activitiesAPI.getMemberActivities(memberName).catch(() => ({ data: { activities: [] } }))
       ]);
       
@@ -74,22 +97,9 @@ function PlayerProfile() {
     return parseInt(xp).toLocaleString('en-US');
   };
 
-  const formatXpShort = (xp) => {
-    if (!xp) return '0';
-    if (xp >= 1000000000) return `${(xp / 1000000000).toFixed(2)}B`;
-    if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
-    if (xp >= 1000) return `${(xp / 1000).toFixed(2)}K`;
-    return xp.toLocaleString();
-  };
-
   const formatRank = (rank) => {
     if (!rank || rank === 0) return '--';
     return parseInt(rank).toLocaleString('en-US');
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Never';
-    return new Date(dateString).toLocaleDateString();
   };
 
   const sortSkillsByOrder = (skills) => {
@@ -98,26 +108,6 @@ function PlayerProfile() {
       const indexB = skillOrder.indexOf(b.skill_name);
       return indexA - indexB;
     });
-  };
-
-  const getActivityIcon = (text) => {
-    const lowerText = text.toLowerCase();
-    if (lowerText.includes('level') || lowerText.includes('levelled')) {
-      return 'https://runescape.wiki/images/Level_up_icon.png';
-    }
-    if (lowerText.includes('quest')) {
-      return 'https://runescape.wiki/images/Quest_icon.png';
-    }
-    if (lowerText.includes('clue') || lowerText.includes('treasure')) {
-      return 'https://runescape.wiki/images/Treasure_Trails_icon.png';
-    }
-    if (lowerText.includes('achievement') || lowerText.includes('unlocked')) {
-      return 'https://runescape.wiki/images/Achievement_icon.png';
-    }
-    if (lowerText.includes('found') || lowerText.includes('received') || lowerText.includes('drop')) {
-      return 'https://runescape.wiki/images/Rare_drop_symbol.png';
-    }
-    return 'https://runescape.wiki/images/RuneScape_icon.png';
   };
 
   const formatActivityDate = (timestamp) => {
@@ -143,6 +133,39 @@ function PlayerProfile() {
     if (xpGain > 0) return 'var(--accent-green)';
     if (xpGain < 0) return 'var(--accent-red)';
     return 'var(--text-secondary)';
+  };
+
+  // Check if player has Max Cape (99 in all skills)
+  const hasMaxCape = (skills) => {
+    if (!skills || skills.length === 0) return false;
+    // Check if all skills (excluding Overall) have level 99 or higher
+    return skills.every(skill => skill.level >= 99);
+  };
+
+  // Check if player has Master Max Cape (120 in all skills = 104,273,167 XP each)
+  const hasMasterMaxCape = (skills) => {
+    if (!skills || skills.length === 0) return false;
+    const MASTER_XP = 104273167;
+    // Check if all skills have 104,273,167+ XP
+    return skills.every(skill => skill.xp >= MASTER_XP);
+  };
+
+  // Get cape badge to display (Master Max takes priority over Max)
+  const getCapeAchievement = (skills) => {
+    if (hasMasterMaxCape(skills)) {
+      return {
+        name: 'Master Max Cape',
+        icon: 'https://runescape.wiki/images/Master_max_cape_detail.png',
+        color: '#FFD700' // Gold color
+      };
+    } else if (hasMaxCape(skills)) {
+      return {
+        name: 'Max Cape',
+        icon: 'https://runescape.wiki/images/Max_cape_detail.png',
+        color: '#4a90e2' // Blue color
+      };
+    }
+    return null;
   };
 
   if (loading && !stats) { // Only show full-page loader on initial load
@@ -176,19 +199,20 @@ function PlayerProfile() {
     );
   }
 
+  const cappedCombatLevel = member.combat_level > 152 ? 152 : member.combat_level;
+
+  const tableStyles = {
+    fontSize: isShortScreen ? '0.8rem' : '0.9rem',
+    headerPadding: isShortScreen ? '6px 8px' : '12px 8px',
+    cellPadding: isShortScreen ? '4px 8px' : '10px 8px',
+    overallCellPadding: isShortScreen ? '6px 8px' : '12px 8px'
+  };
+
   return (
     <div>
       {/* Header Card */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <button 
-          onClick={() => navigate('/members')} 
-          className="btn btn-secondary"
-          style={{ marginBottom: '15px', fontSize: '0.9rem' }}
-        >
-          ← Back to Members
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <img 
               src={`http://secure.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
@@ -207,11 +231,11 @@ function PlayerProfile() {
 
             <div style={{ flex: 1 }}>
               <h2 style={{ margin: '0 0 5px 0' }}>
-                {member.display_name || member.name}
+                <SpecialName name={member.display_name || member.name} />
                 {isSyncing && <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px' }}> (Syncing...)</span>}
               </h2>
               <div style={{ display: 'flex', gap: '20px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
-                <span>Combat Level: <strong>{member.combat_level || 0}</strong></span>
+                <span>Combat Level: <strong>{cappedCombatLevel || 0}</strong></span>
                 <span>Total XP: <strong>{formatXp(member.total_xp)} XP</strong></span>
                 {member.total_rank && (
                   <span>Overall Rank: <strong>#{formatRank(member.total_rank)}</strong></span>
@@ -224,145 +248,168 @@ function PlayerProfile() {
               )}
             </div>
           </div>
-        </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '15px',
-          marginTop: '20px'
-        }}>
-          <div style={{ 
-            padding: '15px', 
-            backgroundColor: 'var(--primary-light)', 
-            borderRadius: '6px',
-            borderLeft: '4px solid var(--accent-green)'
-          }}>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>Last Active</div>
-            <div style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-              {member.last_xp_gain ? formatDate(member.last_xp_gain) : 'No XP gain recorded'}
-            </div>
-          </div>
+          {/* Cape Achievement Badge */}
+          {stats && stats.skills && (() => {
+            const capeAchievement = getCapeAchievement(stats.skills);
+            return capeAchievement ? (
+              <div
+                title={capeAchievement.name}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '15px',
+                  backgroundColor: 'var(--primary-light)',
+                  borderRadius: '8px',
+                  cursor: 'help'
+                }}
+              >
+                <img 
+                  src={capeAchievement.icon}
+                  alt={capeAchievement.name}
+                  style={{ 
+                    width: '64px', 
+                    height: '64px',
+                    objectFit: 'contain',
+                    filter: `drop-shadow(0 0 6px ${capeAchievement.color}80)`
+                  }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <div style={{ 
+                  fontSize: '0.75rem', 
+                  fontWeight: '600',
+                  color: capeAchievement.color,
+                  textAlign: 'center',
+                  textShadow: `0 0 8px ${capeAchievement.color}40`
+                }}>
+                  {capeAchievement.name}
+                </div>
+              </div>
+            ) : null;
+          })()}
         </div>
       </div>
 
-      {/* Skills Table - RunePixels Style */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ margin: 0 }}>Skills</h3>
-        </div>
-        
-        {stats.skills && stats.skills.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table" style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse',
-              fontSize: '0.9rem'
-            }}>
-              <thead>
-                <tr style={{ 
-                  borderBottom: '2px solid var(--border-color)',
-                  textAlign: 'left'
-                }}>
-                  <th style={{ padding: '12px 8px', fontWeight: '600' }}>Skill</th>
-                  <th style={{ padding: '12px 8px', fontWeight: '600', textAlign: 'center' }}>Level</th>
-                  <th style={{ padding: '12px 8px', fontWeight: '600', textAlign: 'right' }}>Rank</th>
-                  <th style={{ padding: '12px 8px', fontWeight: '600', textAlign: 'right' }}>XP Gain</th>
-                  <th style={{ padding: '12px 8px', fontWeight: '600', textAlign: 'right' }}>XP</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Overall Row */}
-                <tr 
-                  style={{ 
+      <div style={{ display: 'flex', gap: '20px', maxHeight: 'calc(100vh - 200px)' }}>
+        {/* Skills Table */}
+        <div className="card" style={{ flex: '2', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0 }}>Skills</h3>
+          </div>
+          
+          {stats.skills && stats.skills.length > 0 ? (
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              <table className="table" style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse',
+                fontSize: tableStyles.fontSize
+              }}>
+                <thead>
+                  <tr style={{ 
                     borderBottom: '2px solid var(--border-color)',
-                    fontWeight: '600'
-                  }}
-                >
-                  <td style={{ padding: '12px 8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <img 
-                        src="https://cdn.discordapp.com/emojis/632752142113046528.webp?size=96&animated=true" 
-                        alt="Overall"
-                        style={{ width: '20px', height: '20px', objectFit: 'contain' }}
-                        onError={(e) => { e.target.style.display = 'none'; console.error(`Failed to load icon: ${e.target.src}`); }}
-                      />
-                      <span style={{ fontWeight: '600' }}>Overall</span>
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'center', color: 'var(--accent-blue)', fontWeight: '600', fontSize: '1rem' }}>
-                    {stats.skills.reduce((sum, skill) => sum + (skill.level || 0), 0)}
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'right', color: 'var(--text-secondary)' }}>
-                    {formatRank(member.total_rank)}
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: '600', color: getXpGainColor(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0)) }}>
-                    {formatXpGain(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0))}
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: '600' }}>
-                    {formatXp(member.total_xp)}
-                  </td>
-                </tr>
-                
-                {sortSkillsByOrder(stats.skills).map((skill, index) => (
+                    textAlign: 'left'
+                  }}>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600' }}>Skill</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'center' }}>Level</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right' }}>Rank</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right' }}>XP Gain</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right' }}>XP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Overall Row */}
                   <tr 
-                    key={skill.skill_name}
+                    style={{ 
+                      borderBottom: '2px solid var(--border-color)',
+                      fontWeight: '600'
+                    }}
                   >
-                    <td style={{ padding: '10px 8px' }}>
+                    <td style={{ padding: tableStyles.overallCellPadding }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <img 
-                          src={getSkillIcon(skill.skill_name)} 
-                          alt={skill.skill_name}
-                          style={{ 
-                            width: '20px', 
-                            height: '20px',
-                            objectFit: 'contain'
-                          }}
-                          onError={(e) => { e.target.style.display = 'none'; console.error(`Failed to load icon for ${skill.skill_name}: ${e.target.src}`); }}
+                          src="https://cdn.discordapp.com/emojis/632752142113046528.webp?size=96&animated=true" 
+                          alt="Overall"
+                          style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                          onError={(e) => { e.target.style.display = 'none'; console.error(`Failed to load icon: ${e.target.src}`); }}
                         />
-                        <span style={{ fontWeight: '500' }}>{skill.skill_name}</span>
+                        <span style={{ fontWeight: '600' }}>Overall</span>
                       </div>
                     </td>
-                    <td style={{ 
-                      padding: '10px 8px', 
-                      textAlign: 'center'
-                    }}>
-                      <span style={{
-                        fontWeight: '600',
-                        fontSize: '0.95rem'
-                      }}>
-                        {skill.level}
-                      </span>
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: '600', fontSize: '1rem' }}>
+                      {stats.skills.reduce((sum, skill) => sum + (skill.level || 0), 0)}
                     </td>
-                    <td style={{ padding: '10px 8px', textAlign: 'right', color: 'var(--text-secondary)' }}>
-                      {formatRank(skill.rank)}
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', color: 'var(--text-secondary)' }}>
+                      {formatRank(member.total_rank)}
                     </td>
-                    <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '500', color: getXpGainColor(skill.xp_gain) }}>
-                      {formatXpGain(skill.xp_gain)}
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600', color: getXpGainColor(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0)) }}>
+                      {formatXpGain(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0))}
                     </td>
-                    <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '500' }}>
-                      {formatXp(skill.xp)}
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600' }}>
+                      {formatXp(member.total_xp)}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
-            No skill data available. Sync this player to fetch their stats.
-          </p>
-        )}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+                  
+                  {sortSkillsByOrder(stats.skills).map((skill, index) => (
+                    <tr 
+                      key={skill.skill_name}
+                    >
+                      <td style={{ padding: tableStyles.cellPadding }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img 
+                            src={getSkillIcon(skill.skill_name)} 
+                            alt={skill.skill_name}
+                            style={{ 
+                              width: '20px', 
+                              height: '20px',
+                              objectFit: 'contain'
+                            }}
+                            onError={(e) => { e.target.style.display = 'none'; console.error(`Failed to load icon for ${skill.skill_name}: ${e.target.src}`); }}
+                          />
+                          <span style={{ fontWeight: '500' }}>{skill.skill_name}</span>
+                        </div>
+                      </td>
+                      <td style={{ 
+                        padding: tableStyles.cellPadding, 
+                        textAlign: 'center'
+                      }}>
+                        <span style={{
+                          fontWeight: '600',
+                          fontSize: '0.95rem'
+                        }}>
+                          {skill.level}
+                        </span>
+                      </td>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', color: 'var(--text-secondary)' }}>
+                        {formatRank(skill.rank)}
+                      </td>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500', color: getXpGainColor(skill.xp_gain) }}>
+                        {formatXpGain(skill.xp_gain)}
+                      </td>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500' }}>
+                        {formatXp(skill.xp)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+              No skill data available. Sync this player to fetch their stats.
+            </p>
+          )}
+        </div>
 
         {/* Recent Activities Card */}
-        <div className="card">
+        <div className="card" style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ marginBottom: '20px' }}>Recent Activities</h3>
           
           {activities.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '600px', overflowY: 'auto' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {activities.map((activity, index) => (
                 <div
                   key={index}
@@ -370,32 +417,14 @@ function PlayerProfile() {
                     padding: '10px',
                     backgroundColor: 'var(--primary-light)',
                     borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '10px',
                     borderLeft: '3px solid var(--accent-blue)'
                   }}
                 >
-                  <img 
-                    src={getActivityIcon(activity.text)} 
-                    alt="Activity"
-                    style={{ 
-                      width: '24px', 
-                      height: '24px',
-                      marginTop: '2px',
-                      objectFit: 'contain'
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
-                      {activity.details || activity.text}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {formatActivityDate(activity.date)}
-                    </div>
+                  <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
+                    {formatActivityText(activity.details || activity.text)}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    {formatActivityDate(activity.activity_date)}
                   </div>
                 </div>
               ))}

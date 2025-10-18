@@ -1,8 +1,11 @@
 .dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: var(--background-secondary);
+  padding: 15px 20px;
   border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
 }
@@ -10,31 +13,27 @@
 .clan-info {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 15px;
 }
 
 .clan-banner {
-  width: 250px;
-  height: auto;
-  margin-right: 24px;
-  border: 2px solid var(--border-color);
+  width: 110px;
+  height: 90px;
   border-radius: 8px;
-  object-fit: contain;
 }
 
 .clan-info h1 {
-  font-size: 3rem;
-  font-weight: 700;
+  font-family: 'Gagalin', sans-serif;
+  font-weight: normal;
+  font-size: 2.5rem;
   margin: 0;
-  color: var(--text-primary);
 }
 
 .clan-stats {
   display: flex;
+  gap: 20px;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 24px;
-  padding-left: 274px; /* Align with h1 (250px banner + 24px margin) */
+  flex-wrap: wrap;
 }
 
 .stat-item {

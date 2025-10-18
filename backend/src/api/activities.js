@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ActivityModel, MemberModel } = require('../database/models');
-const { categorizeActivity } = require('../utils/activityParser');
+const { parseActivityCategory } = require('../utils/activityParser');
 
 /**
  * Get recent clan activities from RuneMetrics
@@ -13,7 +13,7 @@ router.get('/clan', async (req, res) => {
 
     const categorizedActivities = activities.map(activity => ({
       ...activity,
-      category: categorizeActivity(activity.text)
+      category: parseActivityCategory(activity.text)
     }));
 
     res.json({

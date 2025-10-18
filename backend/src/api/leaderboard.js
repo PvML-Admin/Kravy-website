@@ -1,11 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { getLeaderboard, getTopGainers, getClanStats } = require('../services/leaderboardService');
+const leaderboardService = require('../services/leaderboardService');
+
+// Specific routes must come before parameterized routes
+router.get('/daily-clan-xp', async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 30;
+    const history = await leaderboardService.getDailyClanXpHistory(limit);
+    res.json({ history });
+  } catch (error) {
+    console.error('Error fetching daily clan XP history:', error);
+    res.status(500).json({ error: 'Failed to fetch daily clan XP history' });
+  }
+});
 
 router.get('/:period', async (req, res) => {
   try {
     const { period } = req.params;
     const limit = parseInt(req.query.limit) || 50;
+    const skill = req.query.skill || 'Overall';
 
     if (!['daily', 'weekly', 'monthly'].includes(period)) {
       return res.status(400).json({
@@ -14,11 +27,12 @@ router.get('/:period', async (req, res) => {
       });
     }
 
-    const leaderboard = await getLeaderboard(period, limit);
+    const leaderboard = await leaderboardService.getLeaderboard(period, limit, skill);
 
     res.json({
       success: true,
       period,
+      skill,
       count: leaderboard.length,
       leaderboard
     });
@@ -33,7 +47,7 @@ router.get('/:period', async (req, res) => {
 router.get('/top/gainers', async (req, res) => {
   try {
     const count = parseInt(req.query.count) || 10;
-    const topGainers = await getTopGainers(count);
+    const topGainers = await leaderboardService.getTopGainers(count);
 
     res.json({
       success: true,
@@ -49,7 +63,7 @@ router.get('/top/gainers', async (req, res) => {
 
 router.get('/clan/stats', async (req, res) => {
   try {
-    const stats = await getClanStats();
+    const stats = await leaderboardService.getClanStats();
 
     res.json({
       success: true,

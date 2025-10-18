@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'Gagalin';
+  src: url('./assets/fonts/Gagalin-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --background-primary: #1e2124;
   --background-secondary: #282b30;
@@ -106,13 +113,11 @@ code {
 }
 
 .card h2 {
+  font-family: 'Gagalin', sans-serif;
+  font-size: 1.75rem;
   color: var(--text-primary);
-  margin: -25px -25px 20px -25px;
-  padding: 20px 25px;
-  font-size: 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-  background-color: rgba(0,0,0,0.1);
-  border-radius: 8px 8px 0 0;
+  margin-bottom: 15px;
+  font-weight: normal;
 }
 
 .btn {
@@ -345,3 +350,21 @@ textarea.form-control {
   background-color: rgba(0,0,0,0.1);
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--background-tertiary);
+  border-radius: 20px;
+  border: 3px solid var(--background-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--background-light);
+}

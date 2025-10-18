@@ -1,4 +1,5 @@
-const { MemberModel, ActivityModel } = require('../database/models');
+const { ActivityModel } = require('../database/models');
+const { parseActivityCategory } = require('../utils/activityParser');
 
 /**
  * Gets recent in-game activities for clan members from database
@@ -6,21 +7,12 @@ const { MemberModel, ActivityModel } = require('../database/models');
  * @param {number} limit - Number of activities to return
  * @returns {Promise<Array>} Array of activities from database
  */
-async function getClanActivities(limit = 100) {
-  try {
-    const activities = await ActivityModel.getRecent(limit);
-
-    return activities.map(activity => ({
-      memberName: activity.display_name || activity.member_name,
-      date: activity.activity_date,
-      details: activity.details,
-      text: activity.text,
-      timestamp: activity.activity_date
-    }));
-  } catch (error) {
-    console.error('Error fetching clan activities:', error);
-    throw error;
-  }
+async function getRecentClanActivities(limit = 100) {
+  const activities = await ActivityModel.getRecent(limit);
+  return activities.map(activity => ({
+    ...activity,
+    category: parseActivityCategory(activity.text)
+  }));
 }
 
 /**
@@ -52,7 +44,7 @@ async function getMemberActivities(memberName) {
 }
 
 module.exports = {
-  getClanActivities,
+  getRecentClanActivities,
   getMemberActivities
 };
 

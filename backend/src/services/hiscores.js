@@ -120,7 +120,12 @@ function calculateCombatLevel(skills) {
   );
 
   const melee = base + defence + constitution;
-  const combatLevel = Math.floor((melee + prayer + summoning) / 4);
+  let combatLevel = Math.floor((melee + prayer + summoning) / 4);
+
+  // Cap combat level at 152
+  if (combatLevel > 152) {
+    combatLevel = 152;
+  }
 
   return combatLevel;
 }

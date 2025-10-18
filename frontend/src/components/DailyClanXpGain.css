@@ -1,0 +1,21 @@
+.daily-xp-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-xp-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.xp-date {
+  color: var(--text-secondary);
+}
+
+.xp-gain {
+  color: var(--accent-green);
+  font-weight: 500;
+}
