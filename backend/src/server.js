@@ -4,6 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
+const { addLastSyncAttempt } = require('./database/migrate-add-last-sync-attempt');
 const { scheduleDailyReset, scheduleWeeklyReset, startContinuousSync } = require('./utils/scheduler');
 
 const membersRouter = require('./api/members');
@@ -25,7 +26,16 @@ app.use((req, res, next) => {
   next();
 });
 
-initializeDatabase();
+// Initialize database and run migrations
+(async () => {
+  try {
+    await initializeDatabase();
+    await addLastSyncAttempt();
+    console.log('Database initialization and migrations complete');
+  } catch (error) {
+    console.error('Database setup failed:', error);
+  }
+})();
 
 app.get('/api/health', (req, res) => {
   res.json({
