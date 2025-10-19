@@ -241,5 +241,59 @@ router.get('/twitter/status', async (req, res) => {
   }
 });
 
+// Toggle Master Quest Cape status
+router.patch('/members/:id/master-quest-cape', async (req, res) => {
+  const { id } = req.params;
+  const { hasCape } = req.body;
+  try {
+    await MemberModel.setMasterQuestCape(parseInt(id), hasCape);
+    res.json({
+      success: true,
+      message: `Master Quest Cape status ${hasCape ? 'enabled' : 'disabled'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Toggle Completionist Cape status
+router.patch('/members/:id/completionist-cape', async (req, res) => {
+  const { id } = req.params;
+  const { hasCape } = req.body;
+  try {
+    await MemberModel.setCompletionistCape(parseInt(id), hasCape);
+    res.json({
+      success: true,
+      message: `Completionist Cape status ${hasCape ? 'enabled' : 'disabled'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Toggle Trimmed Completionist Cape status
+router.patch('/members/:id/trimmed-completionist-cape', async (req, res) => {
+  const { id } = req.params;
+  const { hasCape } = req.body;
+  try {
+    await MemberModel.setTrimmedCompletionistCape(parseInt(id), hasCape);
+    res.json({
+      success: true,
+      message: `Trimmed Completionist Cape status ${hasCape ? 'enabled' : 'disabled'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
 

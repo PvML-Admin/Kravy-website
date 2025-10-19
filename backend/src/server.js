@@ -11,6 +11,7 @@ const { scheduleDailyReset, scheduleWeeklyReset, scheduleMonthlyReset, startCont
 const { cleanupSyncProgress } = require('./services/syncService');
 const { addCategoryToActivities } = require('./database/migrations/add_category_to_activities');
 const { addGrandmasterCA } = require('./database/migrate-add-grandmaster-ca');
+const { addCapes } = require('./database/migrate-add-capes');
 const db = require('./config/database');
 
 const membersRouter = require('./api/members');
@@ -83,6 +84,7 @@ app.use((req, res, next) => {
     // Run any pending migrations first
     await addCategoryToActivities();
     await addGrandmasterCA();
+    await addCapes();
 
     // Then, initialize the database schema (creates tables if they don't exist)
     await initializeDatabase();

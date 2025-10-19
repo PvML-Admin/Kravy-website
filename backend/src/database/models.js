@@ -168,6 +168,7 @@ class MemberModel {
       query = `
         SELECT
           m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
+          m.has_master_quest_cape, m.has_completionist_cape, m.has_trimmed_completionist_cape,
           (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
           s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
         FROM members m
@@ -181,6 +182,7 @@ class MemberModel {
       query = `
         SELECT
           m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
+          m.has_master_quest_cape, m.has_completionist_cape, m.has_trimmed_completionist_cape,
           (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
           s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
         FROM members m
@@ -206,6 +208,9 @@ class MemberModel {
           is_active: row.is_active,
           is_discord_booster: row.is_discord_booster,
           is_grandmaster_ca: row.is_grandmaster_ca,
+          has_master_quest_cape: row.has_master_quest_cape,
+          has_completionist_cape: row.has_completionist_cape,
+          has_trimmed_completionist_cape: row.has_trimmed_completionist_cape,
           total_level: row.total_level,
           avatar_url: `http://services.runescape.com/m=avatar-rs/${encodeURIComponent(row.name)}/chat.png`,
           skills: []
@@ -288,6 +293,18 @@ class MemberModel {
 
   static async setGrandmasterCA(id, isGrandmasterCA) {
     return await db.runAsync('UPDATE members SET is_grandmaster_ca = ? WHERE id = ?', [isGrandmasterCA ? 1 : 0, id]);
+  }
+
+  static async setMasterQuestCape(id, hasCape) {
+    return await db.runAsync('UPDATE members SET has_master_quest_cape = ? WHERE id = ?', [hasCape ? 1 : 0, id]);
+  }
+
+  static async setCompletionistCape(id, hasCape) {
+    return await db.runAsync('UPDATE members SET has_completionist_cape = ? WHERE id = ?', [hasCape ? 1 : 0, id]);
+  }
+
+  static async setTrimmedCompletionistCape(id, hasCape) {
+    return await db.runAsync('UPDATE members SET has_trimmed_completionist_cape = ? WHERE id = ?', [hasCape ? 1 : 0, id]);
   }
 }
 

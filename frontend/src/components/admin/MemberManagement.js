@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { membersAPI, syncAPI, clanAPI } from '../../services/api';
+import { membersAPI, syncAPI, clanAPI, adminAPI } from '../../services/api';
 import './MemberManagement.css';
 
 function MemberManagement() {
@@ -21,6 +21,11 @@ function MemberManagement() {
   const [gmcaSearchTerm, setGmcaSearchTerm] = useState('');
   const [gmcaSearchResults, setGmcaSearchResults] = useState([]);
   const [gmcaSearchLoading, setGmcaSearchLoading] = useState(false);
+
+  // Cape management
+  const [capeSearchTerm, setCapeSearchTerm] = useState('');
+  const [capeSearchResults, setCapeSearchResults] = useState([]);
+  const [capeSearchLoading, setCapeSearchLoading] = useState(false);
 
   const handleAddMember = async (e) => {
     e.preventDefault();
@@ -275,6 +280,73 @@ function MemberManagement() {
       // Refresh search results
       if (gmcaSearchTerm.trim()) {
         handleGmcaSearch(gmcaSearchTerm);
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.error || err.message });
+    }
+  };
+
+  // Search members for Capes
+  const handleCapeSearch = async (term) => {
+    setCapeSearchTerm(term);
+    if (!term.trim()) {
+      setCapeSearchResults([]);
+      return;
+    }
+
+    try {
+      setCapeSearchLoading(true);
+      const response = await membersAPI.getAll(false, null);
+      const filtered = response.data.members.filter(member => 
+        member.name.toLowerCase().includes(term.toLowerCase()) ||
+        (member.display_name && member.display_name.toLowerCase().includes(term.toLowerCase()))
+      ).slice(0, 10); // Limit to 10 results
+      
+      setCapeSearchResults(filtered);
+    } catch (err) {
+      console.error('Error searching members:', err);
+    } finally {
+      setCapeSearchLoading(false);
+    }
+  };
+
+  // Toggle Cape status
+  const handleToggleCape = async (member, capeType) => {
+    try {
+      let newStatus;
+      let apiCall;
+      let capeName;
+
+      switch (capeType) {
+        case 'master_quest':
+          newStatus = !member.has_master_quest_cape;
+          apiCall = adminAPI.toggleMasterQuestCape(member.id, newStatus);
+          capeName = 'Master Quest Cape';
+          break;
+        case 'completionist':
+          newStatus = !member.has_completionist_cape;
+          apiCall = adminAPI.toggleCompletionistCape(member.id, newStatus);
+          capeName = 'Completionist Cape';
+          break;
+        case 'trimmed_completionist':
+          newStatus = !member.has_trimmed_completionist_cape;
+          apiCall = adminAPI.toggleTrimmedCompletionistCape(member.id, newStatus);
+          capeName = 'Trimmed Completionist Cape';
+          break;
+        default:
+          return;
+      }
+
+      await apiCall;
+      
+      setMessage({
+        type: 'success',
+        text: `${member.display_name || member.name} ${newStatus ? 'now has' : 'no longer has'} the ${capeName}!`
+      });
+      
+      // Refresh search results
+      if (capeSearchTerm.trim()) {
+        handleCapeSearch(capeSearchTerm);
       }
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.error || err.message });
@@ -544,6 +616,78 @@ function MemberManagement() {
         {!gmcaSearchLoading && gmcaSearchTerm && gmcaSearchResults.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
             No members found matching "{gmcaSearchTerm}"
+          </div>
+        )}
+      </div>
+
+      {/* Cape Management */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <h2>Cape Management</h2>
+        <p style={{ fontSize: '0.9rem', color: '#999', marginBottom: '15px' }}>
+          Search for members and toggle their cape status. This will apply a badge on their player profile.
+        </p>
+        
+        <div className="form-group">
+          <label>Search Member</label>
+          <input
+            type="text"
+            className="form-control"
+            value={capeSearchTerm}
+            onChange={(e) => handleCapeSearch(e.target.value)}
+            placeholder="Search by username..."
+            style={{ marginBottom: '15px' }}
+          />
+        </div>
+
+        {capeSearchLoading && (
+          <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+            Searching...
+          </div>
+        )}
+
+        {capeSearchResults.length > 0 && (
+          <div className="booster-search-results">
+            {capeSearchResults.map(member => (
+              <div key={member.id} className="booster-result-item">
+                <div className="booster-member-info">
+                  <span className="booster-member-name">
+                    {member.display_name || member.name}
+                  </span>
+                  <span className="booster-member-meta">
+                    Total XP: {(member.total_xp / 1000000).toFixed(1)}M
+                  </span>
+                </div>
+                <div style={{display: 'flex', gap: '10px'}}>
+                  <button
+                    type="button"
+                    className={`btn ${member.has_master_quest_cape ? 'btn-danger' : 'btn-primary'}`}
+                    onClick={() => handleToggleCape(member, 'master_quest')}
+                  >
+                    {member.has_master_quest_cape ? 'Remove MQC' : 'Add MQC'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${member.has_completionist_cape ? 'btn-danger' : 'btn-primary'}`}
+                    onClick={() => handleToggleCape(member, 'completionist')}
+                  >
+                    {member.has_completionist_cape ? 'Remove Comp' : 'Add Comp'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${member.has_trimmed_completionist_cape ? 'btn-danger' : 'btn-primary'}`}
+                    onClick={() => handleToggleCape(member, 'trimmed_completionist')}
+                  >
+                    {member.has_trimmed_completionist_cape ? 'Remove Trim' : 'Add Trim'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!capeSearchLoading && capeSearchTerm && capeSearchResults.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+            No members found matching "{capeSearchTerm}"
           </div>
         )}
       </div>

@@ -163,6 +163,30 @@ function PlayerProfile() {
         color: '#FFD700' // Gold color
       });
     }
+
+    if (memberData && memberData.has_master_quest_cape) {
+      badges.push({
+        name: 'Master Quest Cape',
+        icon: '/master_quest_cape.png',
+        color: '#4a90e2' // Blue color
+      });
+    }
+
+    if (memberData && memberData.has_completionist_cape) {
+      badges.push({
+        name: 'Completionist Cape',
+        icon: '/completionist_cape.png',
+        color: '#d3d3d3' // Light grey color
+      });
+    }
+
+    if (memberData && memberData.has_trimmed_completionist_cape) {
+      badges.push({
+        name: 'Comp Cape (t)',
+        icon: '/trimmed_completionist_cape.png',
+        color: '#FFD700' // Gold color
+      });
+    }
     
     // Check for Master Max Cape
     if (hasMasterMaxCape(skills)) {

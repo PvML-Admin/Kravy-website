@@ -75,6 +75,9 @@ export const adminAPI = {
   getRecentEvents: (limit = 20) => api.get(`/admin/events/recent?limit=${limit}`),
   clearTwitterCache: () => api.post('/admin/twitter/clear-cache'),
   getTwitterStatus: () => api.get('/admin/twitter/status'),
+  toggleMasterQuestCape: (id, hasCape) => api.patch(`/admin/members/${id}/master-quest-cape`, { hasCape }),
+  toggleCompletionistCape: (id, hasCape) => api.patch(`/admin/members/${id}/completionist-cape`, { hasCape }),
+  toggleTrimmedCompletionistCape: (id, hasCape) => api.patch(`/admin/members/${id}/trimmed-completionist-cape`, { hasCape }),
 };
 
 export default api;
