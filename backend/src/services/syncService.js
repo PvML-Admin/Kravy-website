@@ -160,7 +160,7 @@ async function syncMember(memberId) {
       // Track most recent activity date
       let mostRecentActivityDate = null;
       
-      if (profileData.activities && Array.isArray(profileData.activities)) {
+      if (profileData.activities && Array.isArray(profileData.activities) && profileData.activities.length > 0) {
         console.log(`[Sync] Found ${profileData.activities.length} activities`);
         let newActivitiesCount = 0;
         
@@ -170,6 +170,8 @@ async function syncMember(memberId) {
             mostRecentActivityDate = activity.date;
           }
         }
+        
+        console.log(`[Sync] Most recent activity timestamp: ${mostRecentActivityDate} (${new Date(mostRecentActivityDate).toISOString()})`);
         
         // Then save the activities
         for (const activity of profileData.activities) {
@@ -188,7 +190,7 @@ async function syncMember(memberId) {
             }
           } catch (error) {
             // Ignore duplicate activity errors
-            if (!error.message.includes('UNIQUE constraint')) {
+            if (!error.message.includes('UNIQUE constraint') && !error.message.includes('duplicate key')) {
               console.error(`[Sync] Failed to save activity for ${member.name}: ${error.message}`);
             }
           }
@@ -196,9 +198,12 @@ async function syncMember(memberId) {
         
         if (newActivitiesCount > 0) {
           console.log(`[Sync] Saved ${newActivitiesCount} new activities`);
+        } else {
+          console.log(`[Sync] All ${profileData.activities.length} activities were duplicates (already in DB)`);
         }
         
         // Always update last_activity_date with the most recent activity from API
+        // This ensures the field is set even if all activities were duplicates
         if (mostRecentActivityDate) {
           // Convert millisecond timestamp to ISO date string for PostgreSQL
           const activityDateISO = new Date(mostRecentActivityDate).toISOString();
@@ -206,10 +211,10 @@ async function syncMember(memberId) {
             'UPDATE members SET last_activity_date = ? WHERE id = ?',
             [activityDateISO, memberId]
           );
-          console.log(`[Sync] Updated last_activity_date to: ${activityDateISO}`);
+          console.log(`[Sync] Updated last_activity_date to: ${activityDateISO} for member ID: ${memberId}`);
         }
       } else {
-        console.log(`[Sync] No activities in API response`);
+        console.log(`[Sync] No activities in API response for ${member.name}`);
       }
     } catch (activityError) {
       console.error(`[Sync] Failed to fetch activities: ${activityError.message}`);
