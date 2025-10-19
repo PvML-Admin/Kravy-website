@@ -54,6 +54,8 @@ async function fetchClanMembersFromRS(clanName) {
       if (parts.length >= 2) {
         const rawName = parts[0];
         const rawRank = parts[1];
+        const clanXp = parts.length >= 3 ? parseInt(parts[2]) || 0 : 0;
+        const kills = parts.length >= 4 ? parseInt(parts[3]) || 0 : 0;
         
         // Clean the name - replace Unicode replacement character and normalize spaces
         const cleanName = rawName
@@ -71,7 +73,12 @@ async function fetchClanMembersFromRS(clanName) {
         }
         
         if (cleanName && cleanRank) {
-          members.push({ name: cleanName, rank: cleanRank });
+          members.push({ 
+            name: cleanName, 
+            rank: cleanRank,
+            clan_xp: clanXp,
+            kills: kills
+          });
         }
       }
     }

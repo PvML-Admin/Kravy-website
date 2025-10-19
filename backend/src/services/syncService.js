@@ -115,7 +115,6 @@ async function syncMember(memberId) {
       profileData = await fetchPlayerProfile(member.name);
       
       console.log(`[Sync] RuneMetrics returned name: "${profileData.name}" for member: "${member.name}"`);
-      console.log(`[Sync] RuneMetrics clanXp: ${profileData.clanXp}, kills: ${profileData.kills}`);
       
       // Override with RuneMetrics combat level if available
       if (profileData.combatlevel) {
@@ -137,19 +136,11 @@ async function syncMember(memberId) {
       }
       updateData.combat_level = combatLevel;
       
-      // Add clan_xp and kills from RuneMetrics profile
-      if (profileData.clanXp) {
-        // RuneMetrics may return clanXp as a string with commas
-        const clanXpNum = parseInt(String(profileData.clanXp).replace(/,/g, ''));
-        if (!isNaN(clanXpNum)) {
-          updateData.clan_xp = clanXpNum;
-          console.log(`[Sync] Updating clan_xp to: ${clanXpNum}`);
-        }
-      }
+      // Add kills from RuneMetrics profile
       if (profileData.kills) {
-        // Kills can also be a formatted string
+        // Kills can be a formatted string
         const killsNum = parseInt(String(profileData.kills).replace(/,/g, ''));
-        if (!isNaN(killsNum)) {
+        if (!isNaN(killsNum) && killsNum > 0) {
           updateData.kills = killsNum;
           console.log(`[Sync] Updating kills to: ${killsNum}`);
         }

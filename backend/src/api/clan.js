@@ -61,16 +61,26 @@ router.post('/import-members', async (req, res) => {
         const existing = await MemberModel.findByName(member.name);
         
         if (existing) {
+          // Update existing member's clan data
+          await MemberModel.update(existing.id, { 
+            clan_rank: member.rank,
+            clan_xp: member.clan_xp || 0,
+            kills: member.kills || 0
+          });
           skipped.push(member.name);
         } else {
           await MemberModel.create(member.name, member.name);
-          // Update clan rank separately
+          // Update clan rank, clan_xp, and kills
           const newMember = await MemberModel.findByName(member.name);
           if (newMember) {
-            await MemberModel.update(newMember.id, { clan_rank: member.rank });
+            await MemberModel.update(newMember.id, { 
+              clan_rank: member.rank,
+              clan_xp: member.clan_xp || 0,
+              kills: member.kills || 0
+            });
           }
           imported.push(member.name);
-          console.log(`[Import] Added: ${member.name} (${member.rank})`);
+          console.log(`[Import] Added: ${member.name} (${member.rank}, Clan XP: ${member.clan_xp || 0})`);
         }
       } catch (error) {
         console.error(`[Import] Error importing member ${member.name}:`, error);
@@ -145,13 +155,34 @@ router.post('/sync-membership', async (req, res) => {
         await MemberModel.create(member.name, member.name);
         const newMember = await MemberModel.findByName(member.name);
         if (newMember) {
-          await MemberModel.update(newMember.id, { clan_rank: member.rank });
+          await MemberModel.update(newMember.id, { 
+            clan_rank: member.rank,
+            clan_xp: member.clan_xp || 0,
+            kills: member.kills || 0
+          });
         }
         await ClanEventModel.create(member.name, 'join');
         added++;
-        console.log(`[Sync Membership] Added: ${member.name}`);
+        console.log(`[Sync Membership] Added: ${member.name} (Clan XP: ${member.clan_xp || 0})`);
       } catch (error) {
         console.error(`[Sync Membership] Error adding member ${member.name}:`, error);
+      }
+    }
+    
+    // Update clan XP and kills for existing members
+    console.log(`[Sync Membership] Updating clan data for existing members...`);
+    for (const member of currentClanMembers) {
+      try {
+        const existing = await MemberModel.findByName(member.name);
+        if (existing && existing.is_active) {
+          await MemberModel.update(existing.id, {
+            clan_rank: member.rank,
+            clan_xp: member.clan_xp || 0,
+            kills: member.kills || 0
+          });
+        }
+      } catch (error) {
+        console.error(`[Sync Membership] Error updating member ${member.name}:`, error);
       }
     }
 

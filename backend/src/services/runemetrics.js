@@ -41,9 +41,6 @@ async function fetchPlayerProfile(username, activities = 20) {
 
       const profileData = response.data;
 
-      // Log all available fields for debugging
-      console.log(`[RuneMetrics] Available fields for ${username}:`, Object.keys(profileData).join(', '));
-
       const parsedActivities = profileData.activities ? profileData.activities.map(a => ({
         date: parseRuneMetricsDate(a.date),
         text: a.text,
@@ -56,8 +53,7 @@ async function fetchPlayerProfile(username, activities = 20) {
         totalSkill: profileData.totalskill,
         totalXp: profileData.totalxp,
         combatLevel: profileData.combatlevel || 0,
-        clanXp: profileData.loggedIn || 0, // Try loggedIn field
-        kills: profileData.totalskill || 0, // Placeholder - need to find correct field
+        kills: profileData.melee || 0, // Melee kills count
         activities: parsedActivities,
       };
     } catch (error) {
