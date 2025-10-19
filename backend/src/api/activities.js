@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { ActivityModel, MemberModel } = require('../database/models');
 const { categorizeActivity } = require('../utils/activityCategorizer');
+const { getMemberActivities } = require('../services/activityService');
 
 /**
  * Get recent clan activities from RuneMetrics
@@ -35,13 +36,7 @@ router.get('/clan', async (req, res) => {
 router.get('/member/:name', async (req, res) => {
   try {
     const { name } = req.params;
-    const member = await MemberModel.findByName(name);
-
-    if (!member) {
-      return res.status(404).json({ success: false, error: 'Member not found' });
-    }
-
-    const activities = await ActivityModel.getByMember(member.id);
+    const activities = await getMemberActivities(name);
 
     res.json({
       success: true,

@@ -172,6 +172,14 @@ async function syncMember(memberId) {
         console.log(`[Sync] Found ${profileData.activities.length} activities`);
         let newActivitiesCount = 0;
         
+        // First, find the most recent activity timestamp from the API
+        for (const activity of profileData.activities) {
+          if (!mostRecentActivityDate || activity.date > mostRecentActivityDate) {
+            mostRecentActivityDate = activity.date;
+          }
+        }
+        
+        // Then save the activities
         for (const activity of profileData.activities) {
           try {
             const category = categorizeActivity(activity.text, activity.details);
@@ -186,11 +194,6 @@ async function syncMember(memberId) {
             if (result) {
               newActivitiesCount++;
             }
-            
-            // Track the most recent activity timestamp
-            if (!mostRecentActivityDate || activity.date > mostRecentActivityDate) {
-              mostRecentActivityDate = activity.date;
-            }
           } catch (error) {
             // Ignore duplicate activity errors
             if (!error.message.includes('UNIQUE constraint')) {
@@ -203,7 +206,7 @@ async function syncMember(memberId) {
           console.log(`[Sync] Saved ${newActivitiesCount} new activities`);
         }
         
-        // Update last_activity_date with the most recent activity
+        // Always update last_activity_date with the most recent activity from API
         if (mostRecentActivityDate) {
           // Convert millisecond timestamp to ISO date string for PostgreSQL
           const activityDateISO = new Date(mostRecentActivityDate).toISOString();
@@ -211,9 +214,10 @@ async function syncMember(memberId) {
             'UPDATE members SET last_activity_date = ? WHERE id = ?',
             [activityDateISO, memberId]
           );
+          console.log(`[Sync] Updated last_activity_date to: ${activityDateISO}`);
         }
       } else {
-        console.log(`[Sync] No new activities found`);
+        console.log(`[Sync] No activities in API response`);
       }
     } catch (activityError) {
       console.error(`[Sync] Failed to fetch activities: ${activityError.message}`);
