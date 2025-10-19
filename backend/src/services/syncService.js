@@ -174,9 +174,11 @@ async function syncMember(memberId) {
         
         // Update last_activity_date with the most recent activity
         if (mostRecentActivityDate) {
+          // Convert millisecond timestamp to ISO date string for PostgreSQL
+          const activityDateISO = new Date(mostRecentActivityDate).toISOString();
           await db.runAsync(
             'UPDATE members SET last_activity_date = ? WHERE id = ?',
-            [mostRecentActivityDate, memberId]
+            [activityDateISO, memberId]
           );
         }
       } else {
