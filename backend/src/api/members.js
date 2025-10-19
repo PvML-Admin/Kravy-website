@@ -296,6 +296,8 @@ router.post('/bulk', async (req, res) => {
       errors: []
     };
 
+    console.log(`[Bulk Add] Processing ${names.length} members...`);
+
     for (const name of names) {
       try {
         const existing = await MemberModel.findByName(name);
@@ -306,10 +308,14 @@ router.post('/bulk', async (req, res) => {
 
         await MemberModel.create(name, name);
         results.added.push(name);
+        console.log(`[Bulk Add] Added: ${name}`);
       } catch (error) {
         results.errors.push({ name, error: error.message });
+        console.error(`[Bulk Add] Error adding ${name}: ${error.message}`);
       }
     }
+
+    console.log(`[Bulk Add] Complete. Added: ${results.added.length}, Skipped: ${results.skipped.length}, Errors: ${results.errors.length}`);
 
     res.json({
       success: true,
@@ -326,11 +332,32 @@ router.post('/bulk', async (req, res) => {
 router.post('/:id/sync', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await syncMember(parseInt(id));
+    const memberId = parseInt(id);
+    
+    // Get member info first
+    const member = await MemberModel.findById(memberId);
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        error: 'Member not found'
+      });
+    }
 
+    // Start sync in background (non-blocking)
+    console.log(`[API] Starting background sync for ${member.name}...`);
+    syncMember(memberId)
+      .then(() => {
+        console.log(`[API] Background sync completed for ${member.name}`);
+      })
+      .catch((error) => {
+        console.error(`[API] Background sync failed for ${member.name}: ${error.message}`);
+      });
+
+    // Return immediately
     res.json({
       success: true,
-      result
+      message: `Sync started for ${member.display_name || member.name}`,
+      member: member.name
     });
   } catch (error) {
     res.status(500).json({

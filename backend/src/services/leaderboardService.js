@@ -32,7 +32,7 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
         m.last_synced as lastSynced
       FROM members m
       JOIN skills s ON m.id = s.member_id
-      WHERE ${gainField} > 0 AND m.is_active = 1
+      WHERE ${gainField} > 0 AND m.is_active = TRUE
       GROUP BY m.id
       ORDER BY xpGain DESC
       LIMIT ?;
@@ -50,7 +50,7 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
         m.last_synced as lastSynced
       FROM members m
       JOIN skills s ON m.id = s.member_id
-      WHERE s.skill_name = ? AND ${gainField} > 0 AND m.is_active = 1
+      WHERE s.skill_name = ? AND ${gainField} > 0 AND m.is_active = TRUE
       ORDER BY xpGain DESC
       LIMIT ?;
     `;

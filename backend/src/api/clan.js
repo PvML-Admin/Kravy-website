@@ -54,6 +54,8 @@ router.post('/import-members', async (req, res) => {
     const imported = [];
     const skipped = [];
 
+    console.log(`[Import] Processing ${clanMembers.length} members...`);
+
     for (const member of clanMembers) {
       try {
         const existing = await MemberModel.findByName(member.name);
@@ -68,12 +70,15 @@ router.post('/import-members', async (req, res) => {
             await MemberModel.update(newMember.id, { clan_rank: member.rank });
           }
           imported.push(member.name);
+          console.log(`[Import] Added: ${member.name} (${member.rank})`);
         }
       } catch (error) {
-        console.error(`Error importing member ${member.name}:`, error);
+        console.error(`[Import] Error importing member ${member.name}:`, error);
         skipped.push(member.name);
       }
     }
+
+    console.log(`[Import] Complete. Imported: ${imported.length}, Skipped: ${skipped.length}`);
 
     res.json({
       success: true,
@@ -134,6 +139,7 @@ router.post('/sync-membership', async (req, res) => {
     let removed = 0;
 
     // Add new members
+    console.log(`[Sync Membership] Adding ${membersToAdd.length} new members...`);
     for (const member of membersToAdd) {
       try {
         await MemberModel.create(member.name, member.name);
@@ -143,21 +149,26 @@ router.post('/sync-membership', async (req, res) => {
         }
         await ClanEventModel.create(member.name, 'join');
         added++;
+        console.log(`[Sync Membership] Added: ${member.name}`);
       } catch (error) {
-        console.error(`Error adding member ${member.name}:`, error);
+        console.error(`[Sync Membership] Error adding member ${member.name}:`, error);
       }
     }
 
     // Mark removed members as inactive
+    console.log(`[Sync Membership] Removing ${membersToRemove.length} members...`);
     for (const member of membersToRemove) {
       try {
-        await MemberModel.setActive(member.id, 0);
+        await MemberModel.setActive(member.id, false);
         await ClanEventModel.create(member.name, 'leave');
         removed++;
+        console.log(`[Sync Membership] Removed: ${member.name}`);
       } catch (error) {
-        console.error(`Error removing member ${member.name}:`, error);
+        console.error(`[Sync Membership] Error removing member ${member.name}:`, error);
       }
     }
+
+    console.log(`[Sync Membership] Complete. Added: ${added}, Removed: ${removed}`);
 
     res.json({
       success: true,

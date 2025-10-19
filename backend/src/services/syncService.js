@@ -22,15 +22,26 @@ async function syncMember(memberId) {
     return;
   }
 
+  console.log(`[Sync] Starting sync for ${member.display_name || member.name}...`);
+
   try {
     // Fetch from HiScores API for accurate levels, XP, and ranks
+    console.log(`[Sync] Fetching HiScores data for ${member.name}...`);
     const hiscoresData = await fetchPlayerFromHiscores(member.name);
     let profileData = {};
     
     const totalXp = hiscoresData.totalXp || 0;
+    const oldTotalXp = member.total_xp || 0;
+    const xpDiff = totalXp - oldTotalXp;
+    if (xpDiff > 0) {
+      console.log(`[Sync] Total XP: ${totalXp.toLocaleString()} (+${xpDiff.toLocaleString()})`);
+    } else {
+      console.log(`[Sync] Total XP: ${totalXp.toLocaleString()} (no change)`);
+    }
     
     // Default to calculated combat level
     let combatLevel = calculateCombatLevel(hiscoresData.skills);
+    console.log(`[Sync] Combat Level: ${combatLevel}`);
 
     await MemberModel.update(memberId, {
       total_xp: totalXp,
@@ -45,6 +56,7 @@ async function syncMember(memberId) {
     await SnapshotModel.create(memberId, totalXp);
 
     let totalXpDelta = 0;
+    let skillsWithGains = [];
 
     // Update skills with HiScores data and calculate total XP delta
     for (const skill of hiscoresData.skills) {
@@ -54,6 +66,7 @@ async function syncMember(memberId) {
       
       if (xpDelta > 0) {
         totalXpDelta += xpDelta;
+        skillsWithGains.push({ name: skill.name, xp: xpDelta, level: skill.level });
       }
 
       // Add this difference to the existing gains to accumulate them
@@ -72,8 +85,22 @@ async function syncMember(memberId) {
       );
     }
 
+    // Log skill gains
+    if (skillsWithGains.length > 0) {
+      console.log(`[Sync] Skills with gains: ${skillsWithGains.length}`);
+      skillsWithGains.slice(0, 3).forEach(s => {
+        console.log(`[Sync]   ${s.name}: +${s.xp.toLocaleString()} XP (Level ${s.level})`);
+      });
+      if (skillsWithGains.length > 3) {
+        console.log(`[Sync]   ... and ${skillsWithGains.length - 3} more`);
+      }
+    } else {
+      console.log(`[Sync] No XP gains since last sync`);
+    }
+
     // Fetch activities and rank from RuneMetrics (HiScores doesn't have activities)
     try {
+      console.log(`[Sync] Fetching RuneMetrics profile...`);
       profileData = await fetchPlayerProfile(member.name);
       
       console.log(`[Sync] RuneMetrics returned name: "${profileData.name}" for member: "${member.name}"`);
@@ -113,14 +140,21 @@ async function syncMember(memberId) {
       let mostRecentActivityDate = null;
       
       if (profileData.activities && Array.isArray(profileData.activities)) {
+        console.log(`[Sync] Found ${profileData.activities.length} activities`);
+        let newActivitiesCount = 0;
+        
         for (const activity of profileData.activities) {
           try {
-            await ActivityModel.create(
+            const result = await ActivityModel.create(
               memberId,
               activity.date,
               activity.text,
               activity.details
             );
+            
+            if (result) {
+              newActivitiesCount++;
+            }
             
             // Track the most recent activity timestamp
             if (!mostRecentActivityDate || activity.date > mostRecentActivityDate) {
@@ -129,9 +163,13 @@ async function syncMember(memberId) {
           } catch (error) {
             // Ignore duplicate activity errors
             if (!error.message.includes('UNIQUE constraint')) {
-              console.error(`Failed to save activity for ${member.name}:`, error.message);
+              console.error(`[Sync] Failed to save activity for ${member.name}: ${error.message}`);
             }
           }
+        }
+        
+        if (newActivitiesCount > 0) {
+          console.log(`[Sync] Saved ${newActivitiesCount} new activities`);
         }
         
         // Update last_activity_date with the most recent activity
@@ -141,9 +179,11 @@ async function syncMember(memberId) {
             [mostRecentActivityDate, memberId]
           );
         }
+      } else {
+        console.log(`[Sync] No new activities found`);
       }
     } catch (activityError) {
-      console.error(`Failed to fetch activities for ${member.name}:`, activityError.message);
+      console.error(`[Sync] Failed to fetch activities: ${activityError.message}`);
     }
 
     // ONLY update last_xp_gain and last_activity_date if the sum of individual skill gains is positive
@@ -156,12 +196,17 @@ async function syncMember(memberId) {
 
     await SyncLogModel.create(memberId, true);
 
+    console.log(`[Sync] Successfully synced ${member.display_name || member.name}`);
+
     return {
       success: true,
       member: member.name,
-      activities: (profileData && profileData.activities) ? profileData.activities.length : 0
+      activities: (profileData && profileData.activities) ? profileData.activities.length : 0,
+      xpGained: totalXpDelta,
+      skillsChanged: skillsWithGains.length
     };
   } catch (error) {
+    console.error(`[Sync] Failed to sync ${member.name}: ${error.message}`);
     await SyncLogModel.create(memberId, false, error.message);
     throw error;
   }
@@ -174,6 +219,12 @@ async function syncMember(memberId) {
 async function startSyncAllMembers() {
   const members = await MemberModel.getAll(true);
   const syncId = `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  console.log(`\n========================================`);
+  console.log(`[Bulk Sync] Starting bulk sync`);
+  console.log(`[Bulk Sync] Sync ID: ${syncId}`);
+  console.log(`[Bulk Sync] Total members: ${members.length}`);
+  console.log(`========================================\n`);
   
   const progress = {
     syncId,
@@ -196,6 +247,7 @@ async function startSyncAllMembers() {
       syncMember(member.id)
         .then(() => {
           progress.successful++;
+          console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
         })
         .catch(error => {
           progress.failed++;
@@ -203,6 +255,7 @@ async function startSyncAllMembers() {
             member: member.name,
             error: error.message
           });
+          console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
         })
         .finally(() => {
           progress.processed++;
@@ -213,6 +266,14 @@ async function startSyncAllMembers() {
     
     progress.status = 'completed';
     progress.endTime = new Date().toISOString();
+    
+    console.log(`\n========================================`);
+    console.log(`[Bulk Sync] Completed`);
+    console.log(`[Bulk Sync] Sync ID: ${syncId}`);
+    console.log(`[Bulk Sync] Successful: ${progress.successful}/${progress.total}`);
+    console.log(`[Bulk Sync] Failed: ${progress.failed}/${progress.total}`);
+    console.log(`[Bulk Sync] Duration: ${Math.round((new Date(progress.endTime) - new Date(progress.startTime)) / 1000)}s`);
+    console.log(`========================================\n`);
     
     // Clean up after 1 hour
     setTimeout(() => {

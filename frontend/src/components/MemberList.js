@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI } from '../services/api';
 import SpecialName from './SpecialNames';
+import { formatDateBST } from '../utils/dateFormatter';
 import './MemberList.css';
 
 const CLAN_RANKS = [
@@ -114,8 +115,8 @@ function MemberList() {
       return 'Yesterday';
     }
     
-    // Show actual date for older activity
-    return date.toLocaleDateString();
+    // Show actual date for older activity in BST
+    return formatDateBST(date);
   };
 
   if (loading) return <div className="loading">Loading members...</div>;

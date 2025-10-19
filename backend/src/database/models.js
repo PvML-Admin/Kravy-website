@@ -24,7 +24,7 @@ class MemberModel {
     const whereClauses = [];
 
     if (activeOnly) {
-      whereClauses.push('is_active = 1');
+      whereClauses.push('is_active = TRUE');
     }
 
     if (ranks && ranks.length > 0) {
@@ -68,7 +68,7 @@ class MemberModel {
       max: 'm.total_xp >= 5800000000'
     };
 
-    const whereClauses = ['m.is_active = 1'];
+    const whereClauses = ['m.is_active = TRUE'];
     if (xpBracket && xpConditions[xpBracket]) {
       whereClauses.push(xpConditions[xpBracket]);
     }
@@ -133,7 +133,7 @@ class MemberModel {
         SUM(CASE WHEN total_xp >= 5000000000 AND total_xp < 5800000000 THEN 1 ELSE 0 END) as "5b",
         SUM(CASE WHEN total_xp >= 5800000000 THEN 1 ELSE 0 END) as max
       FROM members
-      WHERE is_active = 1
+      WHERE is_active = TRUE
     `;
     
     const brackets = await db.getAsync(query);
@@ -148,7 +148,7 @@ class MemberModel {
         s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
       FROM members m
       LEFT JOIN skills s ON m.id = s.member_id
-      WHERE m.is_active = 1
+      WHERE m.is_active = TRUE
     `;
     const rows = await db.allAsync(query);
 
@@ -184,7 +184,7 @@ class MemberModel {
 
   static async getUnsynced(activeOnly = true) {
     const query = activeOnly
-      ? 'SELECT * FROM members WHERE is_active = 1 AND last_synced IS NULL ORDER BY name'
+      ? 'SELECT * FROM members WHERE is_active = TRUE AND last_synced IS NULL ORDER BY name'
       : 'SELECT * FROM members WHERE last_synced IS NULL ORDER BY name';
     return await db.allAsync(query);
   }
@@ -237,7 +237,7 @@ class MemberModel {
   }
 
   static async setActive(id, isActive) {
-    return await db.runAsync('UPDATE members SET is_active = ? WHERE id = ?', [isActive ? 1 : 0, id]);
+    return await db.runAsync('UPDATE members SET is_active = ? WHERE id = ?', [isActive, id]);
   }
 }
 
@@ -311,9 +311,9 @@ class SkillModel {
         SUM(s.${gainColumn}) as xpGain
       FROM skills s
       JOIN members m ON s.member_id = m.id
-      WHERE m.is_active = 1
-      GROUP BY m.id
-      HAVING xpGain > 0
+      WHERE m.is_active = TRUE
+      GROUP BY m.id, m.name, m.display_name
+      HAVING SUM(s.${gainColumn}) > 0
       ORDER BY xpGain DESC
       LIMIT ?
     `;
@@ -325,7 +325,7 @@ class SyncLogModel {
   static async create(memberId, success, errorMessage = null) {
     return await db.runAsync(
       'INSERT INTO sync_log (member_id, success, error_message) VALUES (?, ?, ?)',
-      [memberId, success ? 1 : 0, errorMessage]
+      [memberId, success, errorMessage]
     );
   }
 

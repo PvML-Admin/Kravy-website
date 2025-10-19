@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { membersAPI, activitiesAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
+import { formatDateBST, formatRelativeTimeBST } from '../utils/dateFormatter';
 import SpecialName from './SpecialNames';
 
 // Format skill XP text to be more readable
@@ -79,7 +80,14 @@ function PlayerProfile() {
   const handleSync = async (memberId) => {
     try {
       setIsSyncing(true);
-      await membersAPI.sync(memberId);
+      // Trigger sync (non-blocking on backend)
+      const syncResponse = await membersAPI.sync(memberId);
+      console.log(syncResponse.data.message);
+      
+      // Wait for sync to complete (give it time to fetch from APIs)
+      // Typical sync takes 3-5 seconds
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
       // After syncing, we need to re-fetch the member to get the updated top-level stats (like total xp)
       // And then re-fetch the detailed stats.
       const memberResponse = await membersAPI.getByName(memberName);
@@ -111,15 +119,7 @@ function PlayerProfile() {
   };
 
   const formatActivityDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString();
+    return formatRelativeTimeBST(timestamp);
   };
 
   const formatXpGain = (xpGain) => {
@@ -243,7 +243,7 @@ function PlayerProfile() {
               </div>
               {member.joined_at && (
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
-                  Joined: {new Date(member.joined_at).toLocaleDateString()}
+                  Joined: {formatDateBST(member.joined_at)}
                 </div>
               )}
             </div>

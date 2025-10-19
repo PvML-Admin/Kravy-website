@@ -69,7 +69,7 @@ async function rollingSyncBatch() {
     const members = await db.allAsync(`
       SELECT id, name, last_synced, last_sync_attempt
       FROM members 
-      WHERE is_active = 1 
+      WHERE is_active = TRUE 
       ORDER BY 
         CASE WHEN last_sync_attempt IS NULL THEN 0 ELSE 1 END,
         last_sync_attempt ASC

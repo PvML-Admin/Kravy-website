@@ -10,7 +10,7 @@ async function populateDailyXp() {
       COALESCE(SUM(s.weekly_xp_gain), 0) as total_weekly
     FROM skills s
     JOIN members m ON s.member_id = m.id
-    WHERE m.is_active = 1
+    WHERE m.is_active = TRUE
   `);
 
   // Check if there's already an entry for today
