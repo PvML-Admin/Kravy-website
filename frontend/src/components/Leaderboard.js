@@ -7,7 +7,7 @@ import './Leaderboard.css';
 
 function Leaderboard() {
   const navigate = useNavigate();
-  const [period, setPeriod] = useState('weekly');
+  const [period, setPeriod] = useState('daily');
   const [selectedSkill, setSelectedSkill] = useState('Overall');
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);

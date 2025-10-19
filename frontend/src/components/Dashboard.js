@@ -19,25 +19,17 @@ function Dashboard() {
     localStorage.getItem('showFullClanInfo') === 'true'
   );
 
-  const aboutText = `discord.gg/kravy Everybody welcome!
-Do the things you enjoy with the people you enjoy doing them with.
-
+  const aboutText = `Founded: 24th September 2021.
 Social | PvM | Clues | Skilling | DnDs | Watchalongs | Other Games
 
-Kravy is a welcoming and incredibly active clan on W124. We have all types of players from the most knowledgeable of PVMers to the best Clue minds in the game. Skillers with 5.8B XP to up-and-coming players from across the board, keen to get stuck in.
+Kravy is a welcoming and incredibly active clan on W124. Home to all types of players from the most knowledgeable of PvMers to the best Clue minds in the game. Skillers with maximum XP to up-and-coming players from across the board, keen to get stuck in.
 
-• A Discord that is well-designed and filled with resources and support.
-• Plenty of VC and CC activity.
+• A Discord that is well-designed and filled with support.
+• Plenty of Voice Chat and Clan Chat activity.
 • Events! Events! Events!
 • A Leadership team that is present and active.
-• Support for ALL tiers of PvM with our PVM Mentors team and the 'Reaper Crew' Crew.
-
-Info:
-• Requirements: 2.5k total level.
-• Rank up: Clan Contributions.
-• Home worlds: 124.
-• Founded: 24th September 2021.
-• Meeting Point: Wars Steps.`;
+• Support for ALL tiers of PvM with our PvM Mentors.
+• Affiliated with many Runescape Discords.`;
 
   const toggleShowFullInfo = () => {
     const newValue = !showFullInfo;

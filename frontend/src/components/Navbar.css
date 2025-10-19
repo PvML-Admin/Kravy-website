@@ -1,7 +1,8 @@
 .navbar {
   background-color: var(--background-secondary);
   border-bottom: 1px solid var(--border-color);
-  padding: 0 20px;
+  padding: 8px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-container {
@@ -9,15 +10,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 30px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .navbar-links {
   display: flex;
-  gap: 15px;
-  height: 100%;
+  gap: 10px;
+  align-items: center;
 }
 
 .navbar-link {
@@ -25,15 +25,20 @@
   align-items: center;
   color: #ffffff;
   text-decoration: none;
-  padding: 0 15px;
-  border-radius: 6px;
+  padding: 6px 16px;
+  border-radius: 16px;
   font-weight: 500;
-  transition: all 0.2s ease-in-out;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
   background-color: #3a3a3a;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .navbar-link:hover {
   background-color: #4a4a4a;
+  transform: translateY(-1px);
   color: #ffffff;
 }
 
@@ -49,9 +54,6 @@
 .navbar-admin {
   position: absolute;
   right: 0px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -61,14 +63,23 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 12px;
+  padding: 6px 14px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 0.875rem;
+  background: #3a3a3a;
+  border-radius: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-user:hover {
+  background: #4a4a4a;
+  transform: translateY(-1px);
 }
 
 .user-avatar {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 2px solid #2d9596;
 }
@@ -80,29 +91,43 @@
   white-space: nowrap;
 }
 
-.admin-cog {
-  padding: 0;
-}
-
+.admin-cog,
 .logout-btn {
-  padding: 0;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #3a3a3a;
   border: none;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  color: #ffffff;
+}
+
+.admin-cog:hover {
+  background: #4a4a4a;
+  transform: translateY(-1px);
 }
 
 .logout-btn:hover {
-  background: #ff5252;
+  background: #f04747;
+  transform: translateY(-1px);
 }
 
 .login-btn {
-  padding: 0 15px;
+  padding: 6px 16px;
   background: #2d9596;
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  color: #ffffff;
 }
 
 .login-btn:hover {
   background: #3aaba9;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {

@@ -11,9 +11,10 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
     case 'weekly':
       gainField = 's.weekly_xp_gain';
       break;
+    case 'monthly':
+      gainField = 's.monthly_xp_gain';
+      break;
     default:
-      // For monthly or other periods, we might fall back to snapshots or just return empty for now.
-      // Let's stick to daily/weekly as requested.
       return [];
   }
 

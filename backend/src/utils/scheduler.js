@@ -24,6 +24,16 @@ async function resetWeeklyGains() {
   }
 }
 
+async function resetMonthlyGains() {
+  try {
+    console.log('Running monthly reset for monthly_xp_gain...');
+    await db.runAsync('UPDATE skills SET monthly_xp_gain = 0');
+    console.log('Successfully reset monthly_xp_gain for all skills.');
+  } catch (error) {
+    console.error('Failed to reset monthly XP gains:', error);
+  }
+}
+
 function scheduleDailyReset() {
   // Schedule a task to run at 23:55 UTC to record daily XP before reset
   cron.schedule('55 23 * * *', () => {
@@ -56,6 +66,18 @@ function scheduleWeeklyReset() {
   });
 
   console.log('Scheduled weekly XP gain reset has been set up to run at 00:00 UTC on Mondays.');
+}
+
+function scheduleMonthlyReset() {
+  // Schedule a task to run at midnight on the 1st of every month for resetting gains.
+  cron.schedule('0 0 1 * *', () => {
+    console.log('Running scheduled monthly XP gain reset...');
+    resetMonthlyGains();
+  }, {
+    timezone: "UTC"
+  });
+
+  console.log('Scheduled monthly XP gain reset has been set up to run at 00:00 UTC on the 1st of every month.');
 }
 
 /**
@@ -146,7 +168,8 @@ function startContinuousSync() {
 
 module.exports = { 
   scheduleDailyReset, 
-  scheduleWeeklyReset, 
+  scheduleWeeklyReset,
+  scheduleMonthlyReset, 
   startContinuousSync 
 };
 

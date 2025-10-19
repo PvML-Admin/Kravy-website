@@ -68,6 +68,7 @@ async function syncMember(memberId) {
       const newXp = parseInt(skill.xp) || 0;
       const oldDailyGain = oldSkill ? parseInt(oldSkill.daily_xp_gain) || 0 : 0;
       const oldWeeklyGain = oldSkill ? parseInt(oldSkill.weekly_xp_gain) || 0 : 0;
+      const oldMonthlyGain = oldSkill ? parseInt(oldSkill.monthly_xp_gain) || 0 : 0;
       
       // Calculate the difference in XP since the last sync
       // Only calculate delta if we have a valid baseline (oldXp > 0)
@@ -83,6 +84,7 @@ async function syncMember(memberId) {
       // Negative deltas can occur if a skill is reset or there's an API error, so we ignore them
       const newDailyXpGain = xpDelta > 0 ? oldDailyGain + xpDelta : oldDailyGain;
       const newWeeklyXpGain = xpDelta > 0 ? oldWeeklyGain + xpDelta : oldWeeklyGain;
+      const newMonthlyXpGain = xpDelta > 0 ? oldMonthlyGain + xpDelta : oldMonthlyGain;
 
       await SkillModel.upsert(
         memberId,
@@ -92,7 +94,8 @@ async function syncMember(memberId) {
         skill.xp,
         skill.rank,
         newDailyXpGain,
-        newWeeklyXpGain
+        newWeeklyXpGain,
+        newMonthlyXpGain
       );
     }
 

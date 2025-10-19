@@ -4,7 +4,8 @@ require('dotenv').config();
 // Create a connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? {
+  // Always use SSL for remote databases (like Render), disable for local postgres
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com') ? {
     rejectUnauthorized: false
   } : false,
   max: 20, // Maximum number of clients in the pool

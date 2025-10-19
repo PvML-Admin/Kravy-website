@@ -277,18 +277,19 @@ class SnapshotModel {
 }
 
 class SkillModel {
-  static async upsert(memberId, skillId, skillName, level, xp, rank, dailyXpGain, weeklyXpGain) {
+  static async upsert(memberId, skillId, skillName, level, xp, rank, dailyXpGain, weeklyXpGain, monthlyXpGain) {
     return await db.runAsync(
-      `INSERT INTO skills (member_id, skill_id, skill_name, level, xp, rank, daily_xp_gain, weekly_xp_gain, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `INSERT INTO skills (member_id, skill_id, skill_name, level, xp, rank, daily_xp_gain, weekly_xp_gain, monthly_xp_gain, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
        ON CONFLICT(member_id, skill_id) DO UPDATE SET
          level = excluded.level,
          xp = excluded.xp,
          rank = excluded.rank,
          daily_xp_gain = excluded.daily_xp_gain,
          weekly_xp_gain = excluded.weekly_xp_gain,
+         monthly_xp_gain = excluded.monthly_xp_gain,
          updated_at = CURRENT_TIMESTAMP`,
-      [memberId, skillId, skillName, level, xp, rank, dailyXpGain, weeklyXpGain]
+      [memberId, skillId, skillName, level, xp, rank, dailyXpGain, weeklyXpGain, monthlyXpGain]
     );
   }
 

@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
-const { scheduleDailyReset, scheduleWeeklyReset, startContinuousSync } = require('./utils/scheduler');
+const { scheduleDailyReset, scheduleWeeklyReset, scheduleMonthlyReset, startContinuousSync } = require('./utils/scheduler');
 const { addCategoryToActivities } = require('./database/migrations/add_category_to_activities');
 
 const membersRouter = require('./api/members');
@@ -123,6 +123,7 @@ app.listen(PORT, () => {
   // Schedule the daily XP gain reset to run at 00:00 UTC
   scheduleDailyReset();
   scheduleWeeklyReset();
+  scheduleMonthlyReset();
 
   // Start continuous rolling sync (10 members every 5 minutes)
   console.log('Starting continuous rolling sync system...');
