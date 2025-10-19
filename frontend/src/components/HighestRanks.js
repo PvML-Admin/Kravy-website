@@ -18,11 +18,17 @@ function HighestRanks() {
         const allMembers = response.data.members;
 
         const desiredRanks = ['Owner', 'Deputy Owner', 'Overseer'];
+        const rankOrder = { 'Owner': 1, 'Deputy Owner': 2, 'Overseer': 3 };
+
         const highestRankMembers = allMembers
           .filter(member => desiredRanks.includes(member.clan_rank))
-          .sort((a, b) => 
-            (a.display_name || a.name).localeCompare(b.display_name || b.name)
-          );
+          .sort((a, b) => {
+            const rankComparison = rankOrder[a.clan_rank] - rankOrder[b.clan_rank];
+            if (rankComparison !== 0) {
+              return rankComparison;
+            }
+            return (a.display_name || a.name).localeCompare(b.display_name || b.name);
+          });
         
         setHighestRanks(highestRankMembers);
       } catch (err) {
