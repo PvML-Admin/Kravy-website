@@ -143,7 +143,7 @@ class MemberModel {
   static async getAllHiscoresData() {
     const query = `
       SELECT
-        m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster,
+        m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
         (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
         s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
       FROM members m
@@ -165,6 +165,7 @@ class MemberModel {
           total_rank: row.total_rank,
           is_active: row.is_active,
           is_discord_booster: row.is_discord_booster,
+          is_grandmaster_ca: row.is_grandmaster_ca,
           total_level: row.total_level,
           avatar_url: `http://services.runescape.com/m=avatar-rs/${encodeURIComponent(row.name)}/chat.png`,
           skills: []
@@ -243,6 +244,10 @@ class MemberModel {
 
   static async setDiscordBooster(id, isBooster) {
     return await db.runAsync('UPDATE members SET is_discord_booster = ? WHERE id = ?', [isBooster ? 1 : 0, id]);
+  }
+
+  static async setGrandmasterCA(id, isGrandmasterCA) {
+    return await db.runAsync('UPDATE members SET is_grandmaster_ca = ? WHERE id = ?', [isGrandmasterCA ? 1 : 0, id]);
   }
 }
 

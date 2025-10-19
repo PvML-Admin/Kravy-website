@@ -30,7 +30,7 @@ function ClanActivitiesGrid() {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        const response = await activitiesAPI.getClanActivities(100); // Fetch more for filtering
+        const response = await activitiesAPI.getClanActivities(200); // Fetch more for filtering
         const sortedActivities = response.data.activities.sort((a, b) => {
           return new Date(b.activity_date) - new Date(a.activity_date);
         });

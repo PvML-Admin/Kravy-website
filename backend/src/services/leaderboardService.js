@@ -29,13 +29,14 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
         m.display_name as name,
         m.total_xp as totalXp,
         m.is_discord_booster,
+        m.is_grandmaster_ca,
         SUM(${gainField}) as xpGain,
         m.combat_level as combatLevel,
         m.last_synced as lastSynced
       FROM members m
       JOIN skills s ON m.id = s.member_id
       WHERE ${gainField} > 0 AND m.is_active = TRUE
-      GROUP BY m.id, m.display_name, m.total_xp, m.combat_level, m.last_synced, m.is_discord_booster
+      GROUP BY m.id, m.display_name, m.total_xp, m.combat_level, m.last_synced, m.is_discord_booster, m.is_grandmaster_ca
       ORDER BY xpGain DESC
       LIMIT ?;
     `;
@@ -48,6 +49,7 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
         m.display_name as name,
         s.xp as totalXp,
         m.is_discord_booster,
+        m.is_grandmaster_ca,
         ${gainField} as xpGain,
         m.combat_level as combatLevel,
         m.last_synced as lastSynced

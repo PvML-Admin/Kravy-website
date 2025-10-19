@@ -9,6 +9,14 @@ const PlayerDisplayName = ({ member }) => {
 
   const displayName = member.display_name || member.name;
   
+  // Determine name class based on status
+  let nameClass = '';
+  if (member.is_grandmaster_ca) {
+    nameClass = 'grandmaster-ca-name';
+  } else if (member.is_discord_booster) {
+    nameClass = 'discord-booster-name';
+  }
+  
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
       {!!member.is_discord_booster && (
@@ -20,7 +28,7 @@ const PlayerDisplayName = ({ member }) => {
           style={{ width: '18px', height: '18px' }}
         />
       )}
-      <span className={member.is_discord_booster ? 'discord-booster-name' : ''}>
+      <span className={nameClass}>
         <SpecialName name={displayName} />
       </span>
     </div>

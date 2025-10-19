@@ -151,22 +151,36 @@ function PlayerProfile() {
     return skills.every(skill => skill.xp >= MASTER_XP);
   };
 
-  // Get cape badge to display (Master Max takes priority over Max)
-  const getCapeAchievement = (skills) => {
+  // Get all achievement badges to display (can have multiple)
+  const getAchievementBadges = (skills, memberData) => {
+    const badges = [];
+    
+    // Check for Grandmaster CA
+    if (memberData && memberData.is_grandmaster_ca) {
+      badges.push({
+        name: 'Grandmaster CA',
+        icon: '/grandmaster_ca.png',
+        color: '#FFD700' // Gold color
+      });
+    }
+    
+    // Check for Master Max Cape
     if (hasMasterMaxCape(skills)) {
-      return {
+      badges.push({
         name: 'Master Max Cape',
         icon: 'https://runescape.wiki/images/Master_max_cape_detail.png',
         color: '#FFD700' // Gold color
-      };
+      });
     } else if (hasMaxCape(skills)) {
-      return {
+      // Only show Max Cape if they don't have Master Max
+      badges.push({
         name: 'Max Cape',
         icon: 'https://runescape.wiki/images/Max_cape_detail.png',
         color: '#4a90e2' // Blue color
-      };
+      });
     }
-    return null;
+    
+    return badges;
   };
 
   if (loading && !stats) { // Only show full-page loader on initial load
@@ -250,45 +264,50 @@ function PlayerProfile() {
             </div>
           </div>
 
-          {/* Cape Achievement Badge */}
+          {/* Achievement Badges */}
           {stats && stats.skills && (() => {
-            const capeAchievement = getCapeAchievement(stats.skills);
-            return capeAchievement ? (
-              <div
-                title={capeAchievement.name}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '15px',
-                  backgroundColor: 'var(--primary-light)',
-                  borderRadius: '8px',
-                  cursor: 'help'
-                }}
-              >
-                <img 
-                  src={capeAchievement.icon}
-                  alt={capeAchievement.name}
-                  style={{ 
-                    width: '64px', 
-                    height: '64px',
-                    objectFit: 'contain',
-                    filter: `drop-shadow(0 0 6px ${capeAchievement.color}80)`
-                  }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-                <div style={{ 
-                  fontSize: '0.75rem', 
-                  fontWeight: '600',
-                  color: capeAchievement.color,
-                  textAlign: 'center',
-                  textShadow: `0 0 8px ${capeAchievement.color}40`
-                }}>
-                  {capeAchievement.name}
-                </div>
+            const badges = getAchievementBadges(stats.skills, member);
+            return badges.length > 0 ? (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {badges.map((badge, index) => (
+                  <div
+                    key={index}
+                    title={badge.name}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '15px',
+                      backgroundColor: 'var(--primary-light)',
+                      borderRadius: '8px',
+                      cursor: 'help'
+                    }}
+                  >
+                    <img 
+                      src={badge.icon}
+                      alt={badge.name}
+                      style={{ 
+                        width: '64px', 
+                        height: '64px',
+                        objectFit: 'contain',
+                        filter: `drop-shadow(0 0 6px ${badge.color}80)`
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: badge.color,
+                      textAlign: 'center',
+                      textShadow: `0 0 8px ${badge.color}40`
+                    }}>
+                      {badge.name}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : null;
           })()}

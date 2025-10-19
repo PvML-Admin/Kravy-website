@@ -8,6 +8,7 @@ require('dotenv').config();
 const { initializeDatabase } = require('./database/init');
 const { scheduleDailyReset, scheduleWeeklyReset, scheduleMonthlyReset, startContinuousSync } = require('./utils/scheduler');
 const { addCategoryToActivities } = require('./database/migrations/add_category_to_activities');
+const { addGrandmasterCA } = require('./database/migrate-add-grandmaster-ca');
 
 const membersRouter = require('./api/members');
 const syncRouter = require('./api/sync');
@@ -70,6 +71,7 @@ app.use((req, res, next) => {
   try {
     // Run any pending migrations first
     await addCategoryToActivities();
+    await addGrandmasterCA();
 
     // Then, initialize the database schema (creates tables if they don't exist)
     await initializeDatabase();

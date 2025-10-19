@@ -25,6 +25,7 @@ export const membersAPI = {
   getStats: (id) => api.get(`/members/${id}/stats`),
   sync: (id) => api.post(`/members/${id}/sync`),
   toggleDiscordBooster: (id, isBooster) => api.patch(`/members/${id}/discord-booster`, { isBooster }),
+  toggleGrandmasterCA: (id, isGrandmasterCA) => api.patch(`/members/${id}/grandmaster-ca`, { isGrandmasterCA }),
 };
 
 export const syncAPI = {
@@ -48,7 +49,7 @@ export const leaderboardAPI = {
 };
 
 export const activitiesAPI = {
-  getClanActivities: (limit = 100) => api.get(`/activities/clan?limit=${limit}`),
+  getClanActivities: (limit = 200) => api.get(`/activities/clan?limit=${limit}`),
   getMemberActivities: (memberName) => api.get(`/activities/member/${memberName}`),
 };
 

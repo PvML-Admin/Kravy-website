@@ -121,3 +121,34 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 105, 180, 0.4);
 }
+
+/* Grandmaster CA Styles */
+.booster-member-name.is-grandmaster-ca {
+  color: #FFD700;
+  animation: gmcaGlow 3s ease-in-out infinite;
+}
+
+@keyframes gmcaGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.25);
+  }
+}
+
+.btn-gmca {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-gmca:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}

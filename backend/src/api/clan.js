@@ -148,6 +148,8 @@ router.post('/sync-membership', isAdmin, async (req, res) => {
 
     let added = 0;
     let removed = 0;
+    const addedNames = [];
+    const removedNames = [];
 
     // Add new members
     console.log(`[Sync Membership] Adding ${membersToAdd.length} new members...`);
@@ -164,6 +166,7 @@ router.post('/sync-membership', isAdmin, async (req, res) => {
         }
         await ClanEventModel.create(member.name, 'join');
         added++;
+        addedNames.push(member.name);
         console.log(`[Sync Membership] Added: ${member.name} (Clan XP: ${member.clan_xp || 0})`);
       } catch (error) {
         console.error(`[Sync Membership] Error adding member ${member.name}:`, error);
@@ -194,19 +197,27 @@ router.post('/sync-membership', isAdmin, async (req, res) => {
         await MemberModel.setActive(member.id, false);
         await ClanEventModel.create(member.name, 'leave');
         removed++;
+        removedNames.push(member.name);
         console.log(`[Sync Membership] Removed: ${member.name}`);
       } catch (error) {
         console.error(`[Sync Membership] Error removing member ${member.name}:`, error);
       }
     }
 
-    console.log(`[Sync Membership] Complete. Added: ${added}, Removed: ${removed}`);
+    const kept = currentClanMembers.length - added;
+
+    console.log(`[Sync Membership] Complete. Added: ${added}, Removed: ${removed}, Kept: ${kept}`);
 
     res.json({
       success: true,
-      added,
-      removed,
-      total: currentClanMembers.length,
+      results: {
+        kept,
+        added,
+        removed,
+        addedNames,
+        removedNames,
+        source: 'RuneScape Clan Hiscores'
+      },
       message: `Added ${added} members, removed ${removed} members. Total active: ${currentClanMembers.length}`
     });
   } catch (error) {

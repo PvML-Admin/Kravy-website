@@ -445,6 +445,26 @@ router.patch('/:id/discord-booster', isAdmin, async (req, res) => {
   }
 });
 
+// Toggle Grandmaster CA status
+router.patch('/:id/grandmaster-ca', isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isGrandmasterCA } = req.body;
+
+    await MemberModel.setGrandmasterCA(parseInt(id), isGrandmasterCA);
+
+    res.json({
+      success: true,
+      message: `Grandmaster CA status ${isGrandmasterCA ? 'enabled' : 'disabled'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 router.get('/highest-ranks', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 5;
