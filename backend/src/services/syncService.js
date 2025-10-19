@@ -62,17 +62,25 @@ async function syncMember(memberId) {
     // Update skills with HiScores data and calculate total XP delta
     for (const skill of hiscoresData.skills) {
       const oldSkill = oldSkills.find(s => s.skill_name === skill.name);
+      
+      // Convert BIGINT values from database to numbers (PostgreSQL returns BIGINT as strings)
+      const oldXp = oldSkill ? parseInt(oldSkill.xp) || 0 : 0;
+      const newXp = parseInt(skill.xp) || 0;
+      const oldDailyGain = oldSkill ? parseInt(oldSkill.daily_xp_gain) || 0 : 0;
+      const oldWeeklyGain = oldSkill ? parseInt(oldSkill.weekly_xp_gain) || 0 : 0;
+      
       // Calculate the difference in XP since the last sync
-      const xpDelta = oldSkill ? skill.xp - oldSkill.xp : 0;
+      const xpDelta = newXp - oldXp;
       
       if (xpDelta > 0) {
         totalXpDelta += xpDelta;
         skillsWithGains.push({ name: skill.name, xp: xpDelta, level: skill.level });
       }
 
-      // Add this difference to the existing gains to accumulate them
-      const newDailyXpGain = (oldSkill ? (oldSkill.daily_xp_gain || 0) : 0) + xpDelta;
-      const newWeeklyXpGain = (oldSkill ? (oldSkill.weekly_xp_gain || 0) : 0) + xpDelta;
+      // Add this difference to the existing gains to accumulate them (only positive gains)
+      // Negative deltas can occur if a skill is reset or there's an API error, so we ignore them
+      const newDailyXpGain = xpDelta > 0 ? oldDailyGain + xpDelta : oldDailyGain;
+      const newWeeklyXpGain = xpDelta > 0 ? oldWeeklyGain + xpDelta : oldWeeklyGain;
 
       await SkillModel.upsert(
         memberId,

@@ -21,7 +21,9 @@ const categoryIcons = {
 function findSkillName(text) {
   // Find the first skill from our list that is present in the activity text.
   // We check against skillOrder but skip 'Overall'.
-  return skillOrder.slice(1).find(skill => text.includes(skill)) || null;
+  // Case-insensitive search
+  const lowerText = text.toLowerCase();
+  return skillOrder.slice(1).find(skill => lowerText.includes(skill.toLowerCase())) || null;
 }
 
 export function getActivityIcon(activity) {

@@ -1,42 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { activitiesAPI } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { getActivityIcon } from '../utils/activityIcons';
 import './ActivityFeed.css';
-
-const WIKI_BASE_URL = 'https://runescape.wiki';
-
-const getIconForActivity = (text) => {
-  if (!text) return `${WIKI_BASE_URL}/images/RuneScape_icon.png`;
-
-  const lowerText = text.toLowerCase();
-
-  // A complete and accurate map of skill names to their official icon filenames.
-  const skillIconMap = {
-    'attack': 'Attack_detail', 'defence': 'Defence_detail', 'strength': 'Strength_detail',
-    'constitution': 'Constitution_detail', 'ranged': 'Ranged_detail', 'prayer': 'Prayer_detail',
-    'magic': 'Magic_detail', 'runecrafting': 'Runecrafting_detail', 'construction': 'Construction_detail',
-    'dungeoneering': 'Dungeoneering_detail', 'smithing': 'Smithing_detail', 'mining': 'Mining_detail',
-    'herblore': 'Herblore_detail', 'agility': 'Agility_detail', 'thieving': 'Thieving_detail',
-    'farming': 'Farming_detail', 'fletching': 'Fletching_detail', 'hunter': 'Hunter_detail',
-    'summoning': 'Summoning_detail', 'woodcutting': 'Woodcutting_detail', 'firemaking': 'Firemaking_detail',
-    'crafting': 'Crafting_detail', 'fishing': 'Fishing_detail', 'cooking': 'Cooking_detail',
-    'slayer': 'Slayer_detail', 'divination': 'Divination_detail', 'invention': 'Invention_detail',
-    'archaeology': 'Archaeology_detail', 'necromancy': 'Necromancy_detail'
-  };
-
-  for (const [skill, iconName] of Object.entries(skillIconMap)) {
-    if (lowerText.includes(skill)) {
-      return `https://runescape.wiki/images/thumb/${encodeURIComponent(iconName)}.png/25px-${encodeURIComponent(iconName)}.png`;
-    }
-  }
-
-  // Fallback icons for common activities
-  if (lowerText.includes('quest')) return `${WIKI_BASE_URL}/images/Quest_point_icon.png`;
-  if (lowerText.includes('clue') || lowerText.includes('treasure')) return `${WIKI_BASE_URL}/images/Treasure_Trails_icon.png`;
-  if (lowerText.includes('found') || lowerText.includes('looted') || lowerText.includes('drop')) return `${WIKI_BASE_URL}/images/Rare_drop_symbol.png`;
-
-  return `${WIKI_BASE_URL}/images/RuneScape_icon.png`;
-};
 
 function ActivityFeed() {
   const [activities, setActivities] = useState([]);
@@ -59,10 +25,11 @@ function ActivityFeed() {
       const mappedActivities = response.data.activities.map((activity, index) => ({
         id: `activity-${activity.timestamp}-${index}`,
         type: 'achievement',
-        memberName: activity.memberName,
-        timestamp: new Date(activity.date).toISOString(),
+        memberName: activity.memberName || activity.member_name,
+        timestamp: new Date(activity.date || activity.activity_date).toISOString(),
         text: activity.text,
         details: activity.details,
+        category: activity.category,
         message: activity.text
       }));
 
@@ -139,7 +106,7 @@ function ActivityFeed() {
                 onClick={() => activity.memberName && handleMemberClick(activity.memberName)}
               >
                 <img 
-                  src={getIconForActivity(activity.text)} 
+                  src={getActivityIcon(activity)} 
                   alt=""
                   className="activity-icon"
                   onError={(e) => {

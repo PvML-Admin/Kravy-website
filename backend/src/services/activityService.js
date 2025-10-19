@@ -1,5 +1,5 @@
-const { ActivityModel } = require('../database/models');
-const { parseActivityCategory } = require('../utils/activityParser');
+const { ActivityModel, MemberModel } = require('../database/models');
+const { categorizeActivity } = require('../utils/activityCategorizer');
 
 /**
  * Gets recent in-game activities for clan members from database
@@ -11,7 +11,7 @@ async function getRecentClanActivities(limit = 100) {
   const activities = await ActivityModel.getRecent(limit);
   return activities.map(activity => ({
     ...activity,
-    category: parseActivityCategory(activity.text)
+    category: activity.category || categorizeActivity(activity.text, activity.details || '')
   }));
 }
 
