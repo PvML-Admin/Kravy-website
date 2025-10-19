@@ -57,9 +57,9 @@ function HighestRanks() {
                 e.target.style.display = 'none';
               }}
             />
-            <div className="member-name" style={{ color: member.rank_color }}>
+            <span className="member-name" style={{ color: member.rank_color }}>
               <PlayerDisplayName member={member} />
-            </div>
+            </span>
           </li>
         ))}
       </ul>

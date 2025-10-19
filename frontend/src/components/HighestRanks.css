@@ -5,7 +5,8 @@
 }
 
 .highest-ranks-list li {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 10px 0;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -30,5 +31,6 @@
 
 .member-name {
   font-weight: 500;
-  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
 }
