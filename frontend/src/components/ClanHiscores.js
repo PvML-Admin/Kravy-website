@@ -122,7 +122,12 @@ function ClanHiscores() {
   
   const { items: sortedMembers, requestSort, sortConfig } = useSortableData(filteredMembers, { key: 'total_rank', direction: 'ascending' });
   
-  const formatXp = (xp) => xp ? xp.toLocaleString() : '0';
+  const formatXp = (xp) => {
+    if (!xp) return '0';
+    // Convert to number if it's a string (PostgreSQL BIGINT returns as string)
+    const numXp = typeof xp === 'string' ? parseInt(xp) : xp;
+    return numXp.toLocaleString();
+  };
 
   const getSortDirectionClass = (name) => {
     if (!sortConfig) return;

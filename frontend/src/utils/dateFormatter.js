@@ -50,7 +50,13 @@ export function formatDateBST(date) {
 export function formatRelativeTimeBST(date) {
   if (!date) return 'Never';
   
-  const dateObj = new Date(date);
+  // Handle BIGINT timestamps from PostgreSQL (might be string or number)
+  const timestamp = typeof date === 'string' && !isNaN(date) ? parseInt(date) : date;
+  const dateObj = new Date(timestamp);
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) return 'Invalid Date';
+  
   const now = new Date();
   const diff = now - dateObj;
   
