@@ -1,0 +1,31 @@
+/* Discord Booster Styles */
+.discord-booster-name {
+  color: #ff69b4 !important;
+  font-weight: 600;
+  animation: boosterGlow 3s ease-in-out infinite;
+}
+
+.discord-booster-icon {
+  font-size: 1.1rem;
+  animation: boosterPulse 2s ease-in-out infinite;
+  display: inline-block;
+  filter: drop-shadow(0 0 3px rgba(255, 105, 180, 0.5));
+}
+
+@keyframes boosterGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 105, 180, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 105, 180, 0.6), 0 0 25px rgba(255, 105, 180, 0.4);
+  }
+}
+
+@keyframes boosterPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}

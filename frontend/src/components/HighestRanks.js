@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI } from '../services/api';
-import SpecialName from './SpecialNames';
+import PlayerDisplayName from './PlayerDisplayName';
 import './HighestRanks.css';
 
 function HighestRanks() {
@@ -57,9 +57,9 @@ function HighestRanks() {
                 e.target.style.display = 'none';
               }}
             />
-            <span className="member-name" style={{ color: member.rank_color }}>
-              <SpecialName name={member.display_name || member.name} />
-            </span>
+            <div className="member-name" style={{ color: member.rank_color }}>
+              <PlayerDisplayName member={member} />
+            </div>
           </li>
         ))}
       </ul>

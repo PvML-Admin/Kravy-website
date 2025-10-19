@@ -4,7 +4,7 @@ import { membersAPI, activitiesAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
 import { formatDateBST, formatRelativeTimeBST } from '../utils/dateFormatter';
 import { getActivityIcon } from '../utils/activityIcons';
-import SpecialName from './SpecialNames';
+import PlayerDisplayName from './PlayerDisplayName';
 
 // Format skill XP text to be more readable
 function formatActivityText(text) {
@@ -232,7 +232,7 @@ function PlayerProfile() {
 
             <div style={{ flex: 1 }}>
               <h2 style={{ margin: '0 0 5px 0' }}>
-                <SpecialName name={member.display_name || member.name} />
+                <PlayerDisplayName member={member} />
                 {isSyncing && <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px' }}> (Syncing...)</span>}
               </h2>
               <div style={{ display: 'flex', gap: '20px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
-import SpecialName from './SpecialNames';
+import PlayerDisplayName from './PlayerDisplayName';
 import './ClanHiscores.css';
 
 // Custom hook for sorting
@@ -216,7 +216,7 @@ function ClanHiscores() {
                       e.target.style.display = 'none';
                     }}
                   />
-                  <span><SpecialName name={member.display_name || member.name} /></span>
+                  <PlayerDisplayName member={member} />
                 </td>
                 <td>{member.total_level || 'N/A'}</td>
                 <td>

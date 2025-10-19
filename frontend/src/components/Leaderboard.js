@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
-import SpecialName from './SpecialNames';
+import PlayerDisplayName from './PlayerDisplayName';
 import './Leaderboard.css';
 
 function Leaderboard() {
@@ -126,7 +126,7 @@ function Leaderboard() {
                                 e.target.style.display = 'none';
                               }}
                             />
-                            <span><SpecialName name={member.name} /></span>
+                            <PlayerDisplayName member={member} />
                           </td>
                           <td>{formatXp(member.totalXp)}</td>
                           <td className="xp-gain">+{formatXp(member.xpGain)}</td>

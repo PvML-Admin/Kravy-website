@@ -143,7 +143,7 @@ class MemberModel {
   static async getAllHiscoresData() {
     const query = `
       SELECT
-        m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active,
+        m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster,
         (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
         s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
       FROM members m
@@ -164,6 +164,7 @@ class MemberModel {
           combat_level: row.combat_level,
           total_rank: row.total_rank,
           is_active: row.is_active,
+          is_discord_booster: row.is_discord_booster,
           total_level: row.total_level,
           avatar_url: `http://services.runescape.com/m=avatar-rs/${encodeURIComponent(row.name)}/chat.png`,
           skills: []
