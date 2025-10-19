@@ -1,4 +1,4 @@
-import { getSkillIcon } from './skills';
+import { getSkillIcon, skillOrder } from './skills';
 
 // Import custom icons
 import bossKillsIcon from '../assets/icons/boss_kills.png';
@@ -17,14 +17,22 @@ const categoryIcons = {
   'Misc': miscIcon
 };
 
+// Helper to find which skill is mentioned in an activity text
+function findSkillName(text) {
+  // Find the first skill from our list that is present in the activity text.
+  // We check against skillOrder but skip 'Overall'.
+  return skillOrder.slice(1).find(skill => text.includes(skill)) || null;
+}
+
 export function getActivityIcon(activity) {
   if (activity.category === 'Skills') {
     const text = activity.details || activity.text;
-    const skillMatch = text.match(/(\d+) XP in (\w+)/);
-    if (skillMatch && skillMatch[2]) {
-      return getSkillIcon(skillMatch[2]);
+    const skillName = findSkillName(text);
+    
+    if (skillName) {
+      return getSkillIcon(skillName);
     }
-    return getSkillIcon('Overall'); // Fallback for skills
+    return getSkillIcon('Overall'); // Fallback if no specific skill is found
   }
 
   return categoryIcons[activity.category] || miscIcon;

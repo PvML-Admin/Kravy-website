@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
 const { scheduleDailyReset, scheduleWeeklyReset, startContinuousSync } = require('./utils/scheduler');
+const { addCategoryToActivities } = require('./database/migrations/add_category_to_activities');
 
 const membersRouter = require('./api/members');
 const syncRouter = require('./api/sync');
@@ -35,11 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize database (creates tables if they don't exist)
+// Initialize database
 (async () => {
   try {
+    // Run any pending migrations first
+    await addCategoryToActivities();
+
+    // Then, initialize the database schema (creates tables if they don't exist)
     await initializeDatabase();
-    console.log('Database initialization complete');
+    console.log('Database setup complete');
   } catch (error) {
     console.error('Database setup failed:', error);
     process.exit(1); // Exit if database setup fails
