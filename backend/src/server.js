@@ -41,17 +41,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Session configuration
+const isProduction = process.env.NODE_ENV === 'production';
 app.use(session({
   secret: process.env.SESSION_SECRET || 'kravy-tracker-secret-change-this-in-production',
   resave: false,
   saveUninitialized: false,
-  proxy: true, // Trust proxy for secure cookies
+  proxy: true, // Trust proxy for secure cookies behind Render's proxy
   cookie: {
-    secure: false, // Set to false for localhost development
+    secure: isProduction, // Use secure cookies in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax', // 'lax' for localhost development
-    domain: 'localhost' // Explicitly set domain for localhost
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-site cookies in production
+    domain: process.env.COOKIE_DOMAIN || undefined // Don't set domain in production, let browser handle it
   }
 }));
 
