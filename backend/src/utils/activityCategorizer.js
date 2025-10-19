@@ -19,7 +19,7 @@ const CATEGORIES = {
 function categorizeActivity(text, details) {
   const fullText = `${text} ${details}`.toLowerCase();
 
-  // More specific checks should come first to avoid incorrect categorization.
+  // More specific checks must come first to avoid incorrect categorization.
 
   // Boss Loot / Drops
   if (fullText.includes('i found a') || fullText.includes('i received a drop:')) {
@@ -51,7 +51,7 @@ function categorizeActivity(text, details) {
     return CATEGORIES.CITADEL;
   }
 
-  // Fallback for other skill-related messages that aren't XP gains
+  // Fallback for other skill-related messages that aren't direct XP gains
   if (SKILLS.some(skill => fullText.includes(skill.toLowerCase()))) {
     return CATEGORIES.SKILLS;
   }
