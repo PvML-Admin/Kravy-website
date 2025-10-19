@@ -35,6 +35,8 @@ async function getMemberActivities(memberName) {
       date: activity.activity_date,
       details: activity.details,
       text: activity.text,
+      category: activity.category || categorizeActivity(activity.text, activity.details || ''),
+      activity_date: activity.activity_date,
       timestamp: activity.activity_date
     }));
   } catch (error) {

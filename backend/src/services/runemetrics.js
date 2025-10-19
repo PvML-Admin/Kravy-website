@@ -53,6 +53,8 @@ async function fetchPlayerProfile(username, activities = 20) {
         totalSkill: profileData.totalskill,
         totalXp: profileData.totalxp,
         combatLevel: profileData.combatlevel || 0,
+        clanXp: profileData.runescorexp || 0,
+        kills: profileData.melee || 0,
         activities: parsedActivities,
       };
     } catch (error) {

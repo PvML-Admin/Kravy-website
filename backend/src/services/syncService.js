@@ -219,10 +219,11 @@ async function syncMember(memberId) {
       console.error(`[Sync] Failed to fetch activities: ${activityError.message}`);
     }
 
-    // ONLY update last_xp_gain and last_activity_date if the sum of individual skill gains is positive
+    // ONLY update last_xp_gain if the sum of individual skill gains is positive
+    // last_activity_date is already set from activities above, don't overwrite it
     if (totalXpDelta > 0) {
       await db.runAsync(
-        'UPDATE members SET last_xp_gain = CURRENT_TIMESTAMP, last_activity_date = CURRENT_TIMESTAMP WHERE id = ?',
+        'UPDATE members SET last_xp_gain = CURRENT_TIMESTAMP WHERE id = ?',
         [memberId]
       );
     }
