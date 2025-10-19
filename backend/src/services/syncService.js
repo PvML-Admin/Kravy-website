@@ -6,7 +6,59 @@ const { categorizeActivity } = require('../utils/activityCategorizer');
 const db = require('../config/database');
 
 // In-memory storage for sync progress (in production, use Redis or database)
+// Limited to 50 most recent syncs to prevent unbounded memory growth
+const MAX_SYNC_PROGRESS_ENTRIES = 50;
 const syncProgress = new Map();
+const syncCleanupTimeouts = new Map();
+
+/**
+ * Add sync progress entry with size limit enforcement
+ * Automatically removes oldest entries when limit is exceeded
+ */
+function addSyncProgress(syncId, progressData) {
+  // If we're at capacity, remove oldest entry
+  if (syncProgress.size >= MAX_SYNC_PROGRESS_ENTRIES) {
+    const oldestKey = syncProgress.keys().next().value;
+    syncProgress.delete(oldestKey);
+    
+    // Also clear associated timeout if exists
+    const timeoutId = syncCleanupTimeouts.get(oldestKey);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      syncCleanupTimeouts.delete(oldestKey);
+    }
+    
+    console.log(`[Sync Progress] Removed oldest sync entry (${oldestKey}) to maintain size limit`);
+  }
+  
+  syncProgress.set(syncId, progressData);
+  return progressData;
+}
+
+/**
+ * Schedule cleanup for sync progress entry
+ */
+function scheduleSyncCleanup(syncId, delayMs = 3600000) {
+  const timeoutId = setTimeout(() => {
+    syncProgress.delete(syncId);
+    syncCleanupTimeouts.delete(syncId);
+    console.log(`[Sync Progress] Cleaned up sync entry: ${syncId}`);
+  }, delayMs);
+  
+  syncCleanupTimeouts.set(syncId, timeoutId);
+}
+
+/**
+ * Cleanup all sync progress tracking (for graceful shutdown)
+ */
+function cleanupSyncProgress() {
+  console.log(`[Sync Progress] Cleaning up ${syncCleanupTimeouts.size} scheduled cleanups`);
+  syncCleanupTimeouts.forEach((timeoutId) => {
+    clearTimeout(timeoutId);
+  });
+  syncCleanupTimeouts.clear();
+  syncProgress.clear();
+}
 
 async function syncMember(memberId) {
   // Guard clause to prevent crashes on invalid data
@@ -270,30 +322,45 @@ async function startSyncAllMembers() {
     endTime: null
   };
   
-  syncProgress.set(syncId, progress);
+  addSyncProgress(syncId, progress);
 
-  // Run sync in background
+  // Run sync in background with batched processing
   (async () => {
-    const promises = members.map(member =>
-      syncMember(member.id)
-        .then(() => {
-          progress.successful++;
-          console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
-        })
-        .catch(error => {
-          progress.failed++;
-          progress.errors.push({
-            member: member.name,
-            error: error.message
-          });
-          console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
-        })
-        .finally(() => {
-          progress.processed++;
-        })
-    );
+    const BATCH_SIZE = 20; // Process 20 members at a time to prevent memory spikes
+    
+    for (let i = 0; i < members.length; i += BATCH_SIZE) {
+      const batch = members.slice(i, i + BATCH_SIZE);
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(members.length / BATCH_SIZE);
+      
+      console.log(`[Bulk Sync] Processing batch ${batchNum}/${totalBatches} (${batch.length} members)`);
+      
+      const batchPromises = batch.map(member =>
+        syncMember(member.id)
+          .then(() => {
+            progress.successful++;
+            console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
+          })
+          .catch(error => {
+            progress.failed++;
+            progress.errors.push({
+              member: member.name,
+              error: error.message
+            });
+            console.log(`[Bulk Sync] Progress: ${progress.processed + 1}/${progress.total} (Success: ${progress.successful}, Failed: ${progress.failed})`);
+          })
+          .finally(() => {
+            progress.processed++;
+          })
+      );
 
-    await Promise.all(promises);
+      await Promise.all(batchPromises);
+      
+      // Small delay between batches to prevent overwhelming external APIs
+      if (i + BATCH_SIZE < members.length) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
     
     progress.status = 'completed';
     progress.endTime = new Date().toISOString();
@@ -306,10 +373,8 @@ async function startSyncAllMembers() {
     console.log(`[Bulk Sync] Duration: ${Math.round((new Date(progress.endTime) - new Date(progress.startTime)) / 1000)}s`);
     console.log(`========================================\n`);
     
-    // Clean up after 1 hour
-    setTimeout(() => {
-      syncProgress.delete(syncId);
-    }, 3600000);
+    // Schedule cleanup after 1 hour
+    scheduleSyncCleanup(syncId, 3600000);
   })();
 
   return {
@@ -348,36 +413,45 @@ async function startSyncUnsyncedMembers() {
     endTime: null
   };
   
-  syncProgress.set(syncId, progress);
+  addSyncProgress(syncId, progress);
 
-  // Run sync in background
+  // Run sync in background with batched processing
   (async () => {
-    const promises = members.map(member =>
-      syncMember(member.id)
-        .then(() => {
-          progress.successful++;
-        })
-        .catch(error => {
-          progress.failed++;
-          progress.errors.push({
-            member: member.name,
-            error: error.message
-          });
-        })
-        .finally(() => {
-          progress.processed++;
-        })
-    );
+    const BATCH_SIZE = 20; // Process 20 members at a time to prevent memory spikes
+    
+    for (let i = 0; i < members.length; i += BATCH_SIZE) {
+      const batch = members.slice(i, i + BATCH_SIZE);
+      
+      const batchPromises = batch.map(member =>
+        syncMember(member.id)
+          .then(() => {
+            progress.successful++;
+          })
+          .catch(error => {
+            progress.failed++;
+            progress.errors.push({
+              member: member.name,
+              error: error.message
+            });
+          })
+          .finally(() => {
+            progress.processed++;
+          })
+      );
 
-    await Promise.all(promises);
+      await Promise.all(batchPromises);
+      
+      // Small delay between batches to prevent overwhelming external APIs
+      if (i + BATCH_SIZE < members.length) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
     
     progress.status = 'completed';
     progress.endTime = new Date().toISOString();
     
-    // Clean up after 1 hour
-    setTimeout(() => {
-      syncProgress.delete(syncId);
-    }, 3600000);
+    // Schedule cleanup after 1 hour
+    scheduleSyncCleanup(syncId, 3600000);
   })();
 
   return {
@@ -476,6 +550,7 @@ module.exports = {
   startSyncUnsyncedMembers,
   getSyncProgress,
   getAllSyncProgress,
-  getMemberStats
+  getMemberStats,
+  cleanupSyncProgress
 };
 

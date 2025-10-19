@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI } from '../../services/api';
+import { adminAPI, twitterAPI } from '../../services/api';
 import './DashboardOverview.css';
 
 function DashboardOverview() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [twitterStatus, setTwitterStatus] = useState(null);
+  const [refreshingTwitter, setRefreshingTwitter] = useState(false);
 
   useEffect(() => {
     fetchStats();
+    fetchTwitterStatus();
     const interval = setInterval(fetchStats, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
@@ -23,6 +26,41 @@ function DashboardOverview() {
       console.error('Error fetching stats:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTwitterStatus = async () => {
+    try {
+      const response = await twitterAPI.getStatus();
+      setTwitterStatus(response.data);
+    } catch (err) {
+      console.error('Error fetching Twitter status:', err);
+    }
+  };
+
+  const refreshTwitterFeed = async () => {
+    setRefreshingTwitter(true);
+    try {
+      const response = await twitterAPI.refresh();
+      const data = response.data;
+      
+      if (data.success) {
+        alert(`✓ Twitter feed refreshed successfully!\n\nFetched ${data.count} tweets.`);
+        fetchTwitterStatus(); // Update status
+      } else {
+        alert(`✗ Failed to refresh Twitter feed:\n${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error refreshing Twitter feed:', error);
+      
+      // Check if it's a rate limit error
+      if (error.response?.status === 429) {
+        alert('⏱️ Twitter API Rate Limit Reached\n\nThe Twitter Free tier has strict rate limits. Please wait 15 minutes before refreshing again.\n\nThe cache will automatically refresh after 24 hours.');
+      } else {
+        alert('✗ Error refreshing Twitter feed. Please try again later.');
+      }
+    } finally {
+      setRefreshingTwitter(false);
     }
   };
 
@@ -108,6 +146,50 @@ function DashboardOverview() {
             <div className="empty-state">No recent syncs</div>
           )}
         </div>
+      </div>
+
+      {/* Twitter Feed Management */}
+      <div className="section-card">
+        <h3>Twitter Feed</h3>
+        {twitterStatus?.configured ? (
+          <div className="twitter-management">
+            <div className="twitter-info">
+              <div className="info-item">
+                <span className="info-label">Account:</span>
+                <span className="info-value">@{twitterStatus.username}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Cache Status:</span>
+                <span className="info-value">
+                  {twitterStatus.cache?.has_data ? (
+                    <>
+                      {twitterStatus.cache.tweets_count} tweets cached
+                      {twitterStatus.cache.age_minutes > 0 && (
+                        <span className="cache-age"> ({twitterStatus.cache.age_minutes} min ago)</span>
+                      )}
+                    </>
+                  ) : (
+                    'No cached data'
+                  )}
+                </span>
+              </div>
+            </div>
+            <button 
+              className="btn-refresh-twitter"
+              onClick={refreshTwitterFeed}
+              disabled={refreshingTwitter}
+            >
+              {refreshingTwitter ? 'Refreshing...' : 'Refresh Twitter Feed'}
+            </button>
+            <p className="twitter-hint">
+              Click refresh after posting a new tweet. Twitter Free tier: 1,500 requests/month (~50/day). Cache auto-refreshes every 24 hours. Use sparingly!
+            </p>
+          </div>
+        ) : (
+          <div className="twitter-not-configured">
+            <p>Twitter feed is not configured</p>
+          </div>
+        )}
       </div>
 
       {/* System Info */}

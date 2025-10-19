@@ -129,7 +129,9 @@ function Leaderboard() {
                             <PlayerDisplayName member={member} />
                           </td>
                           <td>{formatXp(member.totalXp)}</td>
-                          <td className="xp-gain">+{formatXp(member.xpGain)}</td>
+                          <td className={`xp-gain ${member.is_grandmaster_ca ? 'grandmaster-ca-name' : ''} ${member.is_discord_booster ? 'discord-booster-name' : ''}`}>
+                            +{formatXp(member.xpGain)}
+                          </td>
                         </tr>
                       ))}
                   </tbody>

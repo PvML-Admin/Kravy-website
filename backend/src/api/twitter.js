@@ -45,16 +45,49 @@ router.get('/recent-tweets', async (req, res) => {
 
 /**
  * GET /api/twitter/status
- * Check if Twitter API is configured and working
+ * Check if Twitter API is configured and working, with cache info
  */
 router.get('/status', async (req, res) => {
-  const isConfigured = twitterService.isConfigured();
+  const status = twitterService.getTwitterStatus();
   
   res.json({
     success: true,
-    configured: isConfigured,
-    username: isConfigured ? process.env.TWITTER_USERNAME : null
+    configured: status.configured,
+    username: status.configured ? process.env.TWITTER_USERNAME : null,
+    cache: status.cache
   });
+});
+
+/**
+ * POST /api/twitter/refresh
+ * Force refresh tweets (bypasses cache)
+ */
+router.post('/refresh', async (req, res) => {
+  try {
+    if (!twitterService.isConfigured()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Twitter API is not configured'
+      });
+    }
+
+    const limit = Math.min(parseInt(req.query.limit) || 5, 10);
+    const tweets = await twitterService.forceRefreshTweets(limit);
+
+    res.json({
+      success: true,
+      count: tweets.length,
+      tweets: tweets,
+      message: 'Tweets refreshed successfully'
+    });
+  } catch (error) {
+    console.error('Error in /refresh endpoint:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refresh tweets',
+      error: error.message
+    });
+  }
 });
 
 /**
@@ -65,7 +98,7 @@ router.post('/clear-cache', (req, res) => {
   twitterService.clearCache();
   res.json({
     success: true,
-    message: 'Tweet cache cleared'
+    message: 'Tweet cache cleared. Next request will fetch fresh tweets.'
   });
 });
 

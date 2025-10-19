@@ -6,7 +6,7 @@ import { formatDateBST } from '../utils/dateFormatter';
 import './MemberList.css';
 
 const CLAN_RANKS = [
-  'Owner', 'Deputy Owner', 'Overseer', 'Coordinator', 'Admin',
+  'Owner', 'Deputy Owner', 'Overseer', 'Coordinator', 'Organiser', 'Admin',
   'General', 'Captain', 'Lieutenant', 'Sergeant', 'Corporal',
   'Recruit',
 ];

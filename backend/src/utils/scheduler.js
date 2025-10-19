@@ -4,6 +4,16 @@ const { syncMember } = require('../services/syncService');
 const { MemberModel } = require('../database/models');
 const { populateDailyXp } = require('../database/populate-daily-xp');
 
+// Store all scheduled tasks and timeouts for cleanup
+const scheduledTasks = {
+  dailyXpRecording: null,
+  dailyReset: null,
+  weeklyReset: null,
+  monthlyReset: null,
+  continuousSync: null,
+  activeTimeouts: new Set()
+};
+
 async function resetDailyGains() {
   try {
     console.log('Running daily reset for daily_xp_gain...');
@@ -36,7 +46,7 @@ async function resetMonthlyGains() {
 
 function scheduleDailyReset() {
   // Schedule a task to run at 23:55 UTC to record daily XP before reset
-  cron.schedule('55 23 * * *', () => {
+  scheduledTasks.dailyXpRecording = cron.schedule('55 23 * * *', () => {
     console.log('Recording daily clan XP totals...');
     populateDailyXp().catch(err => {
       console.error('Failed to record daily XP totals:', err);
@@ -46,7 +56,7 @@ function scheduleDailyReset() {
   });
 
   // Schedule a task to run at midnight every day for resetting gains.
-  cron.schedule('0 0 * * *', () => {
+  scheduledTasks.dailyReset = cron.schedule('0 0 * * *', () => {
     console.log('Running scheduled daily XP gain reset...');
     resetDailyGains();
   }, {
@@ -58,7 +68,7 @@ function scheduleDailyReset() {
 
 function scheduleWeeklyReset() {
   // Schedule a task to run at midnight on Monday every week for resetting gains.
-  cron.schedule('0 0 * * 1', () => {
+  scheduledTasks.weeklyReset = cron.schedule('0 0 * * 1', () => {
     console.log('Running scheduled weekly XP gain reset...');
     resetWeeklyGains();
   }, {
@@ -70,7 +80,7 @@ function scheduleWeeklyReset() {
 
 function scheduleMonthlyReset() {
   // Schedule a task to run at midnight on the 1st of every month for resetting gains.
-  cron.schedule('0 0 1 * *', () => {
+  scheduledTasks.monthlyReset = cron.schedule('0 0 1 * *', () => {
     console.log('Running scheduled monthly XP gain reset...');
     resetMonthlyGains();
   }, {
@@ -131,7 +141,13 @@ async function rollingSyncBatch() {
         
         // Small delay between syncs (30 seconds / 10 members = 3 seconds each)
         if (members.indexOf(member) < members.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => {
+            const timeoutId = setTimeout(() => {
+              scheduledTasks.activeTimeouts.delete(timeoutId);
+              resolve();
+            }, 3000);
+            scheduledTasks.activeTimeouts.add(timeoutId);
+          });
         }
       } catch (error) {
         failCount++;
@@ -157,7 +173,7 @@ function startContinuousSync() {
   });
 
   // Schedule to run every 5 minutes
-  cron.schedule('*/5 * * * *', () => {
+  scheduledTasks.continuousSync = cron.schedule('*/5 * * * *', () => {
     rollingSyncBatch().catch(err => {
       console.error('[Rolling Sync] Scheduled sync batch failed:', err);
     });
@@ -166,11 +182,51 @@ function startContinuousSync() {
   console.log('[Rolling Sync] Continuous sync scheduled to run every 5 minutes (10 members per batch)');
 }
 
+/**
+ * Cleanup all scheduled tasks and timeouts
+ * Called during graceful shutdown
+ */
+function cleanupSchedulers() {
+  console.log('Cleaning up schedulers and timers...');
+  
+  // Stop all cron tasks
+  if (scheduledTasks.dailyXpRecording) {
+    scheduledTasks.dailyXpRecording.stop();
+    console.log('Stopped daily XP recording task');
+  }
+  if (scheduledTasks.dailyReset) {
+    scheduledTasks.dailyReset.stop();
+    console.log('Stopped daily reset task');
+  }
+  if (scheduledTasks.weeklyReset) {
+    scheduledTasks.weeklyReset.stop();
+    console.log('Stopped weekly reset task');
+  }
+  if (scheduledTasks.monthlyReset) {
+    scheduledTasks.monthlyReset.stop();
+    console.log('Stopped monthly reset task');
+  }
+  if (scheduledTasks.continuousSync) {
+    scheduledTasks.continuousSync.stop();
+    console.log('Stopped continuous sync task');
+  }
+  
+  // Clear all active timeouts
+  scheduledTasks.activeTimeouts.forEach(timeoutId => {
+    clearTimeout(timeoutId);
+  });
+  console.log(`Cleared ${scheduledTasks.activeTimeouts.size} active timeouts`);
+  scheduledTasks.activeTimeouts.clear();
+  
+  console.log('All schedulers cleaned up');
+}
+
 module.exports = { 
   scheduleDailyReset, 
   scheduleWeeklyReset,
   scheduleMonthlyReset, 
-  startContinuousSync 
+  startContinuousSync,
+  cleanupSchedulers
 };
 
 

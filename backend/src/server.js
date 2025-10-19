@@ -2,13 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
-const { scheduleDailyReset, scheduleWeeklyReset, scheduleMonthlyReset, startContinuousSync } = require('./utils/scheduler');
+const { scheduleDailyReset, scheduleWeeklyReset, scheduleMonthlyReset, startContinuousSync, cleanupSchedulers } = require('./utils/scheduler');
+const { cleanupSyncProgress } = require('./services/syncService');
 const { addCategoryToActivities } = require('./database/migrations/add_category_to_activities');
 const { addGrandmasterCA } = require('./database/migrate-add-grandmaster-ca');
+const db = require('./config/database');
 
 const membersRouter = require('./api/members');
 const syncRouter = require('./api/sync');
@@ -41,9 +44,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Session configuration
+// Session configuration with PostgreSQL store
 const isProduction = process.env.NODE_ENV === 'production';
+const sessionStore = new pgSession({
+  pool: db.pool, // Use existing PostgreSQL connection pool
+  tableName: 'session', // Table name for sessions
+  createTableIfMissing: true, // Auto-create session table
+  pruneSessionInterval: 60 * 15 // Prune expired sessions every 15 minutes
+});
+
 app.use(session({
+  store: sessionStore, // Use PostgreSQL session store instead of MemoryStore
   secret: process.env.SESSION_SECRET || 'kravy-tracker-secret-change-this-in-production',
   resave: false,
   saveUninitialized: false,
@@ -118,7 +129,7 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
@@ -130,6 +141,49 @@ app.listen(PORT, () => {
   // Start continuous rolling sync (10 members every 5 minutes)
   console.log('Starting continuous rolling sync system...');
   startContinuousSync();
+});
+
+// Graceful shutdown handling
+function gracefulShutdown(signal) {
+  console.log(`\n${signal} received. Starting graceful shutdown...`);
+  
+  // Stop accepting new connections
+  server.close(() => {
+    console.log('HTTP server closed');
+    
+    // Cleanup schedulers and intervals
+    cleanupSchedulers();
+    
+    // Cleanup sync progress tracking
+    cleanupSyncProgress();
+    
+    // Close database pool
+    db.pool.end(() => {
+      console.log('Database pool closed');
+      process.exit(0);
+    });
+  });
+
+  // Force shutdown after 30 seconds
+  setTimeout(() => {
+    console.error('Forced shutdown after 30s timeout');
+    process.exit(1);
+  }, 30000);
+}
+
+// Listen for termination signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  gracefulShutdown('UNCAUGHT_EXCEPTION');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit on unhandled rejection, just log it
 });
 
 module.exports = app;

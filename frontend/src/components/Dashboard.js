@@ -6,7 +6,7 @@ import HighestRanks from './HighestRanks';
 import DailyClanXpGain from './DailyClanXpGain';
 import TwitterFeed from './TwitterFeed';
 import ClanActivitiesGrid from './ClanActivitiesGrid';
-import SpecialName from './SpecialNames';
+import PlayerDisplayName from './PlayerDisplayName';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -129,9 +129,11 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
                       >
                         <td>{index + 1}</td>
                         <td>
-                          <SpecialName name={member.display_name || member.name} />
+                          <PlayerDisplayName member={member} />
                         </td>
-                        <td className="xp-gain">{formatXp(member.xpGain)}</td>
+                        <td className={member.xpGain > 0 ? 'xp-gain' : ''}>
+                          {formatXp(member.xpGain)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

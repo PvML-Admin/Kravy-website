@@ -29,13 +29,17 @@ const client = initTwitterClient();
 const fs = require('fs');
 const path = require('path');
 
-// Cache file path
+// Cache file paths
 const CACHE_FILE = path.join(__dirname, '../../.twitter-cache.json');
+const USER_ID_CACHE_FILE = path.join(__dirname, '../../.twitter-user-id.json');
 
 // Load cache from file on startup
 let tweetCache = loadCacheFromFile();
 
-const CACHE_DURATION = 60 * 60 * 1000; // 60 minutes (1 hour) - Free tier has only 1 request limit
+// Cache user ID to avoid extra API calls - persist across restarts
+let cachedUserId = loadUserIdFromFile();
+
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours - Manual refresh available in admin panel
 
 /**
  * Load cache from file
@@ -66,47 +70,90 @@ function saveCacheToFile(cache) {
 }
 
 /**
+ * Load user ID from file
+ */
+function loadUserIdFromFile() {
+  try {
+    if (fs.existsSync(USER_ID_CACHE_FILE)) {
+      const data = fs.readFileSync(USER_ID_CACHE_FILE, 'utf8');
+      const cache = JSON.parse(data);
+      console.log(`✓ Loaded Twitter user ID from cache: ${cache.userId}`);
+      return cache.userId;
+    }
+  } catch (error) {
+    console.log('Could not load user ID cache:', error.message);
+  }
+  return null;
+}
+
+/**
+ * Save user ID to file
+ */
+function saveUserIdToFile(userId) {
+  try {
+    fs.writeFileSync(USER_ID_CACHE_FILE, JSON.stringify({ userId, username: process.env.TWITTER_USERNAME }, null, 2), 'utf8');
+    console.log(`✓ Saved Twitter user ID to cache: ${userId}`);
+  } catch (error) {
+    console.error('Could not save user ID cache:', error.message);
+  }
+}
+
+/**
  * Get recent tweets from the configured Twitter account
  * @param {number} limit - Number of tweets to fetch (default: 5)
+ * @param {boolean} forceRefresh - Force a fresh fetch even if cache is valid
  * @returns {Promise<Array>} Array of formatted tweet objects
  */
-async function getRecentTweets(limit = 5) {
+async function getRecentTweets(limit = 5, forceRefresh = false) {
   // Check if Twitter client is initialized
   if (!client) {
     console.warn('Twitter API not configured');
     return tweetCache.data || [];
   }
 
-  // Check cache - return immediately if valid
   const now = Date.now();
-  if (tweetCache.data && (now - tweetCache.timestamp) < CACHE_DURATION) {
-    console.log(`Returning cached tweets (age: ${Math.floor((now - tweetCache.timestamp) / 60000)} minutes)`);
+  const cacheAge = now - tweetCache.timestamp;
+  const cacheAgeMinutes = Math.floor(cacheAge / 60000);
+
+  // Force refresh if requested
+  if (forceRefresh) {
+    console.log('Force refresh requested, fetching fresh tweets...');
+    try {
+      return await fetchTweetsFromAPI(limit);
+    } catch (error) {
+      console.error('Force refresh failed:', error.message);
+      // Return cached data as fallback
+      return tweetCache.data || [];
+    }
+  }
+
+  // Check cache - return immediately if valid and fresh
+  if (tweetCache.data && cacheAge < CACHE_DURATION) {
+    console.log(`Returning cached tweets (age: ${cacheAgeMinutes} minutes)`);
     return tweetCache.data;
   }
 
-  // If cache exists but expired, return it first and try to refresh in background
-  const hasCachedData = tweetCache.data !== null;
-  if (hasCachedData) {
-    console.log('Returning stale cache while attempting refresh...');
-    // Return cached data immediately
-    const cachedData = tweetCache.data;
-    
-    // Try to refresh in background (don't await)
-    refreshTweetsInBackground(limit).catch(err => {
-      console.log('Background refresh failed, will retry later:', err.message);
-    });
-    
-    return cachedData;
+  // Cache is expired - try to fetch fresh data
+  if (tweetCache.data) {
+    console.log(`Cache expired (age: ${cacheAgeMinutes} minutes), fetching fresh tweets...`);
+  } else {
+    console.log('No cache exists, fetching tweets for the first time...');
   }
 
-  // No cache exists, try to fetch (first time only)
-  console.log('No cache exists, attempting first fetch...');
   try {
+    // Try to fetch fresh tweets
     const tweets = await fetchTweetsFromAPI(limit);
     return tweets;
   } catch (error) {
-    console.error('Initial tweet fetch failed:', error.message);
-    // Return empty array on first load failure
+    console.error('Failed to fetch fresh tweets:', error.message);
+    
+    // If we have cached data, return it as fallback (even if stale)
+    if (tweetCache.data) {
+      console.log('Returning stale cache as fallback');
+      return tweetCache.data;
+    }
+    
+    // No cache at all, return empty array
     return [];
   }
 }
@@ -123,26 +170,39 @@ async function fetchTweetsFromAPI(limit = 5) {
     throw new Error('TWITTER_USERNAME not configured');
   }
 
-  // Get user ID from username
-  const user = await client.v2.userByUsername(username);
-  
-  if (!user.data) {
-    throw new Error(`Twitter user @${username} not found`);
+  // Get user ID - use cached ID to save 1 API call per request
+  let userId = cachedUserId;
+  if (!userId) {
+    console.log('⚠️  User ID not cached, fetching from Twitter API (1 API call)...');
+    const user = await client.v2.userByUsername(username); // 1 API call (only first time ever)
+    
+    if (!user.data) {
+      throw new Error(`Twitter user @${username} not found`);
+    }
+    
+    userId = user.data.id;
+    cachedUserId = userId; // Cache it in memory
+    saveUserIdToFile(userId); // Persist to file so it survives restarts
   }
 
-  const userId = user.data.id;
-
-  // Fetch user's tweets with expansions for media and metrics
-  const tweets = await client.v2.userTimeline(userId, {
-    max_results: Math.min(limit, 10), // Twitter allows max 100, but we cap at 10 for UI
+  // Fetch user's tweets (1 API call)
+  // Twitter API minimum is 5 tweets, so we must fetch at least 5
+  const response = await client.v2.userTimeline(userId, {
+    max_results: Math.max(5, Math.min(limit, 10)), // Minimum 5 (Twitter's requirement), max 10 for UI
     exclude: ['retweets', 'replies'], // Only get original tweets
     'tweet.fields': ['created_at', 'public_metrics', 'entities'],
     'media.fields': ['url', 'preview_image_url'],
     expansions: ['attachments.media_keys']
   });
 
+  // Log rate limit info
+  const rateLimit = response.rateLimit;
+  if (rateLimit) {
+    console.log(`📊 Twitter API Rate Limit: ${rateLimit.remaining}/${rateLimit.limit} remaining (resets at ${new Date(rateLimit.reset * 1000).toLocaleTimeString()})`);
+  }
+
   // Format tweets for frontend
-  const formattedTweets = tweets.data.data.map(tweet => {
+  const formattedTweets = response.data.data.map(tweet => {
     return {
       id: tweet.id,
       text: tweet.text,
@@ -171,21 +231,12 @@ async function fetchTweetsFromAPI(limit = 5) {
 }
 
 /**
- * Refresh tweets in background without blocking
+ * Force refresh tweets (bypasses cache)
  * @param {number} limit 
+ * @returns {Promise<Array>}
  */
-async function refreshTweetsInBackground(limit = 5) {
-  try {
-    await fetchTweetsFromAPI(limit);
-  } catch (error) {
-    // Silently fail on rate limits or errors - we already have cached data
-    if (error.code === 429) {
-      console.log('Rate limited during background refresh - will retry later');
-    } else {
-      console.log('Background refresh error:', error.message);
-    }
-    throw error; // Re-throw so caller knows it failed
-  }
+async function forceRefreshTweets(limit = 5) {
+  return getRecentTweets(limit, true);
 }
 
 /**
@@ -243,6 +294,7 @@ setImmediate(() => {
 
 module.exports = {
   getRecentTweets,
+  forceRefreshTweets,
   clearCache,
   clearTwitterCache,
   isConfigured,

@@ -7,13 +7,64 @@ const { sortMembersByRank, getRankIcon, getRankColor } = require('../utils/clanR
 const { getSkillMaxLevel, getXpToNextLevel, getPercentageToNextLevel } = require('../utils/skillLevels');
 const { isAdmin } = require('../middleware/auth');
 
-// Cache for hiscores data (refreshes every hour)
-let hiscoresCache = {
-  data: null,
-  timestamp: null,
-  brackets: null,
-  bracketsTimestamp: null
-};
+// LRU Cache implementation for hiscores data
+class LRUCache {
+  constructor(maxSize = 10, ttl = 60 * 60 * 1000) {
+    this.maxSize = maxSize;
+    this.ttl = ttl;
+    this.cache = new Map();
+  }
+
+  get(key) {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    
+    // Check if expired
+    if (Date.now() - item.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    // Move to end (most recently used)
+    this.cache.delete(key);
+    this.cache.set(key, item);
+    
+    return item.data;
+  }
+
+  set(key, data) {
+    // Remove if already exists (to re-insert at end)
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+    
+    // If at capacity, remove oldest (first) entry
+    if (this.cache.size >= this.maxSize) {
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+    
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
+  has(key) {
+    return this.get(key) !== null;
+  }
+
+  clear() {
+    this.cache.clear();
+  }
+
+  getSize() {
+    return this.cache.size;
+  }
+}
+
+// Cache for hiscores data with LRU eviction (max 10 entries, 1 hour TTL)
+const hiscoresCache = new LRUCache(10, 60 * 60 * 1000);
 
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
@@ -89,12 +140,15 @@ router.get('/hiscores', async (req, res) => {
 
 router.get('/hiscores/xp-brackets', async (req, res) => {
   try {
+    const cacheKey = 'xp-brackets';
+    
     // Check if we have valid cached brackets
-    if (isCacheValid(hiscoresCache.bracketsTimestamp)) {
+    const cachedBrackets = hiscoresCache.get(cacheKey);
+    if (cachedBrackets) {
       console.log('Serving XP brackets from cache');
       return res.json({
         success: true,
-        brackets: hiscoresCache.brackets,
+        brackets: cachedBrackets,
         cached: true
       });
     }
@@ -104,8 +158,7 @@ router.get('/hiscores/xp-brackets', async (req, res) => {
     const brackets = await MemberModel.getHiscoresXpBrackets();
     
     // Update cache
-    hiscoresCache.brackets = brackets;
-    hiscoresCache.bracketsTimestamp = Date.now();
+    hiscoresCache.set(cacheKey, brackets);
     
     res.json({
       success: true,
@@ -123,14 +176,16 @@ router.get('/hiscores/xp-brackets', async (req, res) => {
 
 router.get('/all-hiscores', async (req, res) => {
   try {
+    const cacheKey = 'all-hiscores';
+    
     // Check if we have valid cached data
-    if (isCacheValid(hiscoresCache.timestamp)) {
+    const cachedData = hiscoresCache.get(cacheKey);
+    if (cachedData) {
       console.log('Serving hiscores from cache');
       return res.json({
         success: true,
-        members: hiscoresCache.data,
-        cached: true,
-        cacheAge: Math.floor((Date.now() - hiscoresCache.timestamp) / 1000 / 60) // age in minutes
+        members: cachedData,
+        cached: true
       });
     }
 
@@ -139,8 +194,7 @@ router.get('/all-hiscores', async (req, res) => {
     const members = await MemberModel.getAllHiscoresData();
     
     // Update cache
-    hiscoresCache.data = members;
-    hiscoresCache.timestamp = Date.now();
+    hiscoresCache.set(cacheKey, members);
     
     res.json({
       success: true,
@@ -493,16 +547,14 @@ router.get('/highest-ranks', async (req, res) => {
 // Clear hiscores cache (useful for manual refresh or after bulk sync)
 router.post('/hiscores/clear-cache', isAdmin, async (req, res) => {
   try {
-    hiscoresCache.data = null;
-    hiscoresCache.timestamp = null;
-    hiscoresCache.brackets = null;
-    hiscoresCache.bracketsTimestamp = null;
+    hiscoresCache.clear();
     
     console.log('Hiscores cache cleared');
     
     res.json({
       success: true,
-      message: 'Hiscores cache cleared successfully'
+      message: 'Hiscores cache cleared successfully',
+      cacheSize: hiscoresCache.getSize()
     });
   } catch (error) {
     res.status(500).json({

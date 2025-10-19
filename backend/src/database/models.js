@@ -140,17 +140,57 @@ class MemberModel {
     return brackets;
   }
 
-  static async getAllHiscoresData() {
-    const query = `
-      SELECT
-        m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
-        (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
-        s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
-      FROM members m
-      LEFT JOIN skills s ON m.id = s.member_id
-      WHERE m.is_active = TRUE
-    `;
-    const rows = await db.allAsync(query);
+  static async getAllHiscoresData(limit = null, offset = 0) {
+    // First, get paginated member IDs if limit is specified
+    let memberIds = [];
+    if (limit !== null && limit > 0) {
+      const memberQuery = `
+        SELECT id FROM members 
+        WHERE is_active = TRUE 
+        ORDER BY id 
+        LIMIT ? OFFSET ?
+      `;
+      const memberRows = await db.allAsync(memberQuery, [limit, offset]);
+      memberIds = memberRows.map(row => row.id);
+      
+      if (memberIds.length === 0) {
+        return []; // No members in this page
+      }
+    }
+    
+    // Build query to get member data with skills
+    let query;
+    let params = [];
+    
+    if (memberIds.length > 0) {
+      // Get data only for specific member IDs (paginated)
+      const placeholders = memberIds.map(() => '?').join(',');
+      query = `
+        SELECT
+          m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
+          (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
+          s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
+        FROM members m
+        LEFT JOIN skills s ON m.id = s.member_id
+        WHERE m.id IN (${placeholders})
+        ORDER BY m.id
+      `;
+      params = memberIds;
+    } else {
+      // Get all members (no pagination)
+      query = `
+        SELECT
+          m.id, m.name, m.display_name, m.total_xp, m.combat_level, m.total_rank, m.is_active, m.is_discord_booster, m.is_grandmaster_ca,
+          (SELECT SUM(level) FROM skills WHERE member_id = m.id) as total_level,
+          s.skill_name, s.level as skill_level, s.xp as skill_xp, s.rank as skill_rank
+        FROM members m
+        LEFT JOIN skills s ON m.id = s.member_id
+        WHERE m.is_active = TRUE
+        ORDER BY m.id
+      `;
+    }
+    
+    const rows = await db.allAsync(query, params);
 
     const membersMap = new Map();
 
@@ -319,11 +359,13 @@ class SkillModel {
         m.id,
         m.name,
         m.display_name,
+        m.is_discord_booster,
+        m.is_grandmaster_ca,
         SUM(s.${gainColumn}) as xpGain
       FROM skills s
       JOIN members m ON s.member_id = m.id
       WHERE m.is_active = TRUE
-      GROUP BY m.id, m.name, m.display_name
+      GROUP BY m.id, m.name, m.display_name, m.is_discord_booster, m.is_grandmaster_ca
       HAVING SUM(s.${gainColumn}) > 0
       ORDER BY xpGain DESC
       LIMIT ?

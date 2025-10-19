@@ -60,6 +60,7 @@ export const eventsAPI = {
 export const twitterAPI = {
   getRecentTweets: (limit = 5) => api.get(`/twitter/recent-tweets?limit=${limit}`),
   getStatus: () => api.get('/twitter/status'),
+  refresh: (limit = 5) => api.post(`/twitter/refresh?limit=${limit}`),
   clearCache: () => api.post('/twitter/clear-cache'),
 };
 
