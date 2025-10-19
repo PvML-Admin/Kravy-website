@@ -345,13 +345,13 @@ class ActivityModel {
   static async create(memberId, activityDate, text, details) {
     try {
       const result = await db.runAsync(
-        'INSERT OR IGNORE INTO activities (member_id, activity_date, text, details) VALUES (?, ?, ?, ?)',
+        'INSERT INTO activities (member_id, activity_date, text, details) VALUES (?, ?, ?, ?) ON CONFLICT (member_id, activity_date, text) DO NOTHING',
         [memberId, activityDate, text, details]
       );
       return result;
     } catch (error) {
       // Ignore duplicate activities
-      if (error.message.includes('UNIQUE constraint')) {
+      if (error.message.includes('duplicate key')) {
         return null;
       }
       throw error;
