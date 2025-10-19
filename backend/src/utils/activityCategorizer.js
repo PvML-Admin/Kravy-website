@@ -19,29 +19,28 @@ const CATEGORIES = {
 function categorizeActivity(text, details) {
   const fullText = `${text} ${details}`.toLowerCase();
 
-  // Skill-related
-  if (SKILLS.some(skill => fullText.includes(skill.toLowerCase()))) {
-    return CATEGORIES.SKILLS;
-  }
-  if (fullText.includes('xp in')) {
-    return CATEGORIES.SKILLS;
+  // More specific checks should come first to avoid incorrect categorization.
+
+  // Boss Loot / Drops
+  if (fullText.includes('i found a') || fullText.includes('i received a drop:')) {
+    return CATEGORIES.BOSS_LOOT;
   }
 
   // Boss Kills
   if (fullText.startsWith('i killed')) {
     return CATEGORIES.BOSS_KILLS;
   }
-  
-  // Boss Loot / Drops
-  if (fullText.includes('i found a') || fullText.includes('i received a drop:')) {
-    return CATEGORIES.BOSS_LOOT;
+
+  // Skill-related XP gains
+  if (fullText.includes('xp in')) {
+    return CATEGORIES.SKILLS;
   }
 
   // Clue Scrolls
   if (fullText.includes('treasure trail')) {
     return CATEGORIES.CLUE_SCROLLS;
   }
-
+  
   // Quests & Misc Achievements
   if (fullText.startsWith('i completed the quest') || fullText.includes('milestone')) {
     return CATEGORIES.QUESTS;
@@ -50,6 +49,11 @@ function categorizeActivity(text, details) {
   // Citadel
   if (fullText.includes('clan citadel')) {
     return CATEGORIES.CITADEL;
+  }
+
+  // Fallback for other skill-related messages that aren't XP gains
+  if (SKILLS.some(skill => fullText.includes(skill.toLowerCase()))) {
+    return CATEGORIES.SKILLS;
   }
 
   return CATEGORIES.MISC;
