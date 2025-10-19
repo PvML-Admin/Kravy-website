@@ -18,7 +18,11 @@ function HighestRanks() {
         const allMembers = response.data.members;
 
         const desiredRanks = ['Owner', 'Deputy Owner', 'Overseer'];
-        const highestRankMembers = allMembers.filter(member => desiredRanks.includes(member.clan_rank));
+        const highestRankMembers = allMembers
+          .filter(member => desiredRanks.includes(member.clan_rank))
+          .sort((a, b) => 
+            (a.display_name || a.name).localeCompare(b.display_name || b.name)
+          );
         
         setHighestRanks(highestRankMembers);
       } catch (err) {
