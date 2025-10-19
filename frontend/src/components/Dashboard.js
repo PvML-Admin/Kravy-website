@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { leaderboardAPI } from '../services/api';
+import { leaderboardAPI, membersAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';
 import HighestRanks from './HighestRanks';
 import DailyClanXpGain from './DailyClanXpGain';
@@ -18,6 +18,10 @@ function Dashboard() {
   const [showFullInfo, setShowFullInfo] = useState(
     localStorage.getItem('showFullClanInfo') === 'true'
   );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [allMembers, setAllMembers] = useState([]);
 
   const aboutText = `Founded: 24th September 2021.
 Social | PvM | Clues | Skilling | DnDs | Watchalongs | Other Games
@@ -39,6 +43,7 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
 
   useEffect(() => {
     loadDashboardData();
+    loadAllMembers();
   }, []);
 
   const loadDashboardData = async () => {
@@ -52,6 +57,48 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadAllMembers = async () => {
+    try {
+      const response = await membersAPI.getAll(true, null);
+      setAllMembers(response.data.members);
+    } catch (err) {
+      console.error('Failed to load members for search:', err);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim().length > 0) {
+      // Filter members based on search query
+      const filtered = allMembers
+        .filter(member => 
+          member.name.toLowerCase().includes(query.toLowerCase()) ||
+          (member.display_name && member.display_name.toLowerCase().includes(query.toLowerCase()))
+        )
+        .slice(0, 8); // Limit to 8 results
+      setSearchResults(filtered);
+      setShowSearchResults(true);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  };
+
+  const handleSelectPlayer = (memberName) => {
+    navigate(`/profile/${encodeURIComponent(memberName)}`);
+    setSearchQuery('');
+    setShowSearchResults(false);
+  };
+
+  const handleSearchBlur = () => {
+    // Delay to allow click on result to register
+    setTimeout(() => {
+      setShowSearchResults(false);
+    }, 200);
   };
 
   const formatXp = (xp) => {
@@ -92,6 +139,57 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
 
           {/* Right Column */}
           <div className="grid-column">
+            {/* Player Search Box */}
+            <div className="card player-search-card">
+              <h2 style={{ marginBottom: '15px' }}>Find Player</h2>
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Search player name..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() => searchQuery && setShowSearchResults(true)}
+                  onBlur={handleSearchBlur}
+                  className="player-search-input"
+                />
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="search-results-dropdown">
+                    {searchResults.map((member) => (
+                      <div
+                        key={member.id}
+                        className="search-result-item"
+                        onClick={() => handleSelectPlayer(member.name)}
+                      >
+                        <img 
+                          src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
+                          alt={member.name}
+                          className="search-result-avatar"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <div className="search-result-info">
+                          <div className="search-result-name">
+                            <PlayerDisplayName member={member} />
+                          </div>
+                          <div className="search-result-stats">
+                            {formatXp(member.total_xp)} XP • Lvl {member.combat_level > 152 ? 152 : member.combat_level || 0}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {showSearchResults && searchQuery && searchResults.length === 0 && (
+                  <div className="search-results-dropdown">
+                    <div className="search-no-results">
+                      No players found
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="card today-xp-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h2 style={{ margin: 0 }}>XP Gain</h2>

@@ -99,3 +99,97 @@
 .filter-pill.active:hover {
   background-color: #3aaba9;
 }
+
+/* Player Search Styles */
+.player-search-card {
+  margin-bottom: 0px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.player-search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border: 2px solid #3a3a3a;
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.player-search-input::placeholder {
+  color: #7d828a;
+}
+
+.player-search-input:focus {
+  border-color: #2d9596;
+  box-shadow: 0 0 0 3px rgba(45, 149, 150, 0.1);
+}
+
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: #3a3a3a;
+}
+
+.search-result-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #2d9596;
+  flex-shrink: 0;
+}
+
+.search-result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-result-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.search-result-stats {
+  font-size: 0.8rem;
+  color: #b9bbbe;
+}
+
+.search-no-results {
+  padding: 20px;
+  text-align: center;
+  color: #7d828a;
+  font-size: 0.9rem;
+}
