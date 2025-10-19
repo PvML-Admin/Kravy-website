@@ -14,6 +14,7 @@ const categoryIcons = {
   'Clue Scrolls': clueScrollsIcon,
   'Quests': questsIcon,
   'Citadel': citadelIcon,
+  'Pets': miscIcon,
   'Misc': miscIcon
 };
 

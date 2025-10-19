@@ -13,6 +13,7 @@ const CATEGORIES = {
   SKILLS: 'Skills',
   QUESTS: 'Quests',
   CITADEL: 'Citadel',
+  PETS: 'Pets',
   MISC: 'Misc'
 };
 
@@ -21,13 +22,18 @@ function categorizeActivity(text, details) {
 
   // More specific checks must come first to avoid incorrect categorization.
 
+  // Pets - check before drops since pets can have "found" in the text
+  if (fullText.includes('pet') || fullText.includes('has grown') || fullText.includes('is now a')) {
+    return CATEGORIES.PETS;
+  }
+
   // Boss Loot / Drops
   if (fullText.includes('i found a') || fullText.includes('i received a drop:')) {
     return CATEGORIES.BOSS_LOOT;
   }
 
   // Boss Kills
-  if (fullText.startsWith('i killed')) {
+  if (fullText.startsWith('i killed') || fullText.includes('defeated')) {
     return CATEGORIES.BOSS_KILLS;
   }
 
@@ -47,7 +53,7 @@ function categorizeActivity(text, details) {
   }
 
   // Citadel
-  if (fullText.includes('clan citadel')) {
+  if (fullText.includes('clan citadel') || fullText.includes('citadel')) {
     return CATEGORIES.CITADEL;
   }
 

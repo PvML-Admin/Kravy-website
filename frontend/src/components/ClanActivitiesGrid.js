@@ -5,7 +5,7 @@ import { formatRelativeTimeBST } from '../utils/dateFormatter';
 import { getActivityIcon } from '../utils/activityIcons';
 import './ClanActivitiesGrid.css';
 
-const FILTERS = ['All', 'Achievement', 'Skills', 'Pets', 'Drops'];
+const FILTERS = ['All', 'Boss Kills', 'Boss Loot', 'Pets', 'Skills', 'Quests', 'Clue Scrolls', 'Citadel'];
 const ACTIVITIES_PER_PAGE = 21;
 
 // Format skill XP text to be more readable
