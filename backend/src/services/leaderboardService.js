@@ -58,7 +58,13 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
   }
 
   const leaderboard = await db.allAsync(query, params);
-  return leaderboard;
+  // Convert BIGINT values to numbers (PostgreSQL returns them as strings)
+  return leaderboard.map(row => ({
+    ...row,
+    totalXp: parseInt(row.totalXp) || 0,
+    xpGain: parseInt(row.xpGain) || 0,
+    combatLevel: parseInt(row.combatLevel) || 0
+  }));
 }
 
 async function getTopGainers(count = 10) {
