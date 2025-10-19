@@ -33,7 +33,7 @@ async function getLeaderboard(period = 'weekly', limit = 50, skill = 'Overall') 
       FROM members m
       JOIN skills s ON m.id = s.member_id
       WHERE ${gainField} > 0 AND m.is_active = TRUE
-      GROUP BY m.id
+      GROUP BY m.id, m.display_name, m.total_xp, m.combat_level, m.last_synced
       ORDER BY xpGain DESC
       LIMIT ?;
     `;
