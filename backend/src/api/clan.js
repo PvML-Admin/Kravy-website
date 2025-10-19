@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const { fetchClanMembersFromAnywhere } = require('../services/clanService');
 const { MemberModel, ClanEventModel } = require('../database/models');
+const { isAdmin } = require('../middleware/auth');
 
 /**
  * Proxy for fetching a clan's banner image to avoid CORS issues.
@@ -28,7 +29,7 @@ router.get('/banner/:clanName', async (req, res) => {
 /**
  * Fetch and import all clan members in one go
  */
-router.post('/import-members', async (req, res) => {
+router.post('/import-members', isAdmin, async (req, res) => {
   try {
     const { clanName } = req.body;
     
@@ -109,7 +110,7 @@ router.post('/import-members', async (req, res) => {
 /**
  * Smart sync: Fetch clan members, add new ones, remove old ones
  */
-router.post('/sync-membership', async (req, res) => {
+router.post('/sync-membership', isAdmin, async (req, res) => {
   try {
     const { clanName } = req.body;
     

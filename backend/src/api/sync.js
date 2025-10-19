@@ -9,9 +9,10 @@ const {
   getAllSyncProgress
 } = require('../services/syncService');
 const { SyncLogModel } = require('../database/models');
+const { isAdmin } = require('../middleware/auth');
 
 // Start async sync (non-blocking)
-router.post('/all/async', async (req, res) => {
+router.post('/all/async', isAdmin, async (req, res) => {
   try {
     const result = await startSyncAllMembers();
 
@@ -28,7 +29,7 @@ router.post('/all/async', async (req, res) => {
 });
 
 // Start async sync for unsynced members
-router.post('/unsynced/async', async (req, res) => {
+router.post('/unsynced/async', isAdmin, async (req, res) => {
   try {
     const result = await startSyncUnsyncedMembers();
 
@@ -87,7 +88,7 @@ router.get('/progress', async (req, res) => {
 });
 
 // Legacy blocking sync (kept for compatibility)
-router.post('/all', async (req, res) => {
+router.post('/all', isAdmin, async (req, res) => {
   try {
     const results = await syncAllMembers();
 
@@ -103,7 +104,7 @@ router.post('/all', async (req, res) => {
   }
 });
 
-router.post('/member/:id', async (req, res) => {
+router.post('/member/:id', isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await syncMember(parseInt(id));

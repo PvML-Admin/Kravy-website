@@ -239,6 +239,10 @@ class MemberModel {
   static async setActive(id, isActive) {
     return await db.runAsync('UPDATE members SET is_active = ? WHERE id = ?', [isActive, id]);
   }
+
+  static async setDiscordBooster(id, isBooster) {
+    return await db.runAsync('UPDATE members SET is_discord_booster = ? WHERE id = ?', [isBooster ? 1 : 0, id]);
+  }
 }
 
 class SnapshotModel {

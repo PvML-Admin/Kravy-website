@@ -27,8 +27,8 @@ function categorizeActivity(text, details) {
     return CATEGORIES.PETS;
   }
 
-  // Boss Loot / Drops
-  if (fullText.includes('i found a') || fullText.includes('i received a drop:')) {
+  // Boss Loot / Drops - check before kills
+  if (fullText.includes('i found') || fullText.includes('i looted') || fullText.includes('i received a drop:')) {
     return CATEGORIES.BOSS_LOOT;
   }
 
@@ -48,12 +48,12 @@ function categorizeActivity(text, details) {
   }
   
   // Quests & Misc Achievements
-  if (fullText.startsWith('i completed the quest') || fullText.includes('milestone')) {
+  if (fullText.startsWith('i completed the quest') || fullText.includes('milestone') || fullText.includes('quest complete')) {
     return CATEGORIES.QUESTS;
   }
 
   // Citadel
-  if (fullText.includes('clan citadel') || fullText.includes('citadel')) {
+  if (fullText.includes('clan citadel') || fullText.includes('citadel') || fullText.includes('clan fealty') || fullText.includes('fealty')) {
     return CATEGORIES.CITADEL;
   }
 

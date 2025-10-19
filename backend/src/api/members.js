@@ -5,6 +5,7 @@ const { syncMember, getMemberStats } = require('../services/syncService');
 const { getPlayerStats } = require('../services/runemetrics');
 const { sortMembersByRank, getRankIcon, getRankColor } = require('../utils/clanRanks');
 const { getSkillMaxLevel, getXpToNextLevel, getPercentageToNextLevel } = require('../utils/skillLevels');
+const { isAdmin } = require('../middleware/auth');
 
 // Cache for hiscores data (refreshes every hour)
 let hiscoresCache = {
@@ -232,7 +233,7 @@ router.get('/:identifier/stats', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', isAdmin, async (req, res) => {
   try {
     const { name, fetchData } = req.body;
 
@@ -279,7 +280,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/bulk', async (req, res) => {
+router.post('/bulk', isAdmin, async (req, res) => {
   try {
     const { names } = req.body;
 
@@ -367,7 +368,7 @@ router.post('/:id/sync', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await MemberModel.delete(parseInt(id));
@@ -384,7 +385,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.delete('/', async (req, res) => {
+router.delete('/', isAdmin, async (req, res) => {
   try {
     const members = await MemberModel.getAll(false);
     
@@ -424,6 +425,26 @@ router.patch('/:id/active', async (req, res) => {
   }
 });
 
+// Toggle Discord Booster status
+router.patch('/:id/discord-booster', isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isBooster } = req.body;
+
+    await MemberModel.setDiscordBooster(parseInt(id), isBooster);
+
+    res.json({
+      success: true,
+      message: `Discord Booster status ${isBooster ? 'enabled' : 'disabled'}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 router.get('/highest-ranks', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 5;
@@ -450,7 +471,7 @@ router.get('/highest-ranks', async (req, res) => {
 });
 
 // Clear hiscores cache (useful for manual refresh or after bulk sync)
-router.post('/hiscores/clear-cache', async (req, res) => {
+router.post('/hiscores/clear-cache', isAdmin, async (req, res) => {
   try {
     hiscoresCache.data = null;
     hiscoresCache.timestamp = null;

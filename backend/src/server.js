@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const { initializeDatabase } = require('./database/init');
@@ -13,6 +15,10 @@ const leaderboardRouter = require('./api/leaderboard');
 const clanRouter = require('./api/clan');
 const activitiesRouter = require('./api/activities');
 const eventsRouter = require('./api/events');
+const twitterRouter = require('./api/twitter');
+const authRouter = require('./api/auth');
+const adminRouter = require('./api/admin');
+const passport = require('./config/passport');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +36,26 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'kravy-tracker-secret-change-this-in-production',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true, // Trust proxy for secure cookies
+  cookie: {
+    secure: false, // Set to false for localhost development
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax', // 'lax' for localhost development
+    domain: 'localhost' // Explicitly set domain for localhost
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -59,12 +85,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Authentication routes (must be before protected routes)
+app.use('/api/auth', authRouter);
+
+// API routes
 app.use('/api/members', membersRouter);
 app.use('/api/sync', syncRouter);
 app.use('/api/leaderboard', leaderboardRouter);
 app.use('/api/clan', clanRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/twitter', twitterRouter);
+app.use('/api/admin', adminRouter);
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);

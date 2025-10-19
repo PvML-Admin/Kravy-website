@@ -1,0 +1,271 @@
+.admin-dashboard {
+  min-height: calc(100vh - 60px);
+  background: #1a1a1a;
+}
+
+.admin-header {
+  background: linear-gradient(135deg, #2d9596 0%, #1f6f6f 100%);
+  padding: 30px 40px;
+  border-bottom: 3px solid #3aaba9;
+}
+
+.admin-header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-header h1 {
+  color: #ffffff;
+  font-size: 32px;
+  margin: 0;
+}
+
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.admin-user-name {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.admin-user-role {
+  color: #b0e5e5;
+  font-size: 14px;
+}
+
+.admin-tabs {
+  background: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.admin-tab {
+  background: transparent;
+  border: none;
+  color: #999;
+  padding: 15px 25px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.admin-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-tab.active {
+  color: #2d9596;
+  border-bottom-color: #2d9596;
+  background: rgba(45, 149, 150, 0.1);
+}
+
+.admin-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+/* Common Styles */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.section-header h2 {
+  color: #ffffff;
+  font-size: 24px;
+  margin: 0;
+}
+
+.section-card {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.section-card h3 {
+  color: #ffffff;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+
+.section-description {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.loading {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+  font-size: 16px;
+}
+
+.error {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666;
+  padding: 30px;
+  font-style: italic;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2d9596;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3aaba9;
+}
+
+.btn-secondary {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4a4a4a;
+}
+
+.btn-success {
+  background: #28a745;
+  color: #ffffff;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #32b84f;
+}
+
+.btn-warning {
+  background: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #ffcd38;
+}
+
+.btn-danger {
+  background: #ff5252;
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #ff6b6b;
+}
+
+/* Messages */
+.message {
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-success {
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  color: #28a745;
+}
+
+.message-error {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+}
+
+.message-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+}
+
+.message-info {
+  background: rgba(45, 149, 150, 0.1);
+  border: 1px solid rgba(45, 149, 150, 0.3);
+  color: #2d9596;
+}
+
+.message-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.message-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 20px;
+  }
+
+  .admin-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-tabs {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .admin-tab {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+
+  .admin-content {
+    padding: 20px 15px;
+  }
+}
+

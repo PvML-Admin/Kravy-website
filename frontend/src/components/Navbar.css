@@ -54,8 +54,59 @@
   height: 100%;
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #2d9596;
+}
+
+.user-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-cog {
   padding: 0;
+}
+
+.logout-btn {
+  padding: 0;
+  background: #3a3a3a;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.logout-btn:hover {
+  background: #ff5252;
+}
+
+.login-btn {
+  padding: 0 15px;
+  background: #2d9596;
+}
+
+.login-btn:hover {
+  background: #3aaba9;
+}
+
+@media (max-width: 768px) {
+  .user-name {
+    display: none;
+  }
 }

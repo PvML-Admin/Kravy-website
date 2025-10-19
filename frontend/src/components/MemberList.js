@@ -209,8 +209,19 @@ function MemberList() {
                         />
                       )}
                       <div>
-                        <div className={SPECIAL_USERS[(member.display_name || member.name).toLowerCase()] ? '' : 'player-name'}>
-                          <SpecialName name={member.display_name || member.name} />
+                        <div className={SPECIAL_USERS[(member.display_name || member.name).toLowerCase()] ? '' : 'player-name'} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {member.is_discord_booster && (
+                            <img 
+                              src="/discord_booster.png" 
+                              alt="Discord Booster" 
+                              title="Discord Booster"
+                              className="discord-booster-icon"
+                              style={{ width: '18px', height: '18px' }}
+                            />
+                          )}
+                          <span className={member.is_discord_booster ? 'discord-booster-name' : ''}>
+                            <SpecialName name={member.display_name || member.name} />
+                          </span>
                         </div>
                         <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px' }}>
                           {(() => {

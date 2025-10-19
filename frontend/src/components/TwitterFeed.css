@@ -1,0 +1,156 @@
+.twitter-feed-card {
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+}
+
+.twitter-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.twitter-icon {
+  width: 24px;
+  height: 24px;
+  color: #1DA1F2;
+  flex-shrink: 0;
+}
+
+.twitter-header h2 {
+  font-family: 'Gagalin', sans-serif;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: normal;
+}
+
+.tweets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 530px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
+}
+
+.tweet-card {
+  background-color: var(--background-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+}
+
+.tweet-card:hover {
+  background-color: var(--background-light);
+  border-color: #1DA1F2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29, 161, 242, 0.15);
+}
+
+.tweet-text {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.tweet-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.tweet-metrics {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.tweet-card:hover .metric {
+  color: var(--text-primary);
+}
+
+.tweet-time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.twitter-loading,
+.twitter-message,
+.twitter-error {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 20px 10px;
+  font-size: 0.95rem;
+}
+
+.twitter-error {
+  color: var(--accent-red);
+}
+
+.twitter-warning {
+  color: var(--accent-yellow);
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 10px;
+  padding: 8px;
+  background-color: rgba(250, 166, 26, 0.1);
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tweet-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .tweet-metrics {
+    width: 100%;
+  }
+
+  .tweet-time {
+    align-self: flex-end;
+  }
+}
+
+/* Compact mode for smaller spaces */
+.twitter-feed-card.compact .tweet-card {
+  padding: 10px;
+}
+
+.twitter-feed-card.compact .tweet-text {
+  font-size: 0.9rem;
+}
+
+.twitter-feed-card.compact .metric {
+  font-size: 0.8rem;
+}
+

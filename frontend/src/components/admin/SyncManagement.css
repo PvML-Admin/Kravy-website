@@ -1,0 +1,135 @@
+.sync-management {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sync-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.active-syncs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.active-sync-item {
+  background: #242424;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.sync-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.progress-bar {
+  background: #1a1a1a;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #2d9596, #3aaba9);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.sync-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-success {
+  color: #28a745;
+}
+
+.stat-error {
+  color: #ff5252;
+}
+
+.stat-warning {
+  color: #ffc107;
+}
+
+.sync-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.log-item {
+  background: #242424;
+  border-left: 3px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.log-item:hover {
+  background: #2a2a2a;
+}
+
+.log-item.status-success {
+  border-left-color: #28a745;
+}
+
+.log-item.status-failed {
+  border-left-color: #ff5252;
+}
+
+.log-member {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.log-details {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.log-status {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  background: #3a3a3a;
+  color: #999;
+}
+
+.log-item.status-success .log-status {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.log-item.status-failed .log-status {
+  background: rgba(255, 82, 82, 0.2);
+  color: #ff5252;
+}
+
+.log-xp {
+  color: #2d9596;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.log-time {
+  color: #666;
+  font-size: 12px;
+}
+

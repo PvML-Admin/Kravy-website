@@ -4,6 +4,7 @@ import { leaderboardAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';
 import HighestRanks from './HighestRanks';
 import DailyClanXpGain from './DailyClanXpGain';
+import TwitterFeed from './TwitterFeed';
 import ClanActivitiesGrid from './ClanActivitiesGrid';
 import SpecialName from './SpecialNames';
 import './Dashboard.css';
@@ -80,6 +81,7 @@ Info:
           <div className="grid-column">
             <HighestRanks />
             <DailyClanXpGain />
+            <TwitterFeed />
           </div>
           
           {/* Center Column */}
