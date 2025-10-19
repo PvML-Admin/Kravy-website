@@ -125,6 +125,24 @@ async function syncMember(memberId) {
       }
       updateData.combat_level = combatLevel;
       
+      // Add clan_xp and kills from RuneMetrics profile
+      if (profileData.clanXp) {
+        // RuneMetrics may return clanXp as a string with commas
+        const clanXpNum = parseInt(String(profileData.clanXp).replace(/,/g, ''));
+        if (!isNaN(clanXpNum)) {
+          updateData.clan_xp = clanXpNum;
+          console.log(`[Sync] Updating clan_xp to: ${clanXpNum}`);
+        }
+      }
+      if (profileData.kills) {
+        // Kills can also be a formatted string
+        const killsNum = parseInt(String(profileData.kills).replace(/,/g, ''));
+        if (!isNaN(killsNum)) {
+          updateData.kills = killsNum;
+          console.log(`[Sync] Updating kills to: ${killsNum}`);
+        }
+      }
+      
       // Update display_name with properly capitalized name from RuneMetrics
       // RuneMetrics API returns the name with proper capitalization
       if (profileData.name) {
