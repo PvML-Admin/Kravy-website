@@ -19,3 +19,8 @@
   color: var(--accent-green);
   font-weight: 500;
 }
+
+.daily-xp-item.today {
+  font-weight: bold;
+  color: var(--accent-cyan);
+}

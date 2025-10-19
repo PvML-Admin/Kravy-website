@@ -41,6 +41,7 @@ export const leaderboardAPI = {
   getByPeriod: (period, limit = 50, skill = 'Overall') => api.get(`/leaderboard/${period}?limit=${limit}&skill=${encodeURIComponent(skill)}`),
   getTopGainers: (count = 10) => api.get(`/leaderboard/top/gainers?count=${count}`),
   getDailyClanXpHistory: (limit = 15) => api.get(`/leaderboard/daily-clan-xp?limit=${limit}`),
+  getCurrentDailyClanXp: () => api.get(`/leaderboard/current-daily-clan-xp`),
   getClanStats: () => api.get('/leaderboard/clan/stats'),
 };
 

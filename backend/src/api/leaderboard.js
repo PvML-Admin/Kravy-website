@@ -3,6 +3,16 @@ const router = express.Router();
 const leaderboardService = require('../services/leaderboardService');
 
 // Specific routes must come before parameterized routes
+router.get('/current-daily-clan-xp', async (req, res) => {
+  try {
+    const data = await leaderboardService.getCurrentDailyClanXp();
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error fetching current daily clan XP:', error);
+    res.status(500).json({ error: 'Failed to fetch current daily clan XP' });
+  }
+});
+
 router.get('/daily-clan-xp', async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 30;
