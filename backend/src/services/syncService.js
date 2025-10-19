@@ -115,6 +115,7 @@ async function syncMember(memberId) {
       profileData = await fetchPlayerProfile(member.name);
       
       console.log(`[Sync] RuneMetrics returned name: "${profileData.name}" for member: "${member.name}"`);
+      console.log(`[Sync] RuneMetrics clanXp: ${profileData.clanXp}, kills: ${profileData.kills}`);
       
       // Override with RuneMetrics combat level if available
       if (profileData.combatlevel) {
