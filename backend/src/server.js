@@ -27,7 +27,9 @@ const PORT = process.env.PORT || 3001;
 const corsOptions = {
   origin: [
     'http://localhost:3000',  // Local development
-    'https://kravy-website-1.onrender.com',  // Production frontend
+    'https://kravy-website-1.onrender.com',  // Production frontend (Render)
+    'https://kravyrs.com',  // Custom domain
+    'https://www.kravyrs.com',  // Custom domain with www
     process.env.FRONTEND_URL  // Optional: set via environment variable
   ].filter(Boolean),
   credentials: true
