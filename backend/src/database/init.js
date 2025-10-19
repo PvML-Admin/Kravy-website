@@ -12,7 +12,7 @@ async function initializeDatabase() {
       total_xp BIGINT DEFAULT 0,
       total_rank INT,
       clan_xp BIGINT DEFAULT 0,
-      kills INT DEFAULT 0,
+      kills BIGINT DEFAULT 0,
       combat_level INT DEFAULT 0,
       clan_rank TEXT DEFAULT 'Recruit',
       joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
