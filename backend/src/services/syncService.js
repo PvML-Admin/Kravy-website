@@ -415,14 +415,20 @@ async function getMemberStats(memberId, period = 'weekly') {
   const skills = await SkillModel.getByMember(memberId);
 
   // Add xp_gain field based on period for frontend compatibility
+  // Convert BIGINT strings to numbers (PostgreSQL returns BIGINT as strings)
   const enrichedSkills = skills.map(skill => ({
     ...skill,
-    xp_gain: period === 'daily' ? (skill.daily_xp_gain || 0) : (skill.weekly_xp_gain || 0)
+    level: parseInt(skill.level) || 0,
+    xp: parseInt(skill.xp) || 0,
+    rank: parseInt(skill.rank) || null,
+    daily_xp_gain: parseInt(skill.daily_xp_gain) || 0,
+    weekly_xp_gain: parseInt(skill.weekly_xp_gain) || 0,
+    xp_gain: period === 'daily' ? (parseInt(skill.daily_xp_gain) || 0) : (parseInt(skill.weekly_xp_gain) || 0)
   }));
 
   const xpGains = {
-    daily: skills.reduce((acc, s) => acc + (s.daily_xp_gain || 0), 0),
-    weekly: skills.reduce((acc, s) => acc + (s.weekly_xp_gain || 0), 0)
+    daily: skills.reduce((acc, s) => acc + (parseInt(s.daily_xp_gain) || 0), 0),
+    weekly: skills.reduce((acc, s) => acc + (parseInt(s.weekly_xp_gain) || 0), 0)
   };
 
   return {

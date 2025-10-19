@@ -364,13 +364,10 @@ class ActivityModel {
         a.*,
         m.name as member_name,
         m.display_name,
-        CASE 
-          WHEN typeof(a.activity_date) = 'integer' THEN a.activity_date
-          ELSE a.id
-        END as sort_key
+        a.activity_date as sort_key
       FROM activities a
       JOIN members m ON a.member_id = m.id
-      ORDER BY sort_key DESC
+      ORDER BY a.activity_date DESC
       LIMIT ?
     `, [limit]);
   }
@@ -379,13 +376,10 @@ class ActivityModel {
     return await db.allAsync(`
       SELECT 
         *,
-        CASE
-          WHEN typeof(activity_date) = 'integer' THEN activity_date
-          ELSE id
-        END as sort_key
+        activity_date as sort_key
       FROM activities
       WHERE member_id = ?
-      ORDER BY sort_key DESC
+      ORDER BY activity_date DESC
       LIMIT ?
     `, [memberId, limit]);
   }
