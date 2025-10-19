@@ -210,7 +210,7 @@ function MemberList() {
                       )}
                       <div>
                         <div className={SPECIAL_USERS[(member.display_name || member.name).toLowerCase()] ? '' : 'player-name'} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          {member.is_discord_booster && (
+                          {!!member.is_discord_booster && (
                             <img 
                               src="/discord_booster.png" 
                               alt="Discord Booster" 
