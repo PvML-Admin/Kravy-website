@@ -318,10 +318,10 @@ class SkillModel {
       LIMIT ?
     `;
     const results = await db.allAsync(query, [limit]);
-    // Convert BIGINT xpGain to number
+    // Convert BIGINT xpGain to number (PostgreSQL returns lowercase column names)
     return results.map(row => ({
       ...row,
-      xpGain: parseInt(row.xpGain) || 0
+      xpGain: parseInt(row.xpgain || row.xpGain) || 0
     }));
   }
 }
