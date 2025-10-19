@@ -409,24 +409,32 @@ function PlayerProfile() {
           <h3 style={{ marginBottom: '20px' }}>Recent Activities</h3>
           
           {activities.length > 0 ? (
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
               {activities.map((activity, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: '10px',
-                    backgroundColor: 'var(--primary-light)',
-                    borderRadius: '6px',
-                    borderLeft: '3px solid var(--accent-blue)'
-                  }}
-                >
-                  <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
-                    {formatActivityText(activity.details || activity.text)}
+                <React.Fragment key={index}>
+                  <div
+                    style={{
+                      padding: '10px',
+                      backgroundColor: 'var(--primary-light)',
+                      borderRadius: '6px',
+                      borderLeft: '3px solid var(--accent-blue)'
+                    }}
+                  >
+                    <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
+                      {formatActivityText(activity.details || activity.text)}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      {formatActivityDate(activity.activity_date)}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {formatActivityDate(activity.activity_date)}
-                  </div>
-                </div>
+                  {index < activities.length - 1 && (
+                    <div style={{ 
+                      height: '1px', 
+                      backgroundColor: 'var(--border-color)',
+                      margin: '10px 0'
+                    }}></div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
           ) : (
