@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { membersAPI, activitiesAPI } from '../services/api';
 import { getSkillIcon, skillOrder } from '../utils/skills';
 import { formatDateBST, formatRelativeTimeBST } from '../utils/dateFormatter';
+import { getActivityIcon } from '../utils/activityIcons';
 import SpecialName from './SpecialNames';
 
 // Format skill XP text to be more readable
@@ -420,11 +421,20 @@ function PlayerProfile() {
                       borderLeft: '3px solid var(--accent-blue)'
                     }}
                   >
-                    <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
-                      {formatActivityText(activity.details || activity.text)}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {formatActivityDate(activity.activity_date)}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <img 
+                        src={getActivityIcon(activity)} 
+                        alt={activity.category}
+                        style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
+                          {formatActivityText(activity.details || activity.text)}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {formatActivityDate(activity.activity_date)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   {index < activities.length - 1 && (

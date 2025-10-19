@@ -342,12 +342,14 @@ class SyncLogModel {
 }
 
 class ActivityModel {
-  static async create(memberId, activityDate, text, details) {
+  static async create(memberId, activityDate, text, details, category) {
+    const sql = `
+      INSERT INTO activities (member_id, activity_date, text, details, category) 
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT (member_id, activity_date, text) DO NOTHING
+    `;
     try {
-      const result = await db.runAsync(
-        'INSERT INTO activities (member_id, activity_date, text, details) VALUES (?, ?, ?, ?) ON CONFLICT (member_id, activity_date, text) DO NOTHING',
-        [memberId, activityDate, text, details]
-      );
+      const result = await db.runAsync(sql, [memberId, activityDate, text, details, category]);
       return result;
     } catch (error) {
       // Ignore duplicate activities

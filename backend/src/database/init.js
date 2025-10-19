@@ -70,6 +70,7 @@ async function initializeDatabase() {
       activity_date BIGINT NOT NULL,
       text TEXT NOT NULL,
       details TEXT,
+      category TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
     )`,

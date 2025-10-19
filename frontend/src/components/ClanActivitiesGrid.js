@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { activitiesAPI } from '../services/api';
 import SpecialName from './SpecialNames';
 import { formatRelativeTimeBST } from '../utils/dateFormatter';
+import { getActivityIcon } from '../utils/activityIcons';
 import './ClanActivitiesGrid.css';
 
 const FILTERS = ['All', 'Achievement', 'Skills', 'Pets', 'Drops'];
@@ -88,6 +89,11 @@ function ClanActivitiesGrid() {
               </div>
             </div>
             <div className="activity-card-body">
+              <img 
+                src={getActivityIcon(activity)} 
+                alt={activity.category}
+                className="activity-icon"
+              />
               <p>{formatActivityText(activity.text)}</p>
             </div>
           </div>

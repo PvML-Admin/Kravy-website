@@ -2,6 +2,7 @@ const { MemberModel, SnapshotModel, SkillModel, SyncLogModel, ActivityModel } = 
 const { fetchPlayerProfile } = require('./runemetrics');
 const { fetchPlayerFromHiscores, calculateCombatLevel } = require('./hiscores');
 const { getSkillMaxLevel, getXpToNextLevel, getPercentageToNextLevel } = require('../utils/skillLevels');
+const { categorizeActivity } = require('../utils/activityCategorizer');
 const db = require('../config/database');
 
 // In-memory storage for sync progress (in production, use Redis or database)
@@ -163,11 +164,13 @@ async function syncMember(memberId) {
         
         for (const activity of profileData.activities) {
           try {
+            const category = categorizeActivity(activity.text, activity.details);
             const result = await ActivityModel.create(
               memberId,
               activity.date,
               activity.text,
-              activity.details
+              activity.details,
+              category
             );
             
             if (result) {

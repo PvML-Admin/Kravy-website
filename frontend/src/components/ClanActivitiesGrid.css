@@ -92,9 +92,24 @@
   color: var(--text-muted);
 }
 
+.activity-card-body {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.activity-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .activity-card-body p {
   margin: 0;
-  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .pagination {
