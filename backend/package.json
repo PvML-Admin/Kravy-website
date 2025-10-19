@@ -29,7 +29,8 @@
     "node-cron": "^3.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
