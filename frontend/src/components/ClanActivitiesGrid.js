@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { activitiesAPI } from '../services/api';
 import SpecialName from './SpecialNames';
-import { formatDateBST } from '../utils/dateFormatter';
+import { formatRelativeTimeBST } from '../utils/dateFormatter';
 import './ClanActivitiesGrid.css';
 
 const FILTERS = ['All', 'Achievement', 'Skills', 'Pets', 'Drops'];
@@ -84,7 +84,7 @@ function ClanActivitiesGrid() {
                 <span className="activity-card-member">
                   <SpecialName name={activity.display_name || activity.member_name} />
                 </span>
-                <span className="activity-card-time">{formatDateBST(activity.activity_date)}</span>
+                <span className="activity-card-time">{formatRelativeTimeBST(activity.activity_date)}</span>
               </div>
             </div>
             <div className="activity-card-body">
