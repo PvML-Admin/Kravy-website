@@ -317,7 +317,12 @@ class SkillModel {
       ORDER BY xpGain DESC
       LIMIT ?
     `;
-    return await db.allAsync(query, [limit]);
+    const results = await db.allAsync(query, [limit]);
+    // Convert BIGINT xpGain to number
+    return results.map(row => ({
+      ...row,
+      xpGain: parseInt(row.xpGain) || 0
+    }));
   }
 }
 

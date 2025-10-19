@@ -70,7 +70,9 @@ async function syncMember(memberId) {
       const oldWeeklyGain = oldSkill ? parseInt(oldSkill.weekly_xp_gain) || 0 : 0;
       
       // Calculate the difference in XP since the last sync
-      const xpDelta = newXp - oldXp;
+      // Only calculate delta if we have a valid baseline (oldXp > 0)
+      // This prevents counting entire XP totals as gains on first sync or after reset
+      const xpDelta = (oldXp > 0 && newXp > oldXp) ? (newXp - oldXp) : 0;
       
       if (xpDelta > 0) {
         totalXpDelta += xpDelta;
