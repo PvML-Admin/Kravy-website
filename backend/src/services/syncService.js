@@ -136,15 +136,8 @@ async function syncMember(memberId) {
       }
       updateData.combat_level = combatLevel;
       
-      // Add kills from RuneMetrics profile
-      if (profileData.kills) {
-        // Kills can be a formatted string
-        const killsNum = parseInt(String(profileData.kills).replace(/,/g, ''));
-        if (!isNaN(killsNum) && killsNum > 0) {
-          updateData.kills = killsNum;
-          console.log(`[Sync] Updating kills to: ${killsNum}`);
-        }
-      }
+      // Note: Kills are only available from Clan Hiscores API, not RuneMetrics
+      // They will be updated during clan membership sync
       
       // Update display_name with properly capitalized name from RuneMetrics
       // RuneMetrics API returns the name with proper capitalization
