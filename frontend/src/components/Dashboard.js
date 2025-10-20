@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI, membersAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';
@@ -22,6 +22,7 @@ function Dashboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [allMembers, setAllMembers] = useState([]);
+  const searchInputRef = useRef(null);
   const [collapsedCards, setCollapsedCards] = useState(new Set());
 
   const aboutText = `Founded: 24th September 2021.
@@ -47,13 +48,6 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     loadAllMembers();
   }, []);
 
-  // Handle clicks outside search container to close dropdown
-  useEffect(() => {
-    if (showSearchResults) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [showSearchResults]);
 
   const loadDashboardData = async () => {
     try {
@@ -110,13 +104,6 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     }, 300);
   };
 
-  // Handle clicks outside the search container
-  const handleClickOutside = (event) => {
-    const searchContainer = event.target.closest('.search-container');
-    if (!searchContainer) {
-      setShowSearchResults(false);
-    }
-  };
 
   const formatXp = (xp) => {
     if (!xp) return '0';
@@ -224,10 +211,12 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
           {/* Right Column */}
           <div className="grid-column">
             {/* Player Search Box */}
-            <MobileCardWrapper cardId="player-search" title="Find Player">
-              <div className="card player-search-card">
+            {/* Removed MobileCardWrapper to fix mobile keyboard issue */}
+            <div className="card player-search-card">
+              <h2>Find Player</h2>
                 <div className="search-container" onClick={(e) => e.stopPropagation()}>
                   <input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Search player name..."
                     value={searchQuery}
@@ -276,8 +265,7 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
                     </div>
                   )}
                 </div>
-              </div>
-            </MobileCardWrapper>
+            </div>
 
             <MobileCardWrapper cardId="xp-tracker" title="XP Gain">
               <div className="card today-xp-card">
