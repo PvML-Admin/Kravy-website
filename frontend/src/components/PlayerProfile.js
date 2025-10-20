@@ -5,6 +5,7 @@ import { getSkillIcon, skillOrder } from '../utils/skills';
 import { formatDateBST, formatRelativeTimeBST } from '../utils/dateFormatter';
 import { getActivityIcon } from '../utils/activityIcons';
 import PlayerDisplayName from './PlayerDisplayName';
+import './PlayerProfile.css';
 
 // Format skill XP text to be more readable
 function formatActivityText(text) {
@@ -251,29 +252,24 @@ function PlayerProfile() {
     <div>
       {/* Header Card */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div className="profile-header">
+          <div className="profile-info">
             <img 
               src={`http://secure.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
               alt={`${member.display_name || member.name}'s avatar`}
-              style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                border: '3px solid var(--primary-light)'
-              }}
+              className="profile-avatar"
               onError={(e) => {
                 // Fallback to a default or hide if avatar fails to load
                 e.target.style.display = 'none';
               }}
             />
 
-            <div style={{ flex: 1 }}>
+            <div className="profile-details">
               <h2 style={{ margin: '0 0 5px 0' }}>
                 <PlayerDisplayName member={member} />
                 {isSyncing && <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px' }}> (Syncing...)</span>}
               </h2>
-              <div style={{ display: 'flex', gap: '20px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+              <div className="profile-stats">
                 <span>Combat Level: <strong>{cappedCombatLevel || 0}</strong></span>
                 <span>Total XP: <strong>{formatXp(member.total_xp)} XP</strong></span>
                 {member.total_rank && (
@@ -292,40 +288,26 @@ function PlayerProfile() {
           {stats && stats.skills && (() => {
             const badges = getAchievementBadges(stats.skills, member);
             return badges.length > 0 ? (
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="achievement-badges">
                 {badges.map((badge, index) => (
                   <div
                     key={index}
                     title={badge.name}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '15px',
-                      backgroundColor: 'var(--primary-light)',
-                      borderRadius: '8px',
-                      cursor: 'help'
-                    }}
+                    className="badge"
                   >
                     <img 
                       src={badge.icon}
                       alt={badge.name}
+                      className="badge-icon"
                       style={{ 
-                        width: '64px', 
-                        height: '64px',
-                        objectFit: 'contain',
                         filter: `drop-shadow(0 0 6px ${badge.color}80)`
                       }}
                       onError={(e) => {
                         e.target.style.display = 'none';
                       }}
                     />
-                    <div style={{ 
-                      fontSize: '0.75rem', 
-                      fontWeight: '600',
+                    <div className="badge-name" style={{ 
                       color: badge.color,
-                      textAlign: 'center',
                       textShadow: `0 0 8px ${badge.color}40`
                     }}>
                       {badge.name}
@@ -338,9 +320,9 @@ function PlayerProfile() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '20px', maxHeight: 'calc(100vh - 200px)' }}>
+      <div className="profile-main">
         {/* Skills Table */}
-        <div className="card" style={{ flex: '2', display: 'flex', flexDirection: 'column' }}>
+        <div className="card skills-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h3 style={{ margin: 0 }}>Skills</h3>
           </div>
@@ -449,7 +431,7 @@ function PlayerProfile() {
         </div>
 
         {/* Recent Activities Card */}
-        <div className="card" style={{ flex: '1', display: 'flex', flexDirection: 'column' }}>
+        <div className="card activities-section">
           <h3 style={{ marginBottom: '20px' }}>Recent Activities</h3>
           
           {activities.length > 0 ? (

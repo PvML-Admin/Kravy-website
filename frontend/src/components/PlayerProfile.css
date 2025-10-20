@@ -1,0 +1,239 @@
+/* Player Profile Mobile Responsiveness */
+
+/* Desktop default styles - maintain existing behavior */
+.profile-container {
+  /* Base styles handled by inline styles */
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-light);
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.achievement-badges {
+  display: flex;
+  gap: 10px;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 15px;
+  background-color: var(--primary-light);
+  border-radius: 8px;
+  cursor: help;
+}
+
+.badge-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.badge-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.profile-main {
+  display: flex;
+  gap: 20px;
+  max-height: calc(100vh - 200px);
+}
+
+.skills-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.activities-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .profile-stats {
+    gap: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .achievement-badges {
+    gap: 8px;
+  }
+  
+  .badge {
+    padding: 12px;
+  }
+  
+  .badge-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .badge-name {
+    font-size: 0.7rem;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .profile-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .profile-info {
+    gap: 16px;
+  }
+  
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .profile-stats {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  
+  .achievement-badges {
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+  }
+  
+  .badge {
+    padding: 8px;
+    gap: 4px;
+    min-width: auto;
+    flex: 0 1 auto;
+  }
+  
+  .badge-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .badge-name {
+    font-size: 0.65rem;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  
+  .profile-main {
+    flex-direction: column;
+    gap: 16px;
+    max-height: none;
+  }
+  
+  .skills-section,
+  .activities-section {
+    flex: none;
+  }
+  
+  /* Skills at top, activities at bottom for mobile */
+  .skills-section {
+    order: 1;
+  }
+  
+  .activities-section {
+    order: 2;
+    max-height: 400px; /* Limit activities height on mobile */
+    overflow-y: auto;
+  }
+  
+  /* Make skills table more mobile-friendly */
+  .skills-section table {
+    font-size: 0.8rem;
+  }
+  
+  .skills-section th,
+  .skills-section td {
+    padding: 6px 4px !important;
+  }
+  
+  .skills-section img {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Very small mobile screens */
+@media (max-width: 360px) {
+  .profile-info {
+    gap: 12px;
+  }
+  
+  .profile-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .achievement-badges {
+    gap: 4px;
+    justify-content: space-evenly;
+  }
+  
+  .badge {
+    padding: 6px;
+    flex: 1 1 auto;
+    max-width: 80px;
+  }
+  
+  .badge-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .badge-name {
+    font-size: 0.6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .skills-section th,
+  .skills-section td {
+    padding: 4px 2px !important;
+    font-size: 0.75rem;
+  }
+  
+  .activities-section {
+    max-height: 300px;
+  }
+}

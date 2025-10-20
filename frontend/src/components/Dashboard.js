@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI, membersAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';
@@ -97,12 +97,6 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     setShowSearchResults(false);
   };
 
-  const handleSearchBlur = () => {
-    // Delay to allow click on result to register
-    setTimeout(() => {
-      setShowSearchResults(false);
-    }, 300);
-  };
 
 
   const formatXp = (xp) => {
