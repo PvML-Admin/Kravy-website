@@ -276,24 +276,27 @@ input.form-control::placeholder {
     -webkit-overflow-scrolling: touch;
     border-radius: 6px;
     border: 1px solid var(--border-color);
-    margin: 0 -12px; /* Extend to edges */
+    margin: 0 -8px; /* Slightly less extension */
+    max-width: calc(100vw - 16px); /* Prevent viewport overflow */
   }
   
   .table {
     font-size: 0.7rem;
     margin-bottom: 0;
-    min-width: 100%;
+    min-width: 320px; /* Minimum table width for readability */
+    width: max-content; /* Let table size to content */
     border-collapse: collapse;
   }
   
   .table th {
-    padding: 4px 2px; /* Ultra compact padding */
-    font-size: 0.65rem;
+    padding: 6px 3px; /* Slightly more padding for readability */
+    font-size: 0.68rem;
     font-weight: 600;
     white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.1px;
     border-bottom: 2px solid var(--accent-primary);
+    text-align: center;
   }
   
   .table tbody tr {
@@ -305,10 +308,13 @@ input.form-control::placeholder {
   }
   
   .table td {
-    padding: 3px 2px; /* Ultra compact padding */
-    font-size: 0.7rem;
+    padding: 5px 3px; /* Slightly more padding */
+    font-size: 0.72rem;
     white-space: nowrap;
     border-right: 1px solid rgba(255, 255, 255, 0.05); /* Vertical separators */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0; /* Allow text truncation */
   }
   
   .table td:last-child {
@@ -337,21 +343,38 @@ input.form-control::placeholder {
   .player-name {
     font-size: 0.75rem !important;
     font-weight: 600;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
   
-  /* Column widths for condensed view */
-  .table.condensed th:nth-child(1) { min-width: 25px; } /* Rank */
-  .table.condensed th:nth-child(2) { min-width: 80px; } /* Name */
-  .table.condensed th:nth-child(3) { min-width: 55px; } /* Total XP */
+  /* Column widths for condensed view - ultra minimal */
+  .table.condensed th:nth-child(1) { width: 35px; max-width: 35px; } /* Rank */
+  .table.condensed th:nth-child(2) { width: 85px; max-width: 85px; } /* Name */
+  .table.condensed th:nth-child(3) { width: 70px; max-width: 70px; } /* Total XP */
   
-  /* Column widths for expanded view */
-  .table.expanded th:nth-child(1) { min-width: 25px; } /* Rank */
-  .table.expanded th:nth-child(2) { min-width: 70px; } /* Name */
-  .table.expanded th:nth-child(3) { min-width: 45px; } /* Total XP */
-  .table.expanded th:nth-child(4) { min-width: 45px; } /* Clan XP */
-  .table.expanded th:nth-child(5) { min-width: 35px; } /* Kills */
-  .table.expanded th:nth-child(6) { min-width: 40px; } /* Combat */
-  .table.expanded th:nth-child(7) { min-width: 55px; } /* Last Active */
+  .table.condensed td:nth-child(1) { width: 35px; max-width: 35px; } /* Rank */
+  .table.condensed td:nth-child(2) { width: 85px; max-width: 85px; } /* Name */
+  .table.condensed td:nth-child(3) { width: 70px; max-width: 70px; } /* Total XP */
+  
+  /* Column widths for expanded view - more controlled */
+  .table.expanded th:nth-child(1) { width: 30px; max-width: 30px; } /* Rank */
+  .table.expanded th:nth-child(2) { width: 70px; max-width: 70px; } /* Name */
+  .table.expanded th:nth-child(3) { width: 50px; max-width: 50px; } /* Total XP */
+  .table.expanded th:nth-child(4) { width: 45px; max-width: 45px; } /* Clan XP */
+  .table.expanded th:nth-child(5) { width: 35px; max-width: 35px; } /* Kills */
+  .table.expanded th:nth-child(6) { width: 35px; max-width: 35px; } /* Combat */
+  .table.expanded th:nth-child(7) { width: 60px; max-width: 60px; } /* Last Active */
+  
+  .table.expanded td:nth-child(1) { width: 30px; max-width: 30px; } /* Rank */
+  .table.expanded td:nth-child(2) { width: 70px; max-width: 70px; } /* Name */
+  .table.expanded td:nth-child(3) { width: 50px; max-width: 50px; } /* Total XP */
+  .table.expanded td:nth-child(4) { width: 45px; max-width: 45px; } /* Clan XP */
+  .table.expanded td:nth-child(5) { width: 35px; max-width: 35px; } /* Kills */
+  .table.expanded td:nth-child(6) { width: 35px; max-width: 35px; } /* Combat */
+  .table.expanded td:nth-child(7) { width: 60px; max-width: 60px; } /* Last Active */
   
   /* Rank column styling */
   .table td:nth-child(1) {
