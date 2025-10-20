@@ -222,6 +222,16 @@ input.form-control::placeholder {
 
 /* Mobile responsiveness */
 @media (max-width: 480px) {
+  /* Ensure page content fills full width */
+  .page-content {
+    padding: 8px !important; /* Reduce overall padding */
+  }
+  
+  .card {
+    margin: 0 -4px; /* Extend card to edges */
+    border-radius: 8px 8px 0 0; /* Only top corners rounded */
+  }
+  
   .form-control {
     padding: 14px 16px; /* Touch-friendly */
     font-size: 1rem;
@@ -284,14 +294,15 @@ input.form-control::placeholder {
     border-radius: 6px;
     border: 1px solid var(--border-color);
     margin: 0 -12px; /* Extend to full width */
-    width: calc(100vw - 8px); /* Fill screen width */
+    width: calc(100vw - 24px); /* Fill screen width properly */
+    max-width: none; /* Remove any max-width constraints */
   }
   
   .table {
     font-size: 0.72rem;
     margin-bottom: 0;
     width: 100%; /* Fill container width */
-    min-width: 100%; /* Ensure full width */
+    min-width: calc(100vw - 24px); /* Ensure it fills available space */
     border-collapse: collapse;
     table-layout: fixed; /* Fixed layout for better control */
   }
@@ -336,10 +347,8 @@ input.form-control::placeholder {
     display: none;
   }
   
-  /* Condensed view - hide Clan XP and Last Active columns */
-  .table.condensed th:nth-child(3), /* Clan XP (3rd column) */
+  /* Condensed view - hide only Last Active column, keep Clan XP visible */
   .table.condensed th:nth-child(6), /* Last Active (6th column) */
-  .table.condensed td:nth-child(3), /* Clan XP (3rd column) */
   .table.condensed td:nth-child(6) { /* Last Active (6th column) */
     display: none;
   }
@@ -388,19 +397,27 @@ input.form-control::placeholder {
     max-width: none;
   }
   
-  /* Column widths for condensed view - maximize name space */
-  .table.condensed th:nth-child(1) { width: 65%; } /* Name - take most space */
-  .table.condensed th:nth-child(2) { width: 35%; } /* Total XP */
+  /* Column widths for condensed view - 3 columns: Name, Total XP, Clan XP */
+  .table.condensed th:nth-child(1) { width: 50%; } /* Name - good space for names */
+  .table.condensed th:nth-child(2) { width: 25%; } /* Total XP */
+  .table.condensed th:nth-child(3) { width: 25%; } /* Clan XP */
   
   .table.condensed td:nth-child(1) { 
-    width: 65%; 
+    width: 50%; 
     white-space: normal; /* Allow name wrapping */
     word-wrap: break-word;
     line-height: 1.2;
   } 
   .table.condensed td:nth-child(2) { 
-    width: 35%;
+    width: 25%;
     text-align: right;
+    font-size: 0.8rem;
+  }
+  .table.condensed td:nth-child(3) { 
+    width: 25%;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--accent-primary);
   }
   
   /* Column widths for expanded view - optimize for mobile space */
@@ -437,6 +454,11 @@ input.form-control::placeholder {
     color: var(--accent-green);
     background-color: rgba(67, 181, 129, 0.03);
     font-size: 0.8rem;
+  }
+  
+  /* Clan XP styling for condensed view */
+  .table.condensed td:nth-child(3) {
+    background-color: rgba(74, 144, 226, 0.03);
   }
   
   /* Other numeric columns - improved for mobile */
