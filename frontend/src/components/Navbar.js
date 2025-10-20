@@ -52,21 +52,20 @@ function Navbar() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="mobile-nav" ref={mobileNavRef}>
-          <div className="mobile-nav-header">
-            <span className="mobile-logo">KRAVY</span>
-            <button 
-              className="mobile-menu-toggle"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle navigation"
-            >
-              <span className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
-                <span></span>
-                <span></span>
-                <span></span>
-              </span>
-            </button>
-          </div>
+      <div className="mobile-nav" ref={mobileNavRef}>
+        <div className="mobile-nav-header">
+          <button 
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle navigation"
+          >
+            <span className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
           
           <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
             <div className="mobile-menu-items">

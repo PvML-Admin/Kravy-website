@@ -154,39 +154,39 @@
   }
 }
 
-/* Mobile Navigation */
+/* Mobile Navigation - Default Desktop State */
 .mobile-nav {
-  display: none;
+  display: none !important;
 }
 
-.desktop-nav {
-  display: flex;
+.navbar-links.desktop-nav {
+  display: flex !important;
 }
 
 .mobile-only {
-  display: none;
+  display: none !important;
 }
 
 .desktop-only {
-  display: flex;
+  display: flex !important;
 }
 
 /* Mobile breakpoint */
 @media (max-width: 480px) {
   .navbar {
-    padding: 8px 12px;
+    padding: 8px 12px !important;
   }
   
   .navbar-container {
-    position: relative;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    position: relative !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
   
   /* Hide desktop nav on mobile */
-  .desktop-nav {
-    display: none;
+  .navbar-links.desktop-nav {
+    display: none !important;
   }
   
   .desktop-only {
@@ -194,28 +194,21 @@
   }
   
   .mobile-only {
-    display: flex;
+    display: flex !important;
   }
   
   /* Show mobile nav */
   .mobile-nav {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     flex: 1;
   }
   
   .mobile-nav-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
-  }
-  
-  .mobile-logo {
-    font-family: 'Gagalin', sans-serif;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #2d9596;
   }
   
   /* Hamburger Menu */
@@ -223,15 +216,21 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
     z-index: 1001;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .mobile-menu-toggle:hover {
+    background-color: rgba(45, 149, 150, 0.1);
   }
   
   .hamburger {
     display: flex;
     flex-direction: column;
-    width: 24px;
-    height: 18px;
+    width: 28px;
+    height: 20px;
     justify-content: space-between;
     transition: all 0.3s ease;
   }
@@ -240,7 +239,8 @@
     display: block;
     height: 3px;
     width: 100%;
-    background-color: #ffffff;
+    background-color: #2d9596;
+    border-radius: 2px;
     transition: all 0.3s ease;
     transform-origin: center;
   }

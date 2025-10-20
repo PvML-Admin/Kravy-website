@@ -144,6 +144,10 @@ function MemberList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="form-control"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
             />
             <select 
               value={rankFilter}
