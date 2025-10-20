@@ -29,6 +29,7 @@ function MemberList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [rankFilter, setRankFilter] = useState('All');
   const [activityFilter, setActivityFilter] = useState('All');
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
   const membersPerPage = 20;
 
   useEffect(() => {
@@ -95,9 +96,18 @@ function MemberList() {
   }, [allMembers, searchTerm, rankFilter, activityFilter]);
 
   const formatXp = (xp) => {
-    if (xp >= 1000000000) return `${(xp / 1000000000).toFixed(2)}B`;
-    if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
-    if (xp >= 1000) return `${(xp / 1000).toFixed(2)}K`;
+    if (xp >= 1000000000) {
+      const billions = (xp / 1000000000);
+      return billions % 1 === 0 ? `${billions.toFixed(0)}B` : `${billions.toFixed(1)}B`;
+    }
+    if (xp >= 1000000) {
+      const millions = (xp / 1000000);
+      return millions % 1 === 0 ? `${millions.toFixed(0)}M` : `${millions.toFixed(0)}M`;
+    }
+    if (xp >= 1000) {
+      const thousands = (xp / 1000);
+      return thousands % 1 === 0 ? `${thousands.toFixed(0)}K` : `${thousands.toFixed(1)}K`;
+    }
     return xp.toLocaleString();
   };
 
@@ -164,10 +174,23 @@ function MemberList() {
         </div>
 
         {error && <div className="error">{error}</div>}
+        
+        {/* Mobile table toggle */}
+        <div className="mobile-table-toggle">
+          <button 
+            className={`toggle-view-btn ${isTableExpanded ? 'expanded' : ''}`}
+            onClick={() => setIsTableExpanded(!isTableExpanded)}
+          >
+            {isTableExpanded ? '▲ Show Less' : '▼ Show More'}
+          </button>
+        </div>
+
         {filteredMembers.length > 0 ? (
-          <table className="table">
+          <div className="table-responsive">
+            <table className={`table ${isTableExpanded ? 'expanded' : 'condensed'}`}>
             <thead>
               <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th>Total XP</th>
                 <th>Clan XP</th>
@@ -179,8 +202,9 @@ function MemberList() {
             <tbody>
               {filteredMembers
                 .slice((currentPage - 1) * membersPerPage, currentPage * membersPerPage)
-                .map((member) => (
+                .map((member, index) => (
                 <tr key={member.id}>
+                  <td>{(currentPage - 1) * membersPerPage + index + 1}</td>
                   <td 
                     onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}
                     style={{ 
@@ -244,7 +268,8 @@ function MemberList() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         ) : (
           <p>No members found. Add some members to get started!</p>
         )}

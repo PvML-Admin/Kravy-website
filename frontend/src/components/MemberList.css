@@ -321,16 +321,34 @@ input.form-control::placeholder {
     border-right: none;
   }
   
-  /* Condensed view - hide extra columns by default */
-  .table.condensed th:nth-child(n+4),
-  .table.condensed td:nth-child(n+4) {
+  /* Mobile view - hide Combat and Kills columns completely */
+  .table th:nth-child(7), /* Combat (7th column) */
+  .table th:nth-child(6), /* Kills (6th column) */
+  .table td:nth-child(7), /* Combat (7th column) */
+  .table td:nth-child(6) { /* Kills (6th column) */
     display: none;
   }
   
-  /* Show all columns when expanded */
+  /* Condensed view - hide Clan XP and Last Active columns */
+  .table.condensed th:nth-child(5), /* Clan XP (5th column) */
+  .table.condensed th:nth-child(8), /* Last Active (8th column) */
+  .table.condensed td:nth-child(5), /* Clan XP (5th column) */
+  .table.condensed td:nth-child(8) { /* Last Active (8th column) */
+    display: none;
+  }
+  
+  /* Show all columns when expanded (except Combat and Kills which are always hidden on mobile) */
   .table.expanded th,
   .table.expanded td {
     display: table-cell;
+  }
+  
+  /* Keep Combat and Kills hidden even in expanded view */
+  .table.expanded th:nth-child(7), /* Combat (7th column) */
+  .table.expanded th:nth-child(6), /* Kills (6th column) */
+  .table.expanded td:nth-child(7), /* Combat (7th column) */
+  .table.expanded td:nth-child(6) { /* Kills (6th column) */
+    display: none;
   }
   
   /* Compact avatars and ranks */
@@ -350,31 +368,31 @@ input.form-control::placeholder {
     max-width: 100%;
   }
   
-  /* Column widths for condensed view - ultra minimal */
-  .table.condensed th:nth-child(1) { width: 35px; max-width: 35px; } /* Rank */
-  .table.condensed th:nth-child(2) { width: 85px; max-width: 85px; } /* Name */
-  .table.condensed th:nth-child(3) { width: 70px; max-width: 70px; } /* Total XP */
+  /* Column widths for condensed view - more room for names */
+  .table.condensed th:nth-child(1) { width: 30px; max-width: 30px; } /* # Rank */
+  .table.condensed th:nth-child(2) { width: 35px; max-width: 35px; } /* Clan Rank */
+  .table.condensed th:nth-child(3) { width: 110px; max-width: 110px; } /* Name - more space */
+  .table.condensed th:nth-child(4) { width: 70px; max-width: 70px; } /* Total XP */
   
-  .table.condensed td:nth-child(1) { width: 35px; max-width: 35px; } /* Rank */
-  .table.condensed td:nth-child(2) { width: 85px; max-width: 85px; } /* Name */
-  .table.condensed td:nth-child(3) { width: 70px; max-width: 70px; } /* Total XP */
+  .table.condensed td:nth-child(1) { width: 30px; max-width: 30px; } /* # Rank */
+  .table.condensed td:nth-child(2) { width: 35px; max-width: 35px; } /* Clan Rank */
+  .table.condensed td:nth-child(3) { width: 110px; max-width: 110px; } /* Name - more space */
+  .table.condensed td:nth-child(4) { width: 70px; max-width: 70px; } /* Total XP */
   
-  /* Column widths for expanded view - more controlled */
-  .table.expanded th:nth-child(1) { width: 30px; max-width: 30px; } /* Rank */
-  .table.expanded th:nth-child(2) { width: 70px; max-width: 70px; } /* Name */
-  .table.expanded th:nth-child(3) { width: 50px; max-width: 50px; } /* Total XP */
-  .table.expanded th:nth-child(4) { width: 45px; max-width: 45px; } /* Clan XP */
-  .table.expanded th:nth-child(5) { width: 35px; max-width: 35px; } /* Kills */
-  .table.expanded th:nth-child(6) { width: 35px; max-width: 35px; } /* Combat */
-  .table.expanded th:nth-child(7) { width: 60px; max-width: 60px; } /* Last Active */
+  /* Column widths for expanded view - optimized without Combat/Kills */
+  .table.expanded th:nth-child(1) { width: 30px; max-width: 30px; } /* # Rank */
+  .table.expanded th:nth-child(2) { width: 35px; max-width: 35px; } /* Clan Rank */
+  .table.expanded th:nth-child(3) { width: 90px; max-width: 90px; } /* Name - more space */
+  .table.expanded th:nth-child(4) { width: 60px; max-width: 60px; } /* Total XP */
+  .table.expanded th:nth-child(5) { width: 55px; max-width: 55px; } /* Clan XP */
+  .table.expanded th:nth-child(8) { width: 75px; max-width: 75px; } /* Last Active */
   
-  .table.expanded td:nth-child(1) { width: 30px; max-width: 30px; } /* Rank */
-  .table.expanded td:nth-child(2) { width: 70px; max-width: 70px; } /* Name */
-  .table.expanded td:nth-child(3) { width: 50px; max-width: 50px; } /* Total XP */
-  .table.expanded td:nth-child(4) { width: 45px; max-width: 45px; } /* Clan XP */
-  .table.expanded td:nth-child(5) { width: 35px; max-width: 35px; } /* Kills */
-  .table.expanded td:nth-child(6) { width: 35px; max-width: 35px; } /* Combat */
-  .table.expanded td:nth-child(7) { width: 60px; max-width: 60px; } /* Last Active */
+  .table.expanded td:nth-child(1) { width: 30px; max-width: 30px; } /* # Rank */
+  .table.expanded td:nth-child(2) { width: 35px; max-width: 35px; } /* Clan Rank */
+  .table.expanded td:nth-child(3) { width: 90px; max-width: 90px; } /* Name - more space */
+  .table.expanded td:nth-child(4) { width: 60px; max-width: 60px; } /* Total XP */
+  .table.expanded td:nth-child(5) { width: 55px; max-width: 55px; } /* Clan XP */
+  .table.expanded td:nth-child(8) { width: 75px; max-width: 75px; } /* Last Active */
   
   /* Rank column styling */
   .table td:nth-child(1) {
@@ -385,7 +403,7 @@ input.form-control::placeholder {
   }
   
   /* Total XP styling */
-  .table td:nth-child(3) {
+  .table td:nth-child(4) {
     text-align: right;
     font-weight: 700;
     color: var(--accent-green);
@@ -393,15 +411,10 @@ input.form-control::placeholder {
   }
   
   /* Other numeric columns */
-  .table.expanded td:nth-child(4),
-  .table.expanded td:nth-child(5),
-  .table.expanded td:nth-child(6) {
+  .table.expanded td:nth-child(5) {
     font-size: 0.65rem;
     text-align: right;
     font-weight: 600;
-  }
-  
-  .table.expanded td:nth-child(4) {
     color: var(--accent-primary);
     background-color: rgba(74, 144, 226, 0.03);
   }
