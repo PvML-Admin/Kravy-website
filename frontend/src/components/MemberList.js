@@ -124,10 +124,10 @@ function MemberList() {
   return (
     <div>
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-          <h2 style={{ margin: 0 }}>Clan Members ({filteredMembers.length})</h2>
+        <div className="member-list-header">
+          <h2>Clan Members ({filteredMembers.length})</h2>
           
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div className="member-list-controls">
             <input 
               type="text"
               placeholder="Search by name..."

@@ -150,3 +150,251 @@ input.form-control::placeholder {
   color: white;
   font-weight: 500;
 }
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .form-control {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    min-width: 140px;
+  }
+  
+  .filter-pills {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .filter-pill {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .table {
+    font-size: 0.9rem;
+  }
+}
+
+/* Member list header responsive layout */
+.member-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.member-list-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .member-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .member-list-header h2 {
+    text-align: center;
+    margin: 0;
+  }
+  
+  .member-list-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .member-list-controls .form-control {
+    width: 100%;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .form-control {
+    padding: 14px 16px; /* Touch-friendly */
+    font-size: 1rem;
+    min-height: 44px;
+    min-width: 100%;
+    border-radius: 6px;
+  }
+  
+  .filter-pills {
+    gap: 6px;
+  }
+  
+  .filter-pill {
+    padding: 10px 14px; /* Touch-friendly */
+    font-size: 0.9rem;
+    flex: 1;
+    text-align: center;
+    min-width: fit-content;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Mobile expand toggle */
+  .mobile-table-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  
+  .toggle-view-btn {
+    padding: 8px 16px;
+    background-color: var(--background-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .toggle-view-btn:hover {
+    background-color: var(--background-light);
+    border-color: var(--accent-primary);
+  }
+  
+  .toggle-view-btn.expanded {
+    background-color: var(--accent-primary);
+    color: white;
+  }
+  
+  /* Compact mobile table */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin: 0 -12px; /* Extend to edges */
+  }
+  
+  .table {
+    font-size: 0.7rem;
+    margin-bottom: 0;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th {
+    padding: 4px 2px; /* Ultra compact padding */
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    border-bottom: 2px solid var(--accent-primary);
+  }
+  
+  .table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Subtle visual separator */
+  }
+  
+  .table tbody tr:hover {
+    background-color: rgba(74, 144, 226, 0.08);
+  }
+  
+  .table td {
+    padding: 3px 2px; /* Ultra compact padding */
+    font-size: 0.7rem;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255, 255, 255, 0.05); /* Vertical separators */
+  }
+  
+  .table td:last-child {
+    border-right: none;
+  }
+  
+  /* Condensed view - hide extra columns by default */
+  .table.condensed th:nth-child(n+4),
+  .table.condensed td:nth-child(n+4) {
+    display: none;
+  }
+  
+  /* Show all columns when expanded */
+  .table.expanded th,
+  .table.expanded td {
+    display: table-cell;
+  }
+  
+  /* Compact avatars and ranks */
+  .table img {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  
+  /* Make player names more compact */
+  .player-name {
+    font-size: 0.75rem !important;
+    font-weight: 600;
+  }
+  
+  /* Column widths for condensed view */
+  .table.condensed th:nth-child(1) { min-width: 25px; } /* Rank */
+  .table.condensed th:nth-child(2) { min-width: 80px; } /* Name */
+  .table.condensed th:nth-child(3) { min-width: 55px; } /* Total XP */
+  
+  /* Column widths for expanded view */
+  .table.expanded th:nth-child(1) { min-width: 25px; } /* Rank */
+  .table.expanded th:nth-child(2) { min-width: 70px; } /* Name */
+  .table.expanded th:nth-child(3) { min-width: 45px; } /* Total XP */
+  .table.expanded th:nth-child(4) { min-width: 45px; } /* Clan XP */
+  .table.expanded th:nth-child(5) { min-width: 35px; } /* Kills */
+  .table.expanded th:nth-child(6) { min-width: 40px; } /* Combat */
+  .table.expanded th:nth-child(7) { min-width: 55px; } /* Last Active */
+  
+  /* Rank column styling */
+  .table td:nth-child(1) {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background-color: rgba(74, 144, 226, 0.05);
+  }
+  
+  /* Total XP styling */
+  .table td:nth-child(3) {
+    text-align: right;
+    font-weight: 700;
+    color: var(--accent-green);
+    background-color: rgba(67, 181, 129, 0.03);
+  }
+  
+  /* Other numeric columns */
+  .table.expanded td:nth-child(4),
+  .table.expanded td:nth-child(5),
+  .table.expanded td:nth-child(6) {
+    font-size: 0.65rem;
+    text-align: right;
+    font-weight: 600;
+  }
+  
+  .table.expanded td:nth-child(4) {
+    color: var(--accent-primary);
+    background-color: rgba(74, 144, 226, 0.03);
+  }
+  
+  /* Style inactive status more compactly */
+  .table td .inactive-status {
+    font-size: 0.6rem;
+    opacity: 0.8;
+  }
+  
+  .sync-progress-box {
+    padding: 12px;
+    margin-top: 12px;
+  }
+  
+  .sync-progress-box h4 {
+    font-size: 0.95rem;
+  }
+}

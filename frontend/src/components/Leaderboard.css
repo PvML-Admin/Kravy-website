@@ -351,3 +351,111 @@
     text-align: center;
   }
 }
+
+/* Enhanced Mobile responsiveness */
+@media (max-width: 480px) {
+  .leaderboard-title h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .leaderboard-container .card {
+    padding: 12px;
+  }
+  
+  .leaderboard-filters,
+  .period-filters {
+    padding: 0 12px 16px;
+    gap: 6px;
+  }
+  
+  .skill-icon-wrapper,
+  .period-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .skill-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Compact mobile table with horizontal scroll */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin: 0 -12px; /* Extend to card edges */
+  }
+  
+  .leaderboard-table {
+    font-size: 0.75rem; /* Much smaller font */
+    margin: 0;
+    min-width: 100%; /* Let it be more compact */
+  }
+  
+  .leaderboard-table thead tr th {
+    padding: 6px 4px; /* Very compact padding */
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  
+  .leaderboard-table tbody tr td {
+    padding: 6px 4px; /* Very compact padding */
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  /* Optimize column widths for mobile */
+  .leaderboard-table th:nth-child(1) { min-width: 30px; } /* Rank */
+  .leaderboard-table th:nth-child(2) { min-width: 80px; } /* Name */
+  .leaderboard-table th:nth-child(3) { min-width: 60px; } /* XP Gain */
+  
+  /* Compact member name cell */
+  .member-name-cell {
+    gap: 6px;
+  }
+  
+  .member-avatar {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .member-name-cell span {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  /* Right-align numbers for better readability */
+  .leaderboard-table td:nth-child(3) {
+    text-align: right;
+    font-weight: 600;
+    color: var(--accent-green);
+  }
+  
+  /* Style XP gain more compactly */
+  .xp-gain {
+    font-size: 0.7rem !important;
+    font-weight: 700;
+  }
+  
+  .pagination-controls {
+    padding: 10px 12px;
+  }
+  
+  .btn {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  
+  .pagination-pages .btn {
+    min-width: 40px;
+  }
+}

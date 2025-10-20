@@ -356,3 +356,132 @@
     padding: 5px 10px;
   }
 }
+
+/* Enhanced Mobile responsiveness */
+@media (max-width: 480px) {
+  .hiscores-title h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .hiscores-container .card {
+    padding: 12px;
+  }
+  
+  .hiscores-filters,
+  .xp-brackets-filter {
+    padding: 0 12px 16px;
+    gap: 6px;
+  }
+  
+  .skill-icon-wrapper,
+  .bracket-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .skill-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Compact mobile table with horizontal scroll */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin: 0 -12px; /* Extend to card edges */
+  }
+  
+  .hiscores-table {
+    font-size: 0.7rem; /* Slightly smaller */
+    margin: 0;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .hiscores-table thead tr th {
+    padding: 4px 2px; /* Ultra compact padding */
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--accent-primary);
+  }
+  
+  .hiscores-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Subtle visual separator */
+  }
+  
+  .hiscores-table tbody tr:hover {
+    background-color: rgba(74, 144, 226, 0.08);
+  }
+  
+  .hiscores-table tbody tr td {
+    padding: 3px 2px; /* Ultra compact padding */
+    font-size: 0.7rem;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255, 255, 255, 0.05); /* Vertical separators */
+  }
+  
+  .hiscores-table tbody tr td:last-child {
+    border-right: none;
+  }
+  
+  /* Optimize column widths for mobile */
+  .hiscores-table th:nth-child(1) { min-width: 25px; } /* Rank */
+  .hiscores-table th:nth-child(2) { min-width: 70px; } /* Name */
+  .hiscores-table th:nth-child(3) { min-width: 40px; } /* Level */
+  .hiscores-table th:nth-child(4) { min-width: 55px; } /* XP */
+  
+  /* Ultra compact member name cell */
+  .member-name-cell {
+    gap: 4px;
+  }
+  
+  .member-avatar {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .member-name-cell span {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  /* Rank column styling */
+  .hiscores-table td:nth-child(1) {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background-color: rgba(74, 144, 226, 0.05);
+  }
+  
+  /* Level and XP columns - right aligned with color coding */
+  .hiscores-table td:nth-child(3) {
+    text-align: right;
+    font-weight: 700;
+    color: var(--accent-primary);
+    background-color: rgba(74, 144, 226, 0.03);
+  }
+  
+  .hiscores-table td:nth-child(4) {
+    text-align: right;
+    font-weight: 700;
+    color: var(--accent-green);
+    background-color: rgba(67, 181, 129, 0.03);
+  }
+  
+  /* Ultra compact inactive tag */
+  .inactive-tag {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 6px;
+    margin-top: 1px;
+  }
+}

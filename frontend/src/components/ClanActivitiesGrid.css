@@ -3,9 +3,10 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--background-secondary);
-  padding: 20px;
-  margin: -20px -20px 20px -20px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 16px;
+  margin: 0 0 20px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .activities-header h2 {
@@ -137,5 +138,103 @@
 .btn-pagination:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .activities-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .activities-header h2 {
+    text-align: center;
+    font-size: 1.25rem;
+  }
+  
+  .clan-activities-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: 400px; /* Reduced height */
+  }
+  
+  .filter-pills {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .filter-pill {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .activities-header {
+    padding: 12px;
+    margin: 0 0 12px 0;
+  }
+  
+  .activities-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .clan-activities-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 300px; /* Much more compact height */
+  }
+  
+  .activity-card {
+    padding: 12px;
+    min-height: 90px; /* Reduced height */
+    border-radius: 6px;
+  }
+  
+  .activity-card-header {
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+  }
+  
+  .activity-avatar {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+  }
+  
+  .activity-card-body {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+  
+  .activity-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .filter-pills {
+    gap: 6px;
+  }
+  
+  .filter-pill {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    flex: 1;
+    text-align: center;
+    min-width: fit-content;
+  }
+  
+  .pagination {
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .btn-pagination {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
 }
 

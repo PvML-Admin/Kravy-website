@@ -98,11 +98,11 @@ router.get('/sync/logs', async (req, res) => {
 // Clear daily XP gains
 router.post('/data/clear-daily-xp', async (req, res) => {
   try {
-    await db.runAsync('UPDATE members SET daily_xp_gain = 0');
+    await db.runAsync('UPDATE skills SET daily_xp_gain = 0');
     
     res.json({
       success: true,
-      message: 'Daily XP gains cleared for all members'
+      message: 'Daily XP gains cleared for all skills'
     });
   } catch (error) {
     res.status(500).json({
@@ -115,11 +115,11 @@ router.post('/data/clear-daily-xp', async (req, res) => {
 // Clear weekly XP gains
 router.post('/data/clear-weekly-xp', async (req, res) => {
   try {
-    await db.runAsync('UPDATE members SET weekly_xp_gain = 0');
+    await db.runAsync('UPDATE skills SET weekly_xp_gain = 0');
     
     res.json({
       success: true,
-      message: 'Weekly XP gains cleared for all members'
+      message: 'Weekly XP gains cleared for all skills'
     });
   } catch (error) {
     res.status(500).json({

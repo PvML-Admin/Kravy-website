@@ -22,6 +22,7 @@ function Dashboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [allMembers, setAllMembers] = useState([]);
+  const [collapsedCards, setCollapsedCards] = useState(new Set());
 
   const aboutText = `Founded: 24th September 2021.
 Social | PvM | Clues | Skilling | DnDs | Watchalongs | Other Games
@@ -108,6 +109,43 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     return xp.toLocaleString();
   };
 
+  const toggleCard = (cardId) => {
+    setCollapsedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
+  };
+
+
+  const MobileCardWrapper = ({ cardId, title, children, defaultCollapsed = false }) => {
+    const isCollapsed = collapsedCards.has(cardId);
+    
+    return (
+      <div className="card-wrapper">
+        {/* Mobile-only collapse header */}
+        <div className="mobile-card-header">
+          <h3>{title}</h3>
+          <button 
+            className="card-collapse-btn"
+            onClick={() => toggleCard(cardId)}
+          >
+            {isCollapsed ? '▼' : '▲'}
+          </button>
+        </div>
+        
+        {/* Card content - shown on desktop always, collapsed/expanded on mobile */}
+        <div className={`card-content-wrapper ${isCollapsed ? 'mobile-collapsed' : ''}`}>
+          {children}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) return <div className="loading">Loading dashboard...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
@@ -118,128 +156,163 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
         <div className="dashboard-grid">
           {/* Left Column */}
           <div className="grid-column">
-            <HighestRanks />
-            <DailyClanXpGain />
-            <TwitterFeed />
+            <MobileCardWrapper cardId="highest-ranks" title="Clan Owners">
+              <HighestRanks />
+            </MobileCardWrapper>
+            <MobileCardWrapper cardId="daily-xp" title="Daily Clan XP">
+              <DailyClanXpGain />
+            </MobileCardWrapper>
+            <MobileCardWrapper cardId="twitter" title="Latest Posts">
+              <TwitterFeed />
+            </MobileCardWrapper>
           </div>
           
           {/* Center Column */}
           <div className="grid-column-large">
-            <div className="card">
-              <div className="clan-info-header">
-                <h2>Clan Information</h2>
-                <button onClick={toggleShowFullInfo} className="btn-toggle-info">
-                  {showFullInfo ? 'Show Less' : 'Show More'}
-                </button>
+            <MobileCardWrapper cardId="clan-info" title="Clan Information">
+              <div className="card">
+                <div className="clan-info-header">
+                  <h2>Clan Information</h2>
+                  <button onClick={toggleShowFullInfo} className="btn-toggle-info">
+                    {showFullInfo ? 'Show Less' : 'Show More'}
+                  </button>
+                </div>
+                <p className={`about-text ${showFullInfo ? 'expanded' : ''}`}>{aboutText}</p>
               </div>
-              <p className={`about-text ${showFullInfo ? 'expanded' : ''}`}>{aboutText}</p>
+            </MobileCardWrapper>
+            {/* ClanActivitiesGrid with special mobile handling */}
+            <div className="activities-wrapper">
+              {/* Desktop: render directly without wrapper */}
+              <div className="desktop-activities">
+                <ClanActivitiesGrid />
+              </div>
+              
+              {/* Mobile: render with collapse header */}
+              <div className="mobile-activities">
+                <div className="mobile-card-header">
+                  <h3>Clanmate Achievements</h3>
+                  <button 
+                    className="card-collapse-btn"
+                    onClick={() => toggleCard('activities')}
+                  >
+                    {collapsedCards.has('activities') ? '▼' : '▲'}
+                  </button>
+                </div>
+                <div className={`card-content-wrapper ${collapsedCards.has('activities') ? 'mobile-collapsed' : ''}`}>
+                  <ClanActivitiesGrid />
+                </div>
+              </div>
             </div>
-            <ClanActivitiesGrid />
           </div>
 
           {/* Right Column */}
           <div className="grid-column">
             {/* Player Search Box */}
-            <div className="card player-search-card">
-              <h2 style={{ marginBottom: '15px' }}>Find Player</h2>
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Search player name..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onFocus={() => searchQuery && setShowSearchResults(true)}
-                  onBlur={handleSearchBlur}
-                  className="player-search-input"
-                />
-                {showSearchResults && searchResults.length > 0 && (
-                  <div className="search-results-dropdown">
-                    {searchResults.map((member) => (
-                      <div
-                        key={member.id}
-                        className="search-result-item"
-                        onClick={() => handleSelectPlayer(member.name)}
-                      >
-                        <img 
-                          src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
-                          alt={member.name}
-                          className="search-result-avatar"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                        <div className="search-result-info">
-                          <div className="search-result-name">
-                            <PlayerDisplayName member={member} />
-                          </div>
-                          <div className="search-result-stats">
-                            {formatXp(member.total_xp)} XP • Lvl {member.combat_level > 152 ? 152 : member.combat_level || 0}
+            <MobileCardWrapper cardId="player-search" title="Find Player">
+              <div className="card player-search-card">
+                <div className="search-container">
+                  <input
+                    type="text"
+                    placeholder="Search player name..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                    onBlur={handleSearchBlur}
+                    className="player-search-input"
+                  />
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="search-results-dropdown">
+                      {searchResults.map((member) => (
+                        <div
+                          key={member.id}
+                          className="search-result-item"
+                          onClick={() => handleSelectPlayer(member.name)}
+                        >
+                          <img 
+                            src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
+                            alt={member.name}
+                            className="search-result-avatar"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                          <div className="search-result-info">
+                            <div className="search-result-name">
+                              <PlayerDisplayName member={member} />
+                            </div>
+                            <div className="search-result-stats">
+                              {formatXp(member.total_xp)} XP • Lvl {member.combat_level > 152 ? 152 : member.combat_level || 0}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {showSearchResults && searchQuery && searchResults.length === 0 && (
-                  <div className="search-results-dropdown">
-                    <div className="search-no-results">
-                      No players found
+                      ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="card today-xp-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                <h2 style={{ margin: 0 }}>XP Gain</h2>
-                <div className="filter-pills">
-                  <button
-                    className={`filter-pill ${xpGainPeriod === 'daily' ? 'active' : ''}`}
-                    onClick={() => setXpGainPeriod('daily')}
-                  >
-                    Daily
-                  </button>
-                  <button
-                    className={`filter-pill ${xpGainPeriod === 'weekly' ? 'active' : ''}`}
-                    onClick={() => setXpGainPeriod('weekly')}
-                  >
-                    Weekly
-                  </button>
+                  )}
+                  {showSearchResults && searchQuery && searchResults.length === 0 && (
+                    <div className="search-results-dropdown">
+                      <div className="search-no-results">
+                        No players found
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              {topGainers?.[xpGainPeriod]?.length > 0 ? (
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>XP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topGainers[xpGainPeriod].map((member, index) => (
-                      <tr 
-                        key={member.id}
-                        onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}
-                        style={{ cursor: 'pointer' }}
-                        className="clickable-row"
-                      >
-                        <td>{index + 1}</td>
-                        <td>
-                          <PlayerDisplayName member={member} />
-                        </td>
-                        <td className={member.xpGain > 0 ? 'xp-gain' : ''}>
-                          {formatXp(member.xpGain)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>No XP gains recorded for this period.</p>
-              )}
-            </div>
+            </MobileCardWrapper>
+
+            <MobileCardWrapper cardId="xp-tracker" title="XP Gain">
+              <div className="card today-xp-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h2 style={{ margin: 0, fontFamily: 'Gagalin, sans-serif', fontSize: '1.75rem', fontWeight: 'normal' }}>XP Gain</h2>
+                  <div className="filter-pills">
+                    <button
+                      className={`filter-pill ${xpGainPeriod === 'daily' ? 'active' : ''}`}
+                      onClick={() => setXpGainPeriod('daily')}
+                    >
+                      Daily
+                    </button>
+                    <button
+                      className={`filter-pill ${xpGainPeriod === 'weekly' ? 'active' : ''}`}
+                      onClick={() => setXpGainPeriod('weekly')}
+                    >
+                      Weekly
+                    </button>
+                  </div>
+                </div>
+                <div className="table-container">
+                  {topGainers?.[xpGainPeriod]?.length > 0 ? (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>XP</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topGainers[xpGainPeriod].map((member, index) => (
+                          <tr 
+                            key={member.id}
+                            onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}
+                            style={{ cursor: 'pointer' }}
+                            className="clickable-row"
+                          >
+                            <td>{index + 1}</td>
+                            <td>
+                              <PlayerDisplayName member={member} />
+                            </td>
+                            <td className={member.xpGain > 0 ? 'xp-gain' : ''}>
+                              {formatXp(member.xpGain)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p>No XP gains recorded for this period.</p>
+                  )}
+                </div>
+              </div>
+            </MobileCardWrapper>
           </div>
         </div>
       </div>

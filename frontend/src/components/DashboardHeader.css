@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: space-between;
   background-color: var(--background-secondary);
-  padding: 15px 20px;
+  padding: 12px 16px; /* Reduced from 15px 20px */
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 12px; /* Reduced from 20px */
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
 }
@@ -139,4 +139,111 @@
 .nav-tab.active {
   color: var(--accent-green);
   border-bottom-color: var(--accent-green);
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .clan-info {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .clan-banner {
+    width: 80px;
+    height: 65px;
+  }
+  
+  .clan-info h1 {
+    font-size: 2rem;
+  }
+  
+  .clan-stats {
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .dashboard-header .stat-value {
+    font-size: 1.2rem !important;
+  }
+  
+  .dashboard-header .stat-label {
+    font-size: 1.2rem !important;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 10px;
+    margin-bottom: 8px; /* Reduced from 20px */
+  }
+  
+  .clan-info {
+    gap: 10px;
+    flex-direction: column;
+  }
+  
+  .clan-banner {
+    width: 60px;
+    height: 50px;
+  }
+  
+  .clan-name-section {
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .clan-info h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  .social-media-links {
+    gap: 8px;
+  }
+  
+  .social-icon {
+    width: 20px;
+    height: 20px;
+    padding: 4px;
+  }
+  
+  .clan-stats {
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .dashboard-header .stat-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 50px;
+    text-align: center;
+  }
+  
+  .dashboard-header .stat-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0;
+    margin-bottom: 2px;
+  }
+  
+  .dashboard-header .stat-value {
+    font-size: 0.9rem !important;
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .dashboard-header .stat-label {
+    font-size: 0.7rem !important;
+    line-height: 1;
+    margin-top: 0;
+  }
 }

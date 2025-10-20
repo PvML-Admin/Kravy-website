@@ -16,21 +16,36 @@ const scheduledTasks = {
 
 async function resetDailyGains() {
   try {
-    console.log('Running daily reset for daily_xp_gain...');
+    const now = new Date();
+    console.log(`[DAILY RESET] Running daily reset for daily_xp_gain at ${now.toISOString()}...`);
     await db.runAsync('UPDATE skills SET daily_xp_gain = 0');
-    console.log('Successfully reset daily_xp_gain for all skills.');
+    console.log('[DAILY RESET] ✅ Successfully reset daily_xp_gain for all skills.');
   } catch (error) {
-    console.error('Failed to reset daily XP gains:', error);
+    console.error('[DAILY RESET] ❌ Failed to reset daily XP gains:', error);
   }
 }
 
 async function resetWeeklyGains() {
   try {
-    console.log('Running weekly reset for weekly_xp_gain...');
+    const now = new Date();
+    const dayOfWeek = now.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    console.log(`[WEEKLY RESET] Attempting to reset weekly XP gains...`);
+    console.log(`[WEEKLY RESET] Current UTC time: ${now.toISOString()}`);
+    console.log(`[WEEKLY RESET] Day of week: ${dayOfWeek} (0=Sunday, 1=Monday)`);
+    
+    // Safety check: only allow reset on Mondays (day 1)
+    if (dayOfWeek !== 1) {
+      console.error(`[WEEKLY RESET] ⚠️ PREVENTED - This function should only run on Mondays! Current day: ${dayOfWeek}`);
+      console.error(`[WEEKLY RESET] ⚠️ This indicates a scheduler configuration issue!`);
+      return;
+    }
+    
+    console.log('[WEEKLY RESET] ✓ Confirmed Monday - proceeding with reset...');
     await db.runAsync('UPDATE skills SET weekly_xp_gain = 0');
-    console.log('Successfully reset weekly_xp_gain for all skills.');
+    console.log('[WEEKLY RESET] ✅ Successfully reset weekly_xp_gain for all skills.');
   } catch (error) {
-    console.error('Failed to reset weekly XP gains:', error);
+    console.error('[WEEKLY RESET] ❌ Failed to reset weekly XP gains:', error);
   }
 }
 

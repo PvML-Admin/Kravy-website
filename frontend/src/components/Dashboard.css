@@ -1,14 +1,30 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: 280px 1fr 380px;
-  gap: 20px;
+  gap: 12px; /* Reduced from 20px */
   align-items: flex-start;
 }
 
 .grid-column, .grid-column-large {
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 8px; /* Reduced from 0px to create consistent spacing */
+}
+
+.today-xp-card {
+  min-height: 580px; /* Match Latest Posts height for uniform alignment */
+  display: flex;
+  flex-direction: column;
+}
+
+.today-xp-card .table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.today-xp-card .table {
+  flex: 1;
 }
 
 .today-xp-card .table th,
@@ -45,6 +61,9 @@
 
 .clan-info-header h2 {
   margin: 0;
+  font-family: 'Gagalin', sans-serif;
+  font-size: 1.75rem; /* Standardized header size */
+  font-weight: normal;
 }
 
 .btn-toggle-info {
@@ -192,4 +211,222 @@
   text-align: center;
   color: #7d828a;
   font-size: 0.9rem;
+}
+
+/* Desktop spacing optimization */
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    gap: 10px; /* Even more compact for larger screens */
+  }
+  
+  .grid-column, .grid-column-large {
+    gap: 6px;
+  }
+  
+  .card {
+    padding: 14px; /* Slightly more compact on large screens */
+    margin-bottom: 8px;
+  }
+}
+
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .filter-pills {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .filter-pill {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .btn-toggle-info {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .player-search-input {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+  }
+  
+  .search-result-item {
+    padding: 10px 12px;
+  }
+  
+  .search-result-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .search-result-name {
+    font-size: 0.9rem;
+  }
+  
+  .search-result-stats {
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile card collapse functionality */
+
+/* Mobile card wrapper system */
+.card-wrapper {
+  position: relative;
+}
+
+.mobile-card-header {
+  display: none; /* Hidden on desktop */
+}
+
+.card-content-wrapper {
+  display: block;
+}
+
+.card-content-wrapper.mobile-collapsed {
+  display: block; /* Will be hidden on mobile only */
+}
+
+/* Special handling for ClanActivitiesGrid */
+.activities-wrapper {
+  position: relative;
+}
+
+.desktop-activities {
+  display: block;
+}
+
+.mobile-activities {
+  display: none;
+}
+
+/* Mobile breakpoint */
+@media (max-width: 480px) {
+  .dashboard-body {
+    padding: 0 4px; /* Ultra minimal padding */
+  }
+  
+  .dashboard-grid {
+    gap: 4px; /* Reduced from 8px */
+  }
+  
+  /* Ultra-reduce card margins on mobile */
+  .grid-column .card,
+  .grid-column-large .card {
+    margin-bottom: 4px; /* Further reduced */
+    padding: 8px; /* Reduced card padding */
+    border-radius: 6px;
+  }
+  
+  /* Make grid columns more compact */
+  .grid-column,
+  .grid-column-large {
+    gap: 4px;
+  }
+  
+  
+  /* Show mobile headers and enable collapse functionality */
+  .mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background-color: var(--background-tertiary);
+    border-radius: 6px 6px 0 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .card-content-wrapper.mobile-collapsed {
+    display: none; /* Hide content when collapsed on mobile */
+  }
+  
+  /* Special mobile handling for activities */
+  .desktop-activities {
+    display: none;
+  }
+  
+  .mobile-activities {
+    display: block;
+  }
+  
+  .mobile-card-header h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+  
+  .card-collapse-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+  }
+  
+  .card-collapse-btn:hover {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+  }
+  
+  .filter-pills {
+    gap: 6px;
+  }
+  
+  .filter-pill {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    flex: 1;
+    text-align: center;
+    min-width: fit-content;
+  }
+  
+  .clan-info-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .btn-toggle-info {
+    align-self: center;
+    padding: 8px 20px;
+  }
+  
+  .player-search-input {
+    font-size: 1rem; /* Larger for mobile touch */
+    padding: 12px 16px;
+  }
+  
+  .search-result-item {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .search-result-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .search-result-name {
+    font-size: 0.85rem;
+  }
+  
+  .search-result-stats {
+    font-size: 0.75rem;
+  }
+  
+  .today-xp-card .table th,
+  .today-xp-card .table td {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
 }
