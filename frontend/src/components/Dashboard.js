@@ -47,6 +47,14 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     loadAllMembers();
   }, []);
 
+  // Handle clicks outside search container to close dropdown
+  useEffect(() => {
+    if (showSearchResults) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showSearchResults]);
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -99,7 +107,15 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     // Delay to allow click on result to register
     setTimeout(() => {
       setShowSearchResults(false);
-    }, 200);
+    }, 300);
+  };
+
+  // Handle clicks outside the search container
+  const handleClickOutside = (event) => {
+    const searchContainer = event.target.closest('.search-container');
+    if (!searchContainer) {
+      setShowSearchResults(false);
+    }
   };
 
   const formatXp = (xp) => {
@@ -210,19 +226,19 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
             {/* Player Search Box */}
             <MobileCardWrapper cardId="player-search" title="Find Player">
               <div className="card player-search-card">
-                <div className="search-container">
+                <div className="search-container" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="text"
                     placeholder="Search player name..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onFocus={() => searchQuery && setShowSearchResults(true)}
-                    onBlur={handleSearchBlur}
                     className="player-search-input"
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"
                     spellCheck="false"
+                    inputMode="text"
                   />
                   {showSearchResults && searchResults.length > 0 && (
                     <div className="search-results-dropdown">
