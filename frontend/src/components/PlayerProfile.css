@@ -180,17 +180,52 @@
   
   /* Make skills table more mobile-friendly */
   .skills-section table {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    table-layout: fixed;
+    width: 100%;
   }
   
   .skills-section th,
   .skills-section td {
-    padding: 6px 4px !important;
+    padding: 4px 2px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .skills-section img {
-    width: 16px !important;
-    height: 16px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+  
+  /* Ensure all 5 columns fit on mobile */
+  .skills-section th:nth-child(1), /* Skill */
+  .skills-section td:nth-child(1) {
+    width: 28% !important;
+  }
+  
+  .skills-section th:nth-child(2), /* Level */
+  .skills-section td:nth-child(2) {
+    width: 10% !important;
+    text-align: center !important;
+  }
+  
+  .skills-section th:nth-child(3), /* Rank */
+  .skills-section td:nth-child(3) {
+    width: 16% !important;
+    text-align: right !important;
+  }
+  
+  .skills-section th:nth-child(4), /* XP Gain */
+  .skills-section td:nth-child(4) {
+    width: 23% !important;
+    text-align: right !important;
+  }
+  
+  .skills-section th:nth-child(5), /* XP */
+  .skills-section td:nth-child(5) {
+    width: 23% !important;
+    text-align: right !important;
   }
 }
 
@@ -229,8 +264,13 @@
   
   .skills-section th,
   .skills-section td {
-    padding: 4px 2px !important;
-    font-size: 0.75rem;
+    padding: 3px 1px !important;
+    font-size: 0.7rem;
+  }
+  
+  .skills-section img {
+    width: 12px !important;
+    height: 12px !important;
   }
   
   .activities-section {

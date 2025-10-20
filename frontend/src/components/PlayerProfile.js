@@ -339,11 +339,11 @@ function PlayerProfile() {
                     borderBottom: '2px solid var(--border-color)',
                     textAlign: 'left'
                   }}>
-                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', width: '35%' }}>Skill</th>
-                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'center', width: '12%' }}>Level</th>
-                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '18%' }}>Rank</th>
-                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '15%' }}>XP Gain</th>
-                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '20%' }}>XP</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', width: '28%' }}>Skill</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'center', width: '10%' }}>Level</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '16%' }}>Rank</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '23%' }}>XP Gain</th>
+                    <th style={{ padding: tableStyles.headerPadding, fontWeight: '600', textAlign: 'right', width: '23%' }}>XP</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -365,16 +365,16 @@ function PlayerProfile() {
                         <span style={{ fontWeight: '600' }}>Overall</span>
                       </div>
                     </td>
-                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: '600', fontSize: '1rem', width: '12%' }}>
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'center', color: 'var(--accent-blue)', fontWeight: '600', fontSize: '1rem', width: '10%' }}>
                       {stats.skills.reduce((sum, skill) => sum + (skill.level || 0), 0)}
                     </td>
-                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', color: 'var(--text-secondary)', width: '18%' }}>
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', color: 'var(--text-secondary)', width: '16%' }}>
                       {formatRank(member.total_rank)}
                     </td>
-                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600', color: getXpGainColor(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0)), width: '15%' }}>
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600', color: getXpGainColor(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0)), width: '23%' }}>
                       {formatXpGain(stats.skills.reduce((sum, skill) => sum + (skill.xp_gain || 0), 0))}
                     </td>
-                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600', width: '20%' }}>
+                    <td style={{ padding: tableStyles.overallCellPadding, textAlign: 'right', fontWeight: '600', width: '23%' }}>
                       {formatXp(member.total_xp)}
                     </td>
                   </tr>
@@ -401,7 +401,7 @@ function PlayerProfile() {
                       <td style={{ 
                         padding: tableStyles.cellPadding, 
                         textAlign: 'center',
-                        width: '12%'
+                        width: '10%'
                       }}>
                         <span style={{
                           fontWeight: '600',
@@ -410,13 +410,13 @@ function PlayerProfile() {
                           {skill.level}
                         </span>
                       </td>
-                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', color: 'var(--text-secondary)', width: '18%' }}>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', color: 'var(--text-secondary)', width: '16%' }}>
                         {formatRank(skill.rank)}
                       </td>
-                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500', color: getXpGainColor(skill.xp_gain), width: '15%' }}>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500', color: getXpGainColor(skill.xp_gain), width: '23%' }}>
                         {formatXpGain(skill.xp_gain)}
                       </td>
-                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500', width: '20%' }}>
+                      <td style={{ padding: tableStyles.cellPadding, textAlign: 'right', fontWeight: '500', width: '23%' }}>
                         {formatXp(skill.xp)}
                       </td>
                     </tr>
