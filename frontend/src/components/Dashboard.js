@@ -219,6 +219,10 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
                     onFocus={() => searchQuery && setShowSearchResults(true)}
                     onBlur={handleSearchBlur}
                     className="player-search-input"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
                   />
                   {showSearchResults && searchResults.length > 0 && (
                     <div className="search-results-dropdown">

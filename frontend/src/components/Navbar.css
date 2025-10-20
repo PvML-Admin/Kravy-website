@@ -291,7 +291,6 @@
   .mobile-nav-link {
     display: flex;
     align-items: center;
-    gap: 12px;
     padding: 12px 20px;
     color: #ffffff;
     text-decoration: none;
@@ -310,14 +309,6 @@
     color: #ffffff;
   }
   
-  .mobile-nav-link svg {
-    flex-shrink: 0;
-    opacity: 0.8;
-  }
-  
-  .mobile-nav-link.active svg {
-    opacity: 1;
-  }
   
   /* Mobile Admin Section */
   .navbar-admin {
