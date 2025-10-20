@@ -13,6 +13,26 @@ router.get('/current-daily-clan-xp', async (req, res) => {
   }
 });
 
+router.get('/current-weekly-clan-xp', async (req, res) => {
+  try {
+    const data = await leaderboardService.getCurrentWeeklyClanXp();
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error fetching current weekly clan XP:', error);
+    res.status(500).json({ error: 'Failed to fetch current weekly clan XP' });
+  }
+});
+
+router.get('/current-monthly-clan-xp', async (req, res) => {
+  try {
+    const data = await leaderboardService.getCurrentMonthlyClanXp();
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error fetching current monthly clan XP:', error);
+    res.status(500).json({ error: 'Failed to fetch current monthly clan XP' });
+  }
+});
+
 router.get('/daily-clan-xp', async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 30;

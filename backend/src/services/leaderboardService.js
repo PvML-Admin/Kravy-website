@@ -153,11 +153,39 @@ async function getCurrentDailyClanXp() {
   };
 }
 
+async function getCurrentWeeklyClanXp() {
+  const result = await db.getAsync(`
+    SELECT COALESCE(SUM(s.weekly_xp_gain), 0) as total_xp
+    FROM skills s
+    JOIN members m ON s.member_id = m.id
+    WHERE m.is_active = TRUE
+  `);
+  // Convert BIGINT to number
+  return {
+    total_xp: parseInt(result.total_xp) || 0
+  };
+}
+
+async function getCurrentMonthlyClanXp() {
+  const result = await db.getAsync(`
+    SELECT COALESCE(SUM(s.monthly_xp_gain), 0) as total_xp
+    FROM skills s
+    JOIN members m ON s.member_id = m.id
+    WHERE m.is_active = TRUE
+  `);
+  // Convert BIGINT to number
+  return {
+    total_xp: parseInt(result.total_xp) || 0
+  };
+}
+
 module.exports = {
   getLeaderboard,
   getTopGainers,
   getDailyClanXpHistory,
   getClanStats,
-  getCurrentDailyClanXp
+  getCurrentDailyClanXp,
+  getCurrentWeeklyClanXp,
+  getCurrentMonthlyClanXp
 };
 

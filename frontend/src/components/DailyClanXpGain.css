@@ -1,26 +1,82 @@
-.daily-xp-today {
+.clan-xp-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  margin-top: 15px;
 }
 
-.daily-xp-item {
+.clan-xp-item {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: var(--primary-light);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
-.xp-date {
+.xp-period {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.period-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reset-timer {
+  font-size: 0.7rem;
   color: var(--text-secondary);
+  font-weight: 400;
 }
 
 .xp-gain {
+  font-size: 1.2rem;
+  font-weight: 600;
   color: var(--accent-green);
-  font-weight: 500;
 }
 
-.daily-xp-item.today {
-  font-weight: bold;
-  color: var(--accent-cyan);
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .clan-xp-container {
+    gap: 6px;
+  }
+  
+  .clan-xp-item {
+    padding: 10px;
+  }
+  
+  .period-label {
+    font-size: 0.8rem;
+  }
+  
+  .reset-timer {
+    font-size: 0.65rem;
+  }
+  
+  .xp-gain {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .clan-xp-item {
+    padding: 8px;
+  }
+  
+  .period-label {
+    font-size: 0.75rem;
+  }
+  
+  .reset-timer {
+    font-size: 0.6rem;
+  }
+  
+  .xp-gain {
+    font-size: 1rem;
+  }
 }

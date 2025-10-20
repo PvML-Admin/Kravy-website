@@ -12,7 +12,7 @@
 }
 
 .today-xp-card {
-  min-height: 580px; /* Match Latest Posts height for uniform alignment */
+  min-height: 620px; /* Slightly increased height */
   display: flex;
   flex-direction: column;
 }
@@ -29,7 +29,8 @@
 
 .today-xp-card .table th,
 .today-xp-card .table td {
-  padding: 8px 12px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
 }
 
 .today-xp-card .table tbody tr.clickable-row {
