@@ -190,7 +190,6 @@ function MemberList() {
             <table className={`table ${isTableExpanded ? 'expanded' : 'condensed'}`}>
             <thead>
               <tr>
-                <th>#</th>
                 <th>Name</th>
                 <th>Total XP</th>
                 <th>Clan XP</th>
@@ -204,7 +203,6 @@ function MemberList() {
                 .slice((currentPage - 1) * membersPerPage, currentPage * membersPerPage)
                 .map((member, index) => (
                 <tr key={member.id}>
-                  <td>{(currentPage - 1) * membersPerPage + index + 1}</td>
                   <td 
                     onClick={() => navigate(`/profile/${encodeURIComponent(member.name)}`)}
                     style={{ 
