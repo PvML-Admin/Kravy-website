@@ -20,26 +20,36 @@ const BingoPage = () => {
   // Fetch active boards
   const fetchActiveBoards = useCallback(async () => {
     try {
+      console.log('🎯 Fetching active boards...');
       setLoading(true);
       const response = await axios.get('/api/bingo/boards', {
         withCredentials: true
       });
 
+      console.log('🎯 Boards response:', response.data);
+
       if (response.data.success) {
         // Backend now returns only active boards
         const activeBoards = response.data.boards;
+        console.log('🎯 Active boards found:', activeBoards.length);
         setActiveBoards(activeBoards);
         
         // Auto-select first active board
         if (activeBoards.length > 0 && !selectedBoard) {
+          console.log('🎯 Auto-selecting first board:', activeBoards[0]);
           setSelectedBoard(activeBoards[0]);
         } else {
           // No active boards - stop loading
+          console.log('🎯 No active boards, stopping loading');
           setLoading(false);
         }
+      } else {
+        console.error('🎯 Boards API returned success: false', response.data);
+        setError('Failed to load bingo boards');
+        setLoading(false);
       }
     } catch (error) {
-      console.error('Error fetching boards:', error);
+      console.error('🎯 Error fetching boards:', error);
       setError('Failed to load bingo boards');
       setLoading(false);
     }
@@ -47,9 +57,13 @@ const BingoPage = () => {
 
   // Fetch board data with grid
   const fetchBoardData = useCallback(async (board) => {
-    if (!board) return;
+    if (!board) {
+      console.log('🎯 No board provided to fetchBoardData');
+      return;
+    }
 
     try {
+      console.log('🎯 Fetching board data for board:', board.id);
       setLoading(true);
       const [boardResponse, teamsResponse, completionsResponse] = await Promise.all([
         axios.get(`/api/bingo/boards/${board.id}`, { withCredentials: true }),
@@ -57,7 +71,14 @@ const BingoPage = () => {
         axios.get(`/api/bingo/boards/${board.id}/completions`, { withCredentials: true })
       ]);
 
+      console.log('🎯 Board responses:', {
+        board: boardResponse.data.success,
+        teams: teamsResponse.data.success,
+        completions: completionsResponse.data.success
+      });
+
       if (boardResponse.data.success && teamsResponse.data.success) {
+        console.log('🎯 Setting board data and teams');
         setBoardData(boardResponse.data.data);
         setTeams(teamsResponse.data.teams);
         
@@ -69,6 +90,7 @@ const BingoPage = () => {
             completionsMap[key] = completion;
           });
           setCompletions(completionsMap);
+          console.log('🎯 Processed completions:', Object.keys(completionsMap).length);
         }
         
         // Find user's team
@@ -80,12 +102,23 @@ const BingoPage = () => {
             )
           );
           setSelectedTeam(userTeam || null);
+          console.log('🎯 User team found:', userTeam?.team_name || 'None');
         }
+        console.log('🎯 Board data loading completed successfully');
+      } else {
+        console.error('🎯 Board data API calls failed:', {
+          boardSuccess: boardResponse.data.success,
+          teamsSuccess: teamsResponse.data.success,
+          boardError: boardResponse.data.error,
+          teamsError: teamsResponse.data.error
+        });
+        setError('Failed to load board data');
       }
     } catch (error) {
-      console.error('Error fetching board data:', error);
+      console.error('🎯 Error fetching board data:', error);
       setError('Failed to load board data');
     } finally {
+      console.log('🎯 Setting loading to false');
       setLoading(false);
     }
   }, [user]);

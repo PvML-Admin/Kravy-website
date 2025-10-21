@@ -42,7 +42,9 @@ router.post('/guests/:id/sync', isAdmin, async (req, res) => {
 // Get active bingo boards (Public access)
 router.get('/boards', async (req, res) => {
   try {
+    console.log('🎯 [API] Fetching active bingo boards for user:', req.user?.email || 'Anonymous');
     const allBoards = await BingoModel.getAllBoards();
+    console.log('🎯 [API] Total boards in database:', allBoards.length);
     
     // Filter to only active boards and check date ranges
     const now = new Date();
@@ -64,12 +66,15 @@ router.get('/boards', async (req, res) => {
       return true;
     });
 
+    console.log('🎯 [API] Active boards found:', activeBoards.length);
+    console.log('🎯 [API] Active boards:', activeBoards.map(b => ({ id: b.id, title: b.title, is_active: b.is_active })));
+
     res.json({
       success: true,
       boards: activeBoards
     });
   } catch (error) {
-    console.error('Error fetching active bingo boards:', error);
+    console.error('🎯 [API] Error fetching active bingo boards:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch active bingo boards'
