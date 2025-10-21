@@ -93,9 +93,7 @@ const BingoManagement = () => {
         end_date: convertToUTC(formData.end_date)
       };
 
-      const response = await axios.post('/api/bingo/boards', payload, {
-        withCredentials: true
-      });
+      const response = await api.post('/bingo/boards', payload);
 
       if (response.data.success) {
         await fetchBoards(); // Refresh the boards list
@@ -118,9 +116,7 @@ const BingoManagement = () => {
     }
 
     try {
-      const response = await axios.delete(`/api/bingo/boards/${boardId}`, {
-        withCredentials: true
-      });
+      const response = await api.delete(`/bingo/boards/${boardId}`);
 
       if (response.data.success) {
         await fetchBoards();
@@ -140,10 +136,8 @@ const BingoManagement = () => {
   // Toggle board active status
   const handleToggleActive = async (boardId, currentStatus) => {
     try {
-      const response = await axios.put(`/api/bingo/boards/${boardId}`, {
+      const response = await api.put(`/bingo/boards/${boardId}`, {
         is_active: !currentStatus
-      }, {
-        withCredentials: true
       });
 
       if (response.data.success) {
