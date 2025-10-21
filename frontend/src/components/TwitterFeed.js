@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './TwitterFeed.css';
 
 function TwitterFeed() {
@@ -9,9 +10,8 @@ function TwitterFeed() {
 
   const fetchTweets = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://kravy-website.onrender.com/api';
-      const response = await fetch(`${apiUrl}/twitter/recent-tweets?limit=5`);
-      const data = await response.json();
+      const response = await api.get('/twitter/recent-tweets?limit=5');
+      const data = response.data;
 
       if (data.success && data.tweets) {
         // Check if Twitter is configured

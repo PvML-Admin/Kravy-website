@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import './BingoManagement.css';
 import BingoBoard from './BingoBoard';
 import BingoTeamManager from './BingoTeamManager';
@@ -26,9 +26,7 @@ const BingoManagement = () => {
   const fetchBoards = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/bingo/admin/boards', {
-        withCredentials: true
-      });
+      const response = await api.get('/bingo/admin/boards');
 
       if (response.data.success) {
         setBoards(response.data.boards);

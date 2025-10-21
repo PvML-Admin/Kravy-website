@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import api from '../services/api';
 import './BingoActivity.css';
 
 function BingoActivity({ boardId, selectedTeam, user }) {
@@ -9,13 +10,8 @@ function BingoActivity({ boardId, selectedTeam, user }) {
   const loadBingoActivities = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/bingo/boards/${boardId}/completions`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to load bingo activities');
-      }
-
-      const data = await response.json();
+      const response = await api.get(`/bingo/boards/${boardId}/completions`);
+      const data = response.data;
       let completions = data.completions || [];
 
       // Filter by team if selected

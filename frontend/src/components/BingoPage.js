@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import BingoActivity from './BingoActivity';
@@ -26,9 +27,7 @@ const BingoPage = () => {
     try {
       console.log('🎯 Fetching active boards...');
       setLoading(true);
-      const response = await axios.get('/api/bingo/boards', {
-        withCredentials: true
-      });
+      const response = await api.get('/bingo/boards');
 
       console.log('🎯 Boards response:', response.data);
 
@@ -70,9 +69,9 @@ const BingoPage = () => {
       console.log('🎯 Fetching board data for board:', board.id);
       setLoading(true);
       const [boardResponse, teamsResponse, completionsResponse] = await Promise.all([
-        axios.get(`/api/bingo/boards/${board.id}`, { withCredentials: true }),
-        axios.get(`/api/bingo/boards/${board.id}/teams`, { withCredentials: true }),
-        axios.get(`/api/bingo/boards/${board.id}/completions`, { withCredentials: true })
+        api.get(`/bingo/boards/${board.id}`),
+        api.get(`/bingo/boards/${board.id}/teams`),
+        api.get(`/bingo/boards/${board.id}/completions`)
       ]);
 
       console.log('🎯 Board responses:', {
