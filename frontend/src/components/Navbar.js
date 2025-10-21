@@ -44,7 +44,7 @@ function Navbar() {
       <div className="navbar-container">
         {/* Desktop Navigation */}
         <div className="navbar-links desktop-nav">
-          <NavLink to="/" className="navbar-link">Dashboard</NavLink>
+          <NavLink to="/" className="navbar-link">Home</NavLink>
           <NavLink to="/members" className="navbar-link">Members</NavLink>
           <NavLink to="/hiscore" className="navbar-link">Hiscores</NavLink>
           <NavLink to="/xp-tracker" className="navbar-link">XP Tracker</NavLink>
@@ -70,7 +70,7 @@ function Navbar() {
           <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
             <div className="mobile-menu-items">
               <NavLink to="/" className="mobile-nav-link" onClick={closeMobileMenu}>
-                Dashboard
+                Home
               </NavLink>
               <NavLink to="/members" className="mobile-nav-link" onClick={closeMobileMenu}>
                 Members

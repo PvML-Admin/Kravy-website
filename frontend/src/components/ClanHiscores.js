@@ -13,12 +13,41 @@ const useSortableData = (items, config = null) => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        let aVal = a[sortConfig.key];
+        let bVal = b[sortConfig.key];
+        
+        // Convert XP values to numbers for proper numeric sorting
+        if (sortConfig.key === 'total_xp' || sortConfig.key === 'skill_xp') {
+          aVal = typeof aVal === 'string' ? parseInt(aVal) || 0 : aVal || 0;
+          bVal = typeof bVal === 'string' ? parseInt(bVal) || 0 : bVal || 0;
+        }
+        
+        // Convert level values to numbers for proper numeric sorting  
+        if (sortConfig.key === 'total_level' || sortConfig.key === 'skill_level') {
+          aVal = typeof aVal === 'string' ? parseInt(aVal) || 0 : aVal || 0;
+          bVal = typeof bVal === 'string' ? parseInt(bVal) || 0 : bVal || 0;
+        }
+        
+        if (aVal < bVal) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aVal > bVal) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
+        
+        // Secondary sorting for level and XP columns: use rank as tiebreaker
+        if (sortConfig.key === 'total_level' || sortConfig.key === 'skill_level' || sortConfig.key === 'total_xp' || sortConfig.key === 'skill_xp') {
+          const aRank = a.total_rank || 0;
+          const bRank = b.total_rank || 0;
+          
+          if (aRank < bRank) {
+            return -1; // Lower rank number is better (always ascending for rank tiebreaker)
+          }
+          if (aRank > bRank) {
+            return 1;
+          }
+        }
+        
         return 0;
       });
     }
@@ -33,7 +62,23 @@ const useSortableData = (items, config = null) => {
     setSortConfig({ key, direction });
   };
 
-  return { items: sortedItems, requestSort, sortConfig };
+  const requestSortWithDefaults = (key) => {
+    let defaultDirection = 'ascending';
+    
+    // For XP and Level columns, default to descending (highest first)
+    if (key === 'total_xp' || key === 'skill_xp' || key === 'total_level' || key === 'skill_level') {
+      defaultDirection = 'descending';
+    }
+    
+    let direction = defaultDirection;
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === defaultDirection) {
+      direction = defaultDirection === 'ascending' ? 'descending' : 'ascending';
+    }
+    
+    setSortConfig({ key, direction });
+  };
+
+  return { items: sortedItems, requestSort, requestSortWithDefaults, sortConfig };
 };
 
 
@@ -48,7 +93,6 @@ function ClanHiscores() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const bracketLabels = {
-    lessThan1b: '<1B',
     '1b': '1B+',
     '2b': '2B+',
     '3b': '3B+',
@@ -82,7 +126,6 @@ function ClanHiscores() {
     }
 
     const xpConditions = {
-      lessThan1b: (xp) => xp < 1000000000,
       '1b': (xp) => xp >= 1000000000 && xp < 2000000000,
       '2b': (xp) => xp >= 2000000000 && xp < 3000000000,
       '3b': (xp) => xp >= 3000000000 && xp < 4000000000,
@@ -102,9 +145,11 @@ function ClanHiscores() {
         const skillData = member.skills.find(s => s.skill_name === selectedSkill);
         return {
           ...member,
-          total_xp: skillData ? skillData.xp : 0,
+          skill_xp: skillData ? skillData.xp : 0,
           total_rank: skillData ? skillData.rank : null,
-          total_level: skillData ? skillData.level : 0,
+          skill_level: skillData ? skillData.level : 1,
+          // Explicitly null out total_level to prevent bleed-through
+          total_level: null,
         };
       }).filter(member => member.total_rank !== null);
     } else {
@@ -120,7 +165,7 @@ function ClanHiscores() {
     return skillTransformed;
   }, [allMembers, selectedSkill, selectedBracket, searchTerm]);
   
-  const { items: sortedMembers, requestSort, sortConfig } = useSortableData(filteredMembers, { key: 'total_rank', direction: 'ascending' });
+  const { items: sortedMembers, requestSortWithDefaults, sortConfig } = useSortableData(filteredMembers, { key: 'total_rank', direction: 'ascending' });
   
   const formatXp = (xp) => {
     if (!xp) return '0';
@@ -191,13 +236,13 @@ function ClanHiscores() {
             <tr>
               <th>#</th>
               <th>Name</th>
-              <th onClick={() => requestSort('total_level')} className={`sortable ${getSortDirectionClass('total_level')}`}>
+              <th onClick={() => requestSortWithDefaults(selectedSkill !== 'Overall' ? 'skill_level' : 'total_level')} className={`sortable ${getSortDirectionClass(selectedSkill !== 'Overall' ? 'skill_level' : 'total_level')}`}>
                 Level
               </th>
-              <th onClick={() => requestSort('total_rank')} className={`sortable ${getSortDirectionClass('total_rank')}`}>
+              <th onClick={() => requestSortWithDefaults('total_rank')} className={`sortable ${getSortDirectionClass('total_rank')}`}>
                 Rank
               </th>
-              <th onClick={() => requestSort('total_xp')} className={`sortable ${getSortDirectionClass('total_xp')}`}>
+              <th onClick={() => requestSortWithDefaults(selectedSkill !== 'Overall' ? 'skill_xp' : 'total_xp')} className={`sortable ${getSortDirectionClass(selectedSkill !== 'Overall' ? 'skill_xp' : 'total_xp')}`}>
                 XP
               </th>
             </tr>
@@ -218,7 +263,12 @@ function ClanHiscores() {
                   />
                   <PlayerDisplayName member={member} />
                 </td>
-                <td>{member.total_level || 'N/A'}</td>
+                <td>
+                  {selectedSkill !== 'Overall' 
+                    ? (member.skill_level !== null && member.skill_level !== undefined ? member.skill_level : 'N/A') 
+                    : (member.total_level || 'N/A')
+                  }
+                </td>
                 <td>
                   {member.is_active ? (
                     member.total_rank || 'N/A'
@@ -226,7 +276,9 @@ function ClanHiscores() {
                     <span className="inactive-tag">INACTIVE</span>
                   )}
                 </td>
-                <td>{formatXp(member.total_xp)}</td>
+                <td>
+                  {formatXp(selectedSkill !== 'Overall' ? (member.skill_xp || 0) : member.total_xp)}
+                </td>
               </tr>
             ))}
           </tbody>

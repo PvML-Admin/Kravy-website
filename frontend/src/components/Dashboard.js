@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI, membersAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';
@@ -9,6 +9,110 @@ import ClanActivitiesGrid from './ClanActivitiesGrid';
 import PlayerDisplayName from './PlayerDisplayName';
 import './Dashboard.css';
 
+// Memoized components with custom comparison to prevent unnecessary re-renders during search
+const MemoizedHighestRanks = memo(HighestRanks, () => true);
+const MemoizedDailyClanXpGain = memo(DailyClanXpGain, () => true);  
+const MemoizedTwitterFeed = memo(TwitterFeed, () => true);
+const MemoizedClanActivitiesGrid = memo(ClanActivitiesGrid, () => true);
+const MemoizedDashboardHeader = memo(DashboardHeader, () => true);
+
+// Separate search component to isolate search state changes
+const PlayerSearchComponent = memo(({ allMembers, navigate }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchInputRef = useRef(null);
+
+  const handleSearchChange = useCallback((e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim().length > 0) {
+      const filtered = allMembers
+        .filter(member => 
+          member.name.toLowerCase().includes(query.toLowerCase()) ||
+          (member.display_name && member.display_name.toLowerCase().includes(query.toLowerCase()))
+        )
+        .slice(0, 8);
+      setSearchResults(filtered);
+      setShowSearchResults(true);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  }, [allMembers]);
+
+  const handleSelectPlayer = useCallback((memberName) => {
+    navigate(`/profile/${encodeURIComponent(memberName)}`);
+    setSearchQuery('');
+    setShowSearchResults(false);
+  }, [navigate]);
+
+  const formatXp = useCallback((xp) => {
+    if (!xp) return '0';
+    if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
+    if (xp >= 1000) return `${(xp / 1000).toFixed(2)}K`;
+    return xp.toLocaleString();
+  }, []);
+
+  return (
+    <div className="card player-search-card">
+      <h2>Find Player</h2>
+      <div className="search-container" onClick={(e) => e.stopPropagation()}>
+        <input
+          ref={searchInputRef}
+          type="text"
+          placeholder="Search player name..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          onFocus={() => searchQuery && setShowSearchResults(true)}
+          className="player-search-input"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          inputMode="text"
+        />
+        {showSearchResults && searchResults.length > 0 && (
+          <div className="search-results-dropdown">
+            {searchResults.map((member) => (
+              <div
+                key={member.id}
+                className="search-result-item"
+                onClick={() => handleSelectPlayer(member.name)}
+              >
+                <img 
+                  src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
+                  alt={member.name}
+                  className="search-result-avatar"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <div className="search-result-info">
+                  <div className="search-result-name">
+                    <PlayerDisplayName member={member} />
+                  </div>
+                  <div className="search-result-stats">
+                    {formatXp(member.total_xp)} XP • Lvl {member.combat_level > 152 ? 152 : member.combat_level || 0}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {showSearchResults && searchQuery && searchResults.length === 0 && (
+          <div className="search-results-dropdown">
+            <div className="search-no-results">
+              No players found
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
 function Dashboard() {
   const navigate = useNavigate();
   const [topGainers, setTopGainers] = useState(null);
@@ -18,11 +122,7 @@ function Dashboard() {
   const [showFullInfo, setShowFullInfo] = useState(
     localStorage.getItem('showFullClanInfo') === 'true'
   );
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [showSearchResults, setShowSearchResults] = useState(false);
   const [allMembers, setAllMembers] = useState([]);
-  const searchInputRef = useRef(null);
   const [collapsedCards, setCollapsedCards] = useState(new Set());
 
   const aboutText = `Founded: 24th September 2021.
@@ -71,42 +171,14 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
     }
   };
 
-  const handleSearchChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    if (query.trim().length > 0) {
-      // Filter members based on search query
-      const filtered = allMembers
-        .filter(member => 
-          member.name.toLowerCase().includes(query.toLowerCase()) ||
-          (member.display_name && member.display_name.toLowerCase().includes(query.toLowerCase()))
-        )
-        .slice(0, 8); // Limit to 8 results
-      setSearchResults(filtered);
-      setShowSearchResults(true);
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
-  };
-
-  const handleSelectPlayer = (memberName) => {
-    navigate(`/profile/${encodeURIComponent(memberName)}`);
-    setSearchQuery('');
-    setShowSearchResults(false);
-  };
-
-
-
-  const formatXp = (xp) => {
+  const formatXp = useCallback((xp) => {
     if (!xp) return '0';
     if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
     if (xp >= 1000) return `${(xp / 1000).toFixed(2)}K`;
     return xp.toLocaleString();
-  };
+  }, []);
 
-  const toggleCard = (cardId) => {
+  const toggleCard = useCallback((cardId) => {
     setCollapsedCards(prev => {
       const newSet = new Set(prev);
       if (newSet.has(cardId)) {
@@ -116,10 +188,10 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
       }
       return newSet;
     });
-  };
+  }, []);
 
 
-  const MobileCardWrapper = ({ cardId, title, children, defaultCollapsed = false }) => {
+  const MobileCardWrapper = memo(({ cardId, title, children, defaultCollapsed = false }) => {
     const isCollapsed = collapsedCards.has(cardId);
     
     return (
@@ -141,26 +213,26 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
         </div>
       </div>
     );
-  };
+  });
 
   if (loading) return <div className="loading">Loading dashboard...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="dashboard-container">
-      <DashboardHeader />
+      <MemoizedDashboardHeader />
       <div className="dashboard-body">
         <div className="dashboard-grid">
           {/* Left Column */}
           <div className="grid-column">
             <MobileCardWrapper cardId="highest-ranks" title="Clan Owners">
-              <HighestRanks />
+              <MemoizedHighestRanks />
             </MobileCardWrapper>
             <MobileCardWrapper cardId="daily-xp" title="Daily Clan XP">
-              <DailyClanXpGain />
+              <MemoizedDailyClanXpGain />
             </MobileCardWrapper>
             <MobileCardWrapper cardId="twitter" title="Latest Posts">
-              <TwitterFeed />
+              <MemoizedTwitterFeed />
             </MobileCardWrapper>
           </div>
           
@@ -181,7 +253,7 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
             <div className="activities-wrapper">
               {/* Desktop: render directly without wrapper */}
               <div className="desktop-activities">
-                <ClanActivitiesGrid />
+                <MemoizedClanActivitiesGrid />
               </div>
               
               {/* Mobile: render with collapse header */}
@@ -196,7 +268,7 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
                   </button>
                 </div>
                 <div className={`card-content-wrapper ${collapsedCards.has('activities') ? 'mobile-collapsed' : ''}`}>
-                  <ClanActivitiesGrid />
+                  <MemoizedClanActivitiesGrid />
                 </div>
               </div>
             </div>
@@ -204,62 +276,8 @@ Kravy is a welcoming and incredibly active clan on W124. Home to all types of pl
 
           {/* Right Column */}
           <div className="grid-column">
-            {/* Player Search Box */}
-            {/* Removed MobileCardWrapper to fix mobile keyboard issue */}
-            <div className="card player-search-card">
-              <h2>Find Player</h2>
-                <div className="search-container" onClick={(e) => e.stopPropagation()}>
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search player name..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={() => searchQuery && setShowSearchResults(true)}
-                    className="player-search-input"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck="false"
-                    inputMode="text"
-                  />
-                  {showSearchResults && searchResults.length > 0 && (
-                    <div className="search-results-dropdown">
-                      {searchResults.map((member) => (
-                        <div
-                          key={member.id}
-                          className="search-result-item"
-                          onClick={() => handleSelectPlayer(member.name)}
-                        >
-                          <img 
-                            src={`http://services.runescape.com/m=avatar-rs/${encodeURIComponent(member.name)}/chat.png`}
-                            alt={member.name}
-                            className="search-result-avatar"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                          <div className="search-result-info">
-                            <div className="search-result-name">
-                              <PlayerDisplayName member={member} />
-                            </div>
-                            <div className="search-result-stats">
-                              {formatXp(member.total_xp)} XP • Lvl {member.combat_level > 152 ? 152 : member.combat_level || 0}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {showSearchResults && searchQuery && searchResults.length === 0 && (
-                    <div className="search-results-dropdown">
-                      <div className="search-no-results">
-                        No players found
-                      </div>
-                    </div>
-                  )}
-                </div>
-            </div>
+            {/* Player Search Box - Isolated Component */}
+            <PlayerSearchComponent allMembers={allMembers} navigate={navigate} />
 
             <MobileCardWrapper cardId="xp-tracker" title="XP Gain">
               <div className="card today-xp-card">

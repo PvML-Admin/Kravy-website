@@ -59,7 +59,6 @@ class MemberModel {
     let query;
     let params = [];
     const xpConditions = {
-      lessThan1b: 'm.total_xp < 1000000000',
       '1b': 'm.total_xp >= 1000000000 AND m.total_xp < 2000000000',
       '2b': 'm.total_xp >= 2000000000 AND m.total_xp < 3000000000',
       '3b': 'm.total_xp >= 3000000000 AND m.total_xp < 4000000000',
@@ -111,7 +110,6 @@ class MemberModel {
 
   static async getHiscoresXpBrackets(skill = 'Overall') {
     const xpBrackets = {
-      lessThan1b: 0,
       '1b': 0,
       '2b': 0,
       '3b': 0,
@@ -125,7 +123,6 @@ class MemberModel {
     // This will be implemented properly in a future step.
     const query = `
       SELECT
-        SUM(CASE WHEN total_xp < 1000000000 THEN 1 ELSE 0 END) as lessThan1b,
         SUM(CASE WHEN total_xp >= 1000000000 AND total_xp < 2000000000 THEN 1 ELSE 0 END) as "1b",
         SUM(CASE WHEN total_xp >= 2000000000 AND total_xp < 3000000000 THEN 1 ELSE 0 END) as "2b",
         SUM(CASE WHEN total_xp >= 3000000000 AND total_xp < 4000000000 THEN 1 ELSE 0 END) as "3b",
