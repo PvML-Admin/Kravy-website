@@ -23,6 +23,9 @@ const eventsRouter = require('./api/events');
 const twitterRouter = require('./api/twitter');
 const authRouter = require('./api/auth');
 const adminRouter = require('./api/admin');
+const bingoRouter = require('./api/bingo');
+const bingoActivityProcessor = require('./services/bingoActivityProcessor');
+const guestMemberSyncService = require('./services/guestMemberSyncService');
 const passport = require('./config/passport');
 
 const app = express();
@@ -115,6 +118,7 @@ app.use('/api/activities', activitiesRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/twitter', twitterRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/bingo', bingoRouter);
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);
@@ -135,6 +139,9 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
+  // Start bingo activity processor
+  bingoActivityProcessor.start();
+  
   // Schedule the daily XP gain reset to run at 00:00 UTC
   scheduleDailyReset();
   scheduleWeeklyReset();
@@ -145,6 +152,13 @@ const server = app.listen(PORT, () => {
   startContinuousSync();
 });
 
+// Schedule guest member sync every 15 minutes
+const guestSyncInterval = 15 * 60 * 1000;
+setInterval(() => {
+  console.log('🔄 [Scheduled] Running guest member sync...');
+  guestMemberSyncService.syncActiveGuestMembers();
+}, guestSyncInterval);
+
 // Graceful shutdown handling
 function gracefulShutdown(signal) {
   console.log(`\n${signal} received. Starting graceful shutdown...`);
@@ -153,11 +167,14 @@ function gracefulShutdown(signal) {
   server.close(() => {
     console.log('HTTP server closed');
     
-    // Cleanup schedulers and intervals
-    cleanupSchedulers();
-    
-    // Cleanup sync progress tracking
-    cleanupSyncProgress();
+  // Cleanup schedulers and intervals
+  cleanupSchedulers();
+  
+  // Cleanup sync progress tracking
+  cleanupSyncProgress();
+  
+  // Stop bingo activity processor
+  bingoActivityProcessor.stop();
     
     // Close database pool
     db.pool.end(() => {

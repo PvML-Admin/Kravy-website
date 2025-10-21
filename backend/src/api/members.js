@@ -96,6 +96,7 @@ router.get('/', async (req, res) => {
     members = sortMembersByRank(members);
     
     // Add rank metadata and inactivity info to each member
+    // Processing member data
     members = members.map(member => {
       const daysInactive = member.last_xp_gain 
         ? Math.floor((Date.now() - new Date(member.last_xp_gain).getTime()) / (1000 * 60 * 60 * 24))

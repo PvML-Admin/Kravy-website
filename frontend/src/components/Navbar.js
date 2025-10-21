@@ -48,6 +48,7 @@ function Navbar() {
           <NavLink to="/members" className="navbar-link">Members</NavLink>
           <NavLink to="/hiscore" className="navbar-link">Hiscores</NavLink>
           <NavLink to="/xp-tracker" className="navbar-link">XP Tracker</NavLink>
+          <NavLink to="/bingo" className="navbar-link">Bingo</NavLink>
           <NavLink to="/competitions" className="navbar-link">Competitions</NavLink>
         </div>
 
@@ -80,6 +81,9 @@ function Navbar() {
               </NavLink>
               <NavLink to="/xp-tracker" className="mobile-nav-link" onClick={closeMobileMenu}>
                 XP Tracker
+              </NavLink>
+              <NavLink to="/bingo" className="mobile-nav-link" onClick={closeMobileMenu}>
+                Bingo
               </NavLink>
               <NavLink to="/competitions" className="mobile-nav-link" onClick={closeMobileMenu}>
                 Competitions

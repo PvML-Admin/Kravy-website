@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { leaderboardAPI, membersAPI } from '../services/api';
 import DashboardHeader from './DashboardHeader';

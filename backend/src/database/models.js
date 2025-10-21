@@ -483,11 +483,398 @@ class ClanEventModel {
   }
 }
 
+class BingoModel {
+  // ========== BINGO BOARDS ==========
+  
+  static async createBoard(title, description, rows = 5, columns = 5, startDate = null, endDate = null) {
+    const result = await db.runAsync(
+      `INSERT INTO bingo_boards (title, description, rows, columns, start_date, end_date) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, description, rows, columns, startDate, endDate]
+    );
+    return result.lastID;
+  }
+
+  static async getAllBoards() {
+    const boards = await db.allAsync(`
+      SELECT 
+        b.*,
+        (SELECT COUNT(*) FROM bingo_teams WHERE board_id = b.id) as team_count,
+        (SELECT COUNT(*) FROM bingo_items WHERE board_id = b.id) as items_filled
+      FROM bingo_boards b
+      ORDER BY b.created_at DESC
+    `);
+    return boards;
+  }
+
+  static async getBoard(boardId) {
+    return await db.getAsync('SELECT * FROM bingo_boards WHERE id = ?', [boardId]);
+  }
+
+  static async updateBoard(boardId, data) {
+    const fields = [];
+    const values = [];
+    
+    if (data.title !== undefined) {
+      fields.push('title = ?');
+      values.push(data.title);
+    }
+    if (data.description !== undefined) {
+      fields.push('description = ?');
+      values.push(data.description);
+    }
+    if (data.rows !== undefined) {
+      fields.push('rows = ?');
+      values.push(data.rows);
+    }
+    if (data.columns !== undefined) {
+      fields.push('columns = ?');
+      values.push(data.columns);
+    }
+    if (data.is_active !== undefined) {
+      fields.push('is_active = ?');
+      values.push(data.is_active);
+    }
+    if (data.start_date !== undefined) {
+      fields.push('start_date = ?');
+      values.push(data.start_date);
+    }
+    if (data.end_date !== undefined) {
+      fields.push('end_date = ?');
+      values.push(data.end_date);
+    }
+    
+    if (fields.length === 0) return false;
+    
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(boardId);
+    
+    const result = await db.runAsync(
+      `UPDATE bingo_boards SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+    return result.changes > 0;
+  }
+
+  static async deleteBoard(boardId) {
+    const result = await db.runAsync('DELETE FROM bingo_boards WHERE id = ?', [boardId]);
+    return result.changes > 0;
+  }
+
+  // ========== BINGO TEAMS ==========
+
+  static async createTeam(boardId, teamName, color = '#3498db', memberIds = [], guestMembers = []) {
+    const teamResult = await db.runAsync(
+      `INSERT INTO bingo_teams (board_id, team_name, color) 
+       VALUES (?, ?, ?)`,
+      [boardId, teamName, color]
+    );
+    
+    const teamId = teamResult.lastID;
+    
+    // Add clan team members if provided
+    if (memberIds.length > 0) {
+      await this.addTeamMembers(teamId, memberIds);
+    }
+    
+    // Add guest team members if provided
+    if (guestMembers.length > 0) {
+      await this.addGuestTeamMembers(teamId, guestMembers);
+    }
+    
+    return teamId;
+  }
+
+  static async getTeams(boardId) {
+    const teams = await db.allAsync(`
+      SELECT 
+        t.*,
+        COUNT(tm.member_id) as member_count
+      FROM bingo_teams t
+      LEFT JOIN bingo_team_members tm ON t.id = tm.team_id
+      WHERE t.board_id = ?
+      GROUP BY t.id
+      ORDER BY t.created_at ASC
+    `, [boardId]);
+    
+    // Get team members for each team
+    for (const team of teams) {
+      team.members = await this.getTeamMembers(team.id);
+    }
+    
+    return teams;
+  }
+
+  static async getTeam(teamId) {
+    const team = await db.getAsync('SELECT * FROM bingo_teams WHERE id = ?', [teamId]);
+    if (team) {
+      team.members = await this.getTeamMembers(teamId);
+    }
+    return team;
+  }
+
+  static async updateTeam(teamId, data) {
+    const { team_name, color } = data;
+    const result = await db.runAsync(
+      `UPDATE bingo_teams 
+       SET team_name = COALESCE(?, team_name),
+           color = COALESCE(?, color)
+       WHERE id = ?`,
+      [team_name, color, teamId]
+    );
+    return result.changes > 0;
+  }
+
+  static async deleteTeam(teamId) {
+    const result = await db.runAsync('DELETE FROM bingo_teams WHERE id = ?', [teamId]);
+    return result.changes > 0;
+  }
+
+  // ========== TEAM MEMBERS ==========
+
+  static async addTeamMembers(teamId, memberIds) {
+    for (const memberId of memberIds) {
+      try {
+        await db.runAsync(
+          'INSERT INTO bingo_team_members (team_id, member_id) VALUES (?, ?)',
+          [teamId, memberId]
+        );
+      } catch (error) {
+        // Ignore duplicate member errors
+        if (!error.message.includes('UNIQUE constraint') && !error.message.includes('duplicate key')) {
+          throw error;
+        }
+      }
+    }
+  }
+
+  static async removeTeamMember(teamId, memberId) {
+    const result = await db.runAsync(
+      'DELETE FROM bingo_team_members WHERE team_id = ? AND member_id = ?',
+      [teamId, memberId]
+    );
+    return result.changes > 0;
+  }
+
+  static async removeGuestTeamMember(teamId, guestMemberId) {
+    const result = await db.runAsync(
+      'DELETE FROM bingo_team_members WHERE team_id = ? AND guest_member_id = ?',
+      [teamId, guestMemberId]
+    );
+    return result.changes > 0;
+  }
+
+  static async addGuestTeamMembers(teamId, guestNames) {
+    for (const guestName of guestNames) {
+      try {
+        // Create guest member if doesn't exist
+        let guestId;
+        try {
+          const result = await db.runAsync(
+            'INSERT INTO bingo_guest_members (display_name) VALUES (?)',
+            [guestName]
+          );
+          guestId = result.lastID;
+        } catch (error) {
+          // Guest already exists, get ID
+          const existing = await db.getAsync(
+            'SELECT id FROM bingo_guest_members WHERE display_name = ?',
+            [guestName]
+          );
+          guestId = existing.id;
+        }
+        
+        // Add to team
+        await db.runAsync(
+          'INSERT INTO bingo_team_members (team_id, guest_member_id, display_name) VALUES (?, ?, ?)',
+          [teamId, guestId, guestName]
+        );
+      } catch (error) {
+        // Ignore duplicate member errors
+        if (!error.message.includes('UNIQUE constraint') && !error.message.includes('duplicate key')) {
+          throw error;
+        }
+      }
+    }
+  }
+
+  static async getTeamMembers(teamId) {
+    return await db.allAsync(`
+      SELECT 
+        tm.id,
+        tm.member_id,
+        tm.guest_member_id,
+        tm.display_name as guest_name,
+        m.id as clan_member_id,
+        m.name as member_name,
+        m.display_name as clan_display_name,
+        tm.joined_at,
+        CASE 
+          WHEN tm.member_id IS NOT NULL THEN 'clan'
+          ELSE 'guest'
+        END as member_type,
+        COALESCE(m.name, tm.display_name) as display_name
+      FROM bingo_team_members tm
+      LEFT JOIN members m ON tm.member_id = m.id
+      WHERE tm.team_id = ?
+      ORDER BY member_type, display_name ASC
+    `, [teamId]);
+  }
+
+  // ========== BINGO ITEMS/SQUARES ==========
+
+  static async setBingoItem(boardId, row, column, itemData) {
+    const { item_name, item_id, icon_url, description } = itemData;
+    
+    // Handle manual items (string IDs) vs real RS items (integer IDs)
+    const isManualItem = typeof item_id === 'string' && item_id.startsWith('manual_');
+    const finalItemId = isManualItem ? null : parseInt(item_id); // Store null for manual items
+    const manualItemId = isManualItem ? item_id : null; // Store manual ID separately
+    
+    const result = await db.runAsync(
+      `INSERT INTO bingo_items (board_id, row_number, column_number, item_name, item_id, manual_item_id, icon_url, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(board_id, row_number, column_number) 
+       DO UPDATE SET 
+         item_name = excluded.item_name,
+         item_id = excluded.item_id,
+         manual_item_id = excluded.manual_item_id,
+         icon_url = excluded.icon_url,
+         description = excluded.description,
+         updated_at = CURRENT_TIMESTAMP`,
+      [boardId, row, column, item_name, finalItemId, manualItemId, icon_url, description]
+    );
+    return result.lastID || result.changes > 0;
+  }
+
+  static async getBingoItems(boardId) {
+    return await db.allAsync(`
+      SELECT *,
+        CASE 
+          WHEN manual_item_id IS NOT NULL THEN manual_item_id
+          ELSE CAST(item_id AS TEXT)
+        END as effective_item_id
+      FROM bingo_items 
+      WHERE board_id = ?
+      ORDER BY row_number, column_number
+    `, [boardId]);
+  }
+
+  static async getBingoItem(itemId) {
+    return await db.getAsync('SELECT * FROM bingo_items WHERE id = ?', [itemId]);
+  }
+
+  // Get all guest members in active bingo boards
+  static async getActiveGuestMembers(boardIds = []) {
+    if (boardIds.length === 0) return [];
+    
+    const placeholders = boardIds.map(() => '?').join(',');
+    return await db.allAsync(`
+      SELECT DISTINCT gm.id, gm.display_name 
+      FROM bingo_guest_members gm
+      JOIN bingo_team_members btm ON gm.id = btm.guest_member_id
+      JOIN bingo_teams bt ON btm.team_id = bt.id
+      WHERE bt.board_id IN (${placeholders})
+    `, boardIds);
+  }
+
+  static async deleteBingoItem(itemId) {
+    const result = await db.runAsync('DELETE FROM bingo_items WHERE id = ?', [itemId]);
+    return result.changes > 0;
+  }
+
+  static async clearBingoSquare(boardId, row, column) {
+    const result = await db.runAsync(
+      'DELETE FROM bingo_items WHERE board_id = ? AND row_number = ? AND column_number = ?',
+      [boardId, row, column]
+    );
+    return result.changes > 0;
+  }
+
+  // ========== UTILITY METHODS ==========
+
+  static async getBingoGrid(boardId) {
+    const board = await this.getBoard(boardId);
+    if (!board) return null;
+
+    const items = await this.getBingoItems(boardId);
+    
+    // Create grid structure
+    const grid = [];
+    for (let row = 1; row <= board.rows; row++) {
+      const gridRow = [];
+      for (let col = 1; col <= board.columns; col++) {
+        const item = items.find(i => i.row_number === row && i.column_number === col);
+        
+        gridRow.push({
+          row,
+          column: col,
+          item: item || null,
+          isEmpty: !item
+        });
+      }
+      grid.push(gridRow);
+    }
+    
+    return {
+      board,
+      items, // Include the raw items array for easier access
+      grid,
+      teams: await this.getTeams(boardId)
+    };
+  }
+
+  // Get all completions for a specific bingo board
+  static async getBoardCompletions(boardId) {
+    return await db.allAsync(`
+      SELECT 
+        bc.*,
+        bi.item_name,
+        bi.row_number,
+        bi.column_number,
+        bt.team_name,
+        bt.color as team_color,
+        m.display_name as member_display_name,
+        gm.display_name as guest_display_name,
+        CASE 
+          WHEN bc.member_id IS NOT NULL THEN m.display_name
+          WHEN bc.guest_member_id IS NOT NULL THEN gm.display_name
+          ELSE bc.completed_by_name
+        END as completed_by
+      FROM bingo_completions bc
+      JOIN bingo_items bi ON bc.item_id = bi.id
+      JOIN bingo_teams bt ON bc.team_id = bt.id
+      LEFT JOIN members m ON bc.member_id = m.id
+      LEFT JOIN bingo_guest_members gm ON bc.guest_member_id = gm.id
+      WHERE bt.board_id = ?
+      ORDER BY bc.completed_at DESC
+    `, [boardId]);
+  }
+
+  // Check if a specific item is already completed by a team
+  static async getCompletion(itemId, teamId) {
+    return await db.getAsync(`
+      SELECT * FROM bingo_completions 
+      WHERE item_id = ? AND team_id = ?
+    `, [itemId, teamId]);
+  }
+
+  // Mark a bingo square as completed
+  static async markSquareComplete(itemId, teamId, memberId = null, activityId = null, guestMemberId = null, completedByName = null) {
+    const result = await db.runAsync(`
+      INSERT INTO bingo_completions (item_id, team_id, member_id, activity_id, guest_member_id, completed_by_name)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [itemId, teamId, memberId, activityId, guestMemberId, completedByName]);
+    return result.lastID;
+  }
+}
+
 module.exports = {
   MemberModel,
   SnapshotModel,
   SkillModel,
   SyncLogModel,
   ActivityModel,
-  ClanEventModel
+  ClanEventModel,
+  BingoModel
 };

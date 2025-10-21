@@ -1,0 +1,205 @@
+/* ========== BINGO ACTIVITY ========== */
+.bingo-activity {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  height: fit-content;
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--card-shadow);
+}
+
+.bingo-activity h3 {
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+  font-family: 'Gagalin', sans-serif;
+  font-size: 1.75rem;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+/* ========== LOADING & ERROR STATES ========== */
+.activity-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  color: var(--text-secondary);
+}
+
+.activity-loading .loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--background-tertiary);
+  border-top: 3px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.activity-error {
+  padding: 15px;
+  color: white;
+  text-align: center;
+  background-color: var(--accent-red);
+  border-radius: 5px;
+}
+
+/* ========== ACTIVITY LIST ========== */
+.activity-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--background-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+  background-color: var(--background-light);
+  border-color: var(--accent-primary);
+}
+
+.activity-indicator {
+  width: 4px;
+  height: 100%;
+  min-height: 40px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.activity-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-text {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.activity-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.team-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+}
+
+.activity-separator {
+  color: var(--text-muted);
+}
+
+.activity-square-position {
+  color: var(--text-secondary);
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--background-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.activity-date {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.activity-separator-line {
+  display: none;
+}
+
+/* ========== NO ACTIVITY STATE ========== */
+.no-activity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+  background-color: var(--background-tertiary);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.no-activity p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ========== SCROLLBAR STYLING ========== */
+.activity-list::-webkit-scrollbar {
+  width: 12px;
+}
+
+.activity-list::-webkit-scrollbar-track {
+  background: var(--background-primary);
+}
+
+.activity-list::-webkit-scrollbar-thumb {
+  background-color: var(--background-tertiary);
+  border-radius: 20px;
+  border: 3px solid var(--background-primary);
+}
+
+.activity-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--background-light);
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+  .bingo-activity {
+    max-height: 400px;
+    padding: 12px;
+  }
+
+  .bingo-activity h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .activity-item {
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .activity-text {
+    font-size: 0.85rem;
+  }
+
+  .activity-details {
+    font-size: 0.75rem;
+    gap: 8px;
+  }
+}

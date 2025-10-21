@@ -6,6 +6,7 @@ import MemberList from './components/MemberList';
 import PlayerProfile from './components/PlayerProfile';
 import Leaderboard from './components/Leaderboard';
 import ClanHiscores from './components/ClanHiscores';
+import BingoPage from './components/BingoPage';
 import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/members" element={<MemberList />} />
                 <Route path="/hiscore" element={<ClanHiscores />} />
                 <Route path="/xp-tracker" element={<Leaderboard />} />
+                <Route path="/bingo" element={<BingoPage />} />
                 <Route path="/competitions" element={<PlaceholderPage title="Competitions" />} />
                 <Route path="/profile/:name" element={<PlayerProfile />} />
                 <Route path="/login" element={<Login />} />

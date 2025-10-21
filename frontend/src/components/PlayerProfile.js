@@ -74,6 +74,9 @@ function PlayerProfile() {
       setStats(statsResponse.data.stats);
       setActivities(activitiesResponse.data.activities || []);
       setError(null);
+      
+      // Log for debugging activity refresh
+      console.log(`Loaded ${activitiesResponse.data.activities?.length || 0} activities for ${memberName}`);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     }
@@ -86,15 +89,21 @@ function PlayerProfile() {
       const syncResponse = await membersAPI.sync(memberId);
       console.log(syncResponse.data.message);
       
-      // Wait for sync to complete (give it time to fetch from APIs)
-      // Typical sync takes 3-5 seconds
-      await new Promise(resolve => setTimeout(resolve, 5000));
+        // Wait for initial sync completion (reduced time since sync happens in background)
+        await new Promise(resolve => setTimeout(resolve, 8000));
       
-      // After syncing, we need to re-fetch the member to get the updated top-level stats (like total xp)
-      // And then re-fetch the detailed stats.
       const memberResponse = await membersAPI.getByName(memberName);
       setMember(memberResponse.data.member);
-      await loadMemberData(memberId); // Reload all data after sync
+      await loadMemberData(memberId);
+      
+        console.log("Sync completed - activities refreshed from database");
+        console.log("Note: New activities may take 5-30 minutes to appear on RuneMetrics API");
+        
+        // Update member data with fresh sync timestamp for UI feedback
+        setMember(prev => ({
+          ...prev,
+          lastSyncTime: new Date().toISOString()
+        }));
     } catch (err) {
       console.error("Background sync failed:", err.response?.data?.error || err.message);
     } finally {
@@ -433,7 +442,26 @@ function PlayerProfile() {
 
         {/* Recent Activities Card */}
         <div className="card activities-section">
-          <h3 style={{ marginBottom: '20px' }}>Recent Activities</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0 }}>Recent Activities</h3>
+            {isSyncing ? (
+              <span style={{ 
+                fontSize: '0.7rem', 
+                color: 'var(--accent-yellow)', 
+                fontStyle: 'italic' 
+              }}>
+                🔄 Syncing RuneMetrics...
+              </span>
+            ) : member?.lastSyncTime && (
+              <span style={{ 
+                fontSize: '0.7rem', 
+                color: 'var(--text-muted)', 
+                fontStyle: 'italic' 
+              }}>
+                Synced: {new Date(member.lastSyncTime).toLocaleTimeString()}
+              </span>
+            )}
+          </div>
           
           {activities.length > 0 ? (
             <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -474,9 +502,17 @@ function PlayerProfile() {
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '20px', fontSize: '0.9rem' }}>
-              No recent activities found
-            </p>
+            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '20px', fontSize: '0.9rem' }}>
+              <p style={{ margin: '0 0 10px 0' }}>
+                {isSyncing ? 'Fetching latest activities...' : 'No recent activities found'}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.8rem', fontStyle: 'italic' }}>
+                {isSyncing 
+                  ? 'Note: RuneMetrics may take 5-30 minutes to show new activities'
+                  : 'Note: New activities take 5-30 minutes to appear on RuneMetrics'
+                }
+              </p>
+            </div>
           )}
         </div>
       </div>

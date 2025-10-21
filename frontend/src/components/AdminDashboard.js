@@ -5,6 +5,7 @@ import MemberManagement from './admin/MemberManagement';
 import SyncManagement from './admin/SyncManagement';
 import DataManagement from './admin/DataManagement';
 import SystemSettings from './admin/SystemSettings';
+import BingoManagement from './admin/BingoManagement';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -16,6 +17,7 @@ function AdminDashboard() {
     { id: 'members', label: 'Members' },
     { id: 'sync', label: 'Sync' },
     { id: 'data', label: 'Data' },
+    { id: 'bingo', label: 'Bingo' },
     { id: 'system', label: 'System' }
   ];
 
@@ -29,6 +31,8 @@ function AdminDashboard() {
         return <SyncManagement />;
       case 'data':
         return <DataManagement />;
+      case 'bingo':
+        return <BingoManagement />;
       case 'system':
         return <SystemSettings />;
       default:

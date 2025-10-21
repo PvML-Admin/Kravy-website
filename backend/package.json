@@ -7,7 +7,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "init-db": "node src/database/init.js",
-    "migrate-from-sqlite": "node src/database/migrate-sqlite-to-postgres.js"
+    "migrate-from-sqlite": "node src/database/migrate-sqlite-to-postgres.js",
+    "migrate-bingo": "node src/database/migrate-add-bingo-tables.js",
+    "migrate-bingo-scheduling": "node src/database/migrate-add-bingo-scheduling.js",
+    "migrate-fix-guest-constraints": "node src/database/migrate-fix-guest-member-constraints.js"
   },
   "keywords": [
     "runescape",
@@ -27,6 +30,7 @@
     "express": "^4.18.2",
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.2",
+    "lru-cache": "^11.2.2",
     "node-cron": "^3.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",

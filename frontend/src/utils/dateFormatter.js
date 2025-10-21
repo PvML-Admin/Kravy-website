@@ -43,9 +43,9 @@ export function formatDateBST(date) {
 }
 
 /**
- * Format a relative time string (e.g., "2h ago", "3d ago")
- * @param {string|Date} date - Date to format
- * @returns {string} Relative time string
+ * Format a date with full date and time (replaces relative time)
+ * @param {string|Date} date - Date to format  
+ * @returns {string} Formatted date and time string
  */
 export function formatRelativeTimeBST(date) {
   if (!date) return 'Never';
@@ -57,20 +57,7 @@ export function formatRelativeTimeBST(date) {
   // Check if date is valid
   if (isNaN(dateObj.getTime())) return 'Invalid Date';
   
-  const now = new Date();
-  const diff = now - dateObj;
-  
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  
-  if (seconds < 60) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  
-  // For older dates, show the actual date
-  return formatDateBST(dateObj);
+  // Always return full date and time instead of relative
+  return formatDateTimeBST(dateObj);
 }
 
