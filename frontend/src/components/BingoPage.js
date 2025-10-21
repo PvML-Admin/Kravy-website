@@ -26,30 +26,13 @@ const BingoPage = () => {
       });
 
       if (response.data.success) {
-        // Filter boards that are currently active (considering start/end dates)
-        const now = new Date();
-        const active = response.data.boards.filter(board => {
-          if (!board.is_active) return false;
-          
-          // Check start date
-          if (board.start_date) {
-            const startDate = new Date(board.start_date);
-            if (now < startDate) return false;
-          }
-          
-          // Check end date
-          if (board.end_date) {
-            const endDate = new Date(board.end_date);
-            if (now > endDate) return false;
-          }
-          
-          return true;
-        });
-        setActiveBoards(active);
+        // Backend now returns only active boards
+        const activeBoards = response.data.boards;
+        setActiveBoards(activeBoards);
         
         // Auto-select first active board
-        if (active.length > 0 && !selectedBoard) {
-          setSelectedBoard(active[0]);
+        if (activeBoards.length > 0 && !selectedBoard) {
+          setSelectedBoard(activeBoards[0]);
         } else {
           // No active boards - stop loading
           setLoading(false);

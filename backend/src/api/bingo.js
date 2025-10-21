@@ -39,8 +39,46 @@ router.post('/guests/:id/sync', isAdmin, async (req, res) => {
 
 // ========== BINGO BOARDS ==========
 
+// Get active bingo boards (Public access)
+router.get('/boards', async (req, res) => {
+  try {
+    const allBoards = await BingoModel.getAllBoards();
+    
+    // Filter to only active boards and check date ranges
+    const now = new Date();
+    const activeBoards = allBoards.filter(board => {
+      if (!board.is_active) return false;
+      
+      // Check start date
+      if (board.start_date) {
+        const startDate = new Date(board.start_date);
+        if (now < startDate) return false;
+      }
+      
+      // Check end date
+      if (board.end_date) {
+        const endDate = new Date(board.end_date);
+        if (now > endDate) return false;
+      }
+      
+      return true;
+    });
+
+    res.json({
+      success: true,
+      boards: activeBoards
+    });
+  } catch (error) {
+    console.error('Error fetching active bingo boards:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch active bingo boards'
+    });
+  }
+});
+
 // Get all bingo boards (Admin only)
-router.get('/boards', isAdmin, async (req, res) => {
+router.get('/admin/boards', isAdmin, async (req, res) => {
   try {
     const boards = await BingoModel.getAllBoards();
     res.json({

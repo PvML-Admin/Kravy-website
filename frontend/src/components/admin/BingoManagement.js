@@ -26,7 +26,7 @@ const BingoManagement = () => {
   const fetchBoards = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/bingo/boards', {
+      const response = await axios.get('/api/bingo/admin/boards', {
         withCredentials: true
       });
 
