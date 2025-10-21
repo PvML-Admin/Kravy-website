@@ -6,6 +6,8 @@ import BingoActivity from './BingoActivity';
 import './BingoPage.css';
 
 const BingoPage = () => {
+  console.log('🎯 BingoPage component is mounting/rendering');
+  
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeBoards, setActiveBoards] = useState([]);
@@ -16,6 +18,8 @@ const BingoPage = () => {
   const [error, setError] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [completions, setCompletions] = useState({});
+  
+  console.log('🎯 BingoPage state initialized, user:', user?.name || 'Not logged in');
 
   // Fetch active boards
   const fetchActiveBoards = useCallback(async () => {
@@ -35,7 +39,7 @@ const BingoPage = () => {
         setActiveBoards(activeBoards);
         
         // Auto-select first active board
-        if (activeBoards.length > 0 && !selectedBoard) {
+        if (activeBoards.length > 0) {
           console.log('🎯 Auto-selecting first board:', activeBoards[0]);
           setSelectedBoard(activeBoards[0]);
         } else {
@@ -53,7 +57,7 @@ const BingoPage = () => {
       setError('Failed to load bingo boards');
       setLoading(false);
     }
-  }, [selectedBoard]);
+  }, []); // Remove selectedBoard dependency to prevent loops
 
   // Fetch board data with grid
   const fetchBoardData = useCallback(async (board) => {
@@ -125,6 +129,7 @@ const BingoPage = () => {
 
   // Load initial data
   useEffect(() => {
+    console.log('🎯 BingoPage useEffect triggered - calling fetchActiveBoards');
     fetchActiveBoards();
   }, [fetchActiveBoards]);
 
