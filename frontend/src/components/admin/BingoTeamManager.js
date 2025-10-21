@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import './BingoTeamManager.css';
 
 const BingoTeamManager = ({ board, onBack }) => {
@@ -35,9 +35,7 @@ const BingoTeamManager = ({ board, onBack }) => {
   // Fetch teams for this board
   const fetchTeams = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/bingo/boards/${board.id}/teams`, {
-        withCredentials: true
-      });
+      const response = await api.get(`/bingo/boards/${board.id}/teams`);
 
       if (response.data.success) {
         // Successfully fetched teams
@@ -54,9 +52,7 @@ const BingoTeamManager = ({ board, onBack }) => {
   // Fetch all clan members
   const fetchMembers = useCallback(async () => {
     try {
-      const response = await axios.get('/api/members', {
-        withCredentials: true
-      });
+      const response = await api.get('/members');
 
       if (response.data && response.data.success && Array.isArray(response.data.members)) {
         // Successfully fetched members
@@ -127,7 +123,7 @@ const BingoTeamManager = ({ board, onBack }) => {
     }
 
     try {
-      const response = await axios.post('/api/bingo/teams', {
+      const response = await api.post('/bingo/teams', {
         board_id: board.id,
         team_name: formData.team_name,
         color: formData.color,
@@ -200,11 +196,9 @@ const BingoTeamManager = ({ board, onBack }) => {
 
     try {
       // Update team basic info
-      const updateResponse = await axios.put(`/api/bingo/teams/${editingTeam.id}`, {
+      const updateResponse = await api.put(`/bingo/teams/${editingTeam.id}`, {
         team_name: formData.team_name,
         color: formData.color
-      }, {
-        withCredentials: true
       });
 
       if (!updateResponse.data.success) {
@@ -219,18 +213,14 @@ const BingoTeamManager = ({ board, onBack }) => {
       // Remove members that are no longer selected
       const membersToRemove = currentClanMembers.filter(id => !formData.member_ids.includes(id));
       for (const memberId of membersToRemove) {
-        await axios.delete(`/api/bingo/teams/${editingTeam.id}/members/${memberId}`, {
-          withCredentials: true
-        });
+        await api.delete(`/bingo/teams/${editingTeam.id}/members/${memberId}`);
       }
 
       // Add new clan members
       const membersToAdd = formData.member_ids.filter(id => !currentClanMembers.includes(id));
       if (membersToAdd.length > 0) {
-        await axios.post(`/api/bingo/teams/${editingTeam.id}/members`, {
+        await api.post(`/bingo/teams/${editingTeam.id}/members`, {
           member_ids: membersToAdd
-        }, {
-          withCredentials: true
         });
       }
 
@@ -242,9 +232,7 @@ const BingoTeamManager = ({ board, onBack }) => {
       for (const guestMember of currentGuestMemberObjects) {
         if (guestMember.guest_member_id) {
           try {
-            await axios.delete(`/api/bingo/teams/${editingTeam.id}/members/${guestMember.guest_member_id}`, {
-              withCredentials: true
-            });
+            await api.delete(`/bingo/teams/${editingTeam.id}/members/${guestMember.guest_member_id}`);
           } catch (error) {
             console.error('Error removing guest member:', error);
             // Continue with other operations even if one guest removal fails
@@ -255,10 +243,8 @@ const BingoTeamManager = ({ board, onBack }) => {
       // Add new guest members
       if (formData.guest_members.length > 0) {
         try {
-          await axios.post(`/api/bingo/teams/${editingTeam.id}/guests`, {
+          await api.post(`/bingo/teams/${editingTeam.id}/guests`, {
             guest_members: formData.guest_members
-          }, {
-            withCredentials: true
           });
         } catch (error) {
           console.error('Error adding guest members:', error);
@@ -290,9 +276,7 @@ const BingoTeamManager = ({ board, onBack }) => {
     }
 
     try {
-      const response = await axios.delete(`/api/bingo/teams/${teamId}`, {
-        withCredentials: true
-      });
+      const response = await api.delete(`/bingo/teams/${teamId}`);
 
       if (response.data.success) {
         await fetchTeams();
@@ -312,9 +296,7 @@ const BingoTeamManager = ({ board, onBack }) => {
     }
 
     try {
-      const response = await axios.delete(`/api/bingo/teams/${teamId}/members/${memberId}`, {
-        withCredentials: true
-      });
+      const response = await api.delete(`/bingo/teams/${teamId}/members/${memberId}`);
 
       if (response.data.success) {
         await fetchTeams();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import ItemSearchModal from './ItemSearchModal';
 
 const BingoBoard = ({ board, onUpdate }) => {
@@ -20,9 +20,7 @@ const BingoBoard = ({ board, onUpdate }) => {
   const fetchGridData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/bingo/boards/${board.id}`, {
-        withCredentials: true
-      });
+      const response = await api.get(`/bingo/boards/${board.id}`);
 
       if (response.data.success) {
         setGridData(response.data.data);
@@ -77,7 +75,7 @@ const BingoBoard = ({ board, onUpdate }) => {
     if (!selectedSquare) return;
 
     try {
-      const response = await axios.post('/api/bingo/items', {
+      const response = await api.post('/bingo/items', {
         board_id: board.id,
         row: selectedSquare.row,
         column: selectedSquare.column,
@@ -85,8 +83,6 @@ const BingoBoard = ({ board, onUpdate }) => {
         item_id: item.id,
         icon_url: item.icon_url || item.icon, // Handle both icon_url and icon properties
         description: item.examine || ''
-      }, {
-        withCredentials: true
       });
 
       if (response.data.success) {
@@ -117,9 +113,7 @@ const BingoBoard = ({ board, onUpdate }) => {
     }
 
     try {
-      const response = await axios.delete(`/api/bingo/items/${board.id}/${row}/${column}`, {
-        withCredentials: true
-      });
+      const response = await api.delete(`/bingo/items/${board.id}/${row}/${column}`);
 
       if (response.data.success) {
         await fetchGridData();
@@ -154,13 +148,11 @@ const BingoBoard = ({ board, onUpdate }) => {
         return localDate.toISOString();
       };
 
-      const response = await axios.put(`/api/bingo/boards/${board.id}`, {
+      const response = await api.put(`/bingo/boards/${board.id}`, {
         title: boardSettings.title,
         description: boardSettings.description,
         start_date: convertToUTC(boardSettings.start_date),
         end_date: convertToUTC(boardSettings.end_date)
-      }, {
-        withCredentials: true
       });
 
       if (response.data.success) {
