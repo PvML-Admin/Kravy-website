@@ -624,7 +624,6 @@
   height: 200px !important;
   border-radius: 8px;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   border: 3px solid var(--border-color);
   transition: all 0.2s ease;
 }

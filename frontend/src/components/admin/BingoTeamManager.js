@@ -185,6 +185,16 @@ const BingoTeamManager = ({ board, onBack }) => {
     setMemberSearchTerm(''); // Clear search when canceling
   };
 
+  // Add all clan members to team (for testing purposes)
+  const handleAddWholeClan = () => {
+    const allClanMemberIds = allMembers.map(member => member.id);
+    setFormData(prev => ({
+      ...prev,
+      member_ids: [...new Set([...prev.member_ids, ...allClanMemberIds])] // Remove duplicates
+    }));
+    setMemberSearchTerm(''); // Clear search to show all members
+  };
+
   // Update team
   const handleUpdateTeam = async (e) => {
     e.preventDefault();
@@ -420,6 +430,14 @@ const BingoTeamManager = ({ board, onBack }) => {
                   onChange={(e) => setMemberSearchTerm(e.target.value)}
                   className="search-input"
                 />
+                <button 
+                  type="button"
+                  className="btn-add-whole-clan"
+                  onClick={handleAddWholeClan}
+                  title="Add all clan members to this team (for testing)"
+                >
+                  Add Whole Clan
+                </button>
               </div>
               <div className="members-selector">
                 {getAvailableMembers().length === 0 ? (
@@ -553,6 +571,14 @@ const BingoTeamManager = ({ board, onBack }) => {
                   onChange={(e) => setMemberSearchTerm(e.target.value)}
                   className="search-input"
                 />
+                <button 
+                  type="button"
+                  className="btn-add-whole-clan"
+                  onClick={handleAddWholeClan}
+                  title="Add all clan members to this team (for testing)"
+                >
+                  Add Whole Clan
+                </button>
               </div>
               <div className="members-selector">
                 {getAvailableMembersForEdit().length === 0 ? (
