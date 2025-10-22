@@ -633,8 +633,8 @@
 }
 
 .bingo-page .grid-5x5 .bingo-square .square-content .item-icon {
-  width: 120px !important;
-  height: 120px !important;
+  width: 100px !important;
+  height: 100px !important;
 }
 
 .bingo-page .grid-6x6 .bingo-square .square-content .item-icon {
@@ -989,8 +989,8 @@
   }
 
   .bingo-page .grid-5x5 .bingo-square .square-content .item-icon {
-    width: 80px !important;
-    height: 80px !important;
+    width: 65px !important;
+    height: 65px !important;
   }
 
   .bingo-page .grid-6x6 .bingo-square .square-content .item-icon {
@@ -1178,8 +1178,8 @@
   }
 
   .bingo-page .grid-5x5 .bingo-square .square-content .item-icon {
-    width: 60px !important;
-    height: 60px !important;
+    width: 50px !important;
+    height: 50px !important;
   }
 
   .bingo-page .grid-6x6 .bingo-square .square-content .item-icon {
