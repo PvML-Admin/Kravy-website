@@ -242,18 +242,36 @@ class BingoActivityProcessor {
           results.processed++;
           
           const memberName = activity.memberName || activity.member_name;
+          const activityDate = new Date(parseInt(activity.date || activity.activity_date));
           
+          // CRITICAL FIX: Only process activity for boards where it's within the time range
+          const validBoardsForActivity = activeBoards.filter(board => {
+            const boardStart = board.start_date ? new Date(board.start_date) : new Date(0);
+            const boardEnd = board.end_date ? new Date(board.end_date) : new Date();
+            
+            return activityDate >= boardStart && activityDate <= boardEnd;
+          });
           
-          // Find matching bingo items
-          const matchingItems = this.findMatchingBingoItems(activity, allItems);
+          if (validBoardsForActivity.length === 0) {
+            // Activity is not valid for any board - skip it
+            continue;
+          }
+          
+          // Only get items and teams from boards where this activity is valid
+          const validBoardIds = validBoardsForActivity.map(board => board.id);
+          const validItems = allItems.filter(item => validBoardIds.includes(item.board_id));
+          const validTeams = allTeams.filter(team => validBoardIds.includes(team.board_id));
+          
+          // Find matching bingo items (only from valid boards)
+          const matchingItems = this.findMatchingBingoItems(activity, validItems);
           
           
           if (matchingItems.length === 0) {
             continue;
           }
 
-          // Find member's teams
-          const memberTeams = this.findMemberTeams(memberName, allTeams);
+          // Find member's teams (only from valid boards)
+          const memberTeams = this.findMemberTeams(memberName, validTeams);
           
           
           if (memberTeams.length === 0) {
