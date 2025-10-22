@@ -13,6 +13,8 @@ services:
         sync: false
       - key: PORT
         value: 3001
+      - key: API_BASE_URL
+        value: http://localhost:3001
 
   # Frontend Static Site
   - type: web

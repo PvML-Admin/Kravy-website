@@ -108,7 +108,11 @@ async function verifyBingoDatabase() {
     console.log('\n4. Testing Bingo API Routes:');
     try {
       const axios = require('axios');
-      const baseURL = `http://localhost:${process.env.PORT || 3001}`;
+      // Use environment variables for API URL or construct from PORT
+      const baseURL = process.env.API_BASE_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? `http://localhost:${process.env.PORT || 10000}` 
+          : `http://localhost:${process.env.PORT || 3001}`);
       
       // Test boards endpoint
       const boardsResponse = await axios.get(`${baseURL}/api/bingo/boards`);
@@ -152,3 +156,4 @@ verifyBingoDatabase()
     console.error('Verification script failed:', err);
     process.exit(1);
   });
+

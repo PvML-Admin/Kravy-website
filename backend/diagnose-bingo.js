@@ -42,7 +42,12 @@ async function diagnoseBingoIssue() {
     // 4. Test the API endpoint directly
     console.log('4. Testing API endpoint...');
     try {
-      const response = await axios.get('http://localhost:3001/api/bingo/boards');
+      // Use environment variables for API URL
+      const baseURL = process.env.API_BASE_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? `http://localhost:${process.env.PORT || 10000}` 
+          : 'http://localhost:3001');
+      const response = await axios.get(`${baseURL}/api/bingo/boards`);
       console.log('✅ API endpoint responding');
       console.log(`   Response: ${response.data.success ? 'Success' : 'Failed'}`);
       console.log(`   Boards returned: ${response.data.boards?.length || 0}`);

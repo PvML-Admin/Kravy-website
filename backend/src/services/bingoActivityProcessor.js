@@ -90,7 +90,11 @@ class BingoActivityProcessor {
    */
   async fetchRecentActivities(activeBoards = []) {
     try {
-      const baseUrl = process.env.API_BASE_URL || 'http://localhost:3001';
+      // In production, use the internal service URL. In development, use localhost with correct port
+      const baseUrl = process.env.API_BASE_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? `http://localhost:${process.env.PORT || 10000}` 
+          : 'http://localhost:3001');
       
       // Calculate the earliest start date from all active boards
       let earliestStartDate = null;
