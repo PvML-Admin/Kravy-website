@@ -542,7 +542,7 @@
 
 .grid-5x5 .item-name {
   font-size: 0.75rem;
-  height: 1.8em;
+  min-height: 1.8em;
 }
 
 .grid-6x6 .item-name {
@@ -610,12 +610,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
   position: relative;
   z-index: 2;
   padding: 12px 8px 8px 8px;
+  gap: 8px;
 }
 
 .bingo-page .bingo-square .square-content .item-icon {
@@ -661,7 +662,7 @@
   line-height: 1.2;
   word-break: break-word;
   margin: 0;
-  height: 2.4em;
+  min-height: 2.4em;
   display: flex;
   align-items: center;
   justify-content: center;
