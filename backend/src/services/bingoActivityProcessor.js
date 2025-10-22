@@ -498,7 +498,7 @@ class BingoActivityProcessor {
           break;
         case 'bow of the last guardian':
         case 'last guardian bow':
-          enhancedTerms.push('bow of the last guardian', 'last guardian bow', 'top of the last guardian', 'bottom of the last guardian', 'divine bowstring', 'zamorak');
+          enhancedTerms.push('bow of the last guardian', 'last guardian bow', 'top of the last guardian', 'bottom of the last guardian', 'divine bowstring');
           break;
         case 'mainhand drygore':
           enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'mainhand', 'kalphite king');
@@ -507,7 +507,7 @@ class BingoActivityProcessor {
           enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'offhand', 'off-hand', 'kalphite king');
           break;
         case 'zamorak':
-          enhancedTerms.push('zamorak godsword', 'zamorak hilt', 'zamorak spear', 'bow of the last guardian', 'top of the last guardian', 'bottom of the last guardian', 'divine bowstring', 'subjugation');
+          enhancedTerms.push('zamorak godsword', 'zamorak hilt', 'zamorak spear', 'subjugation');
           break;
         case 'kerapac':
           enhancedTerms.push('fractured staff of armadyl', 'fractured armadyl symbol', 'fractured stabilisation gem', 'staff of armadyl\'s fractured shaft');
