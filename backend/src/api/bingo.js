@@ -307,6 +307,56 @@ router.get('/boards/:id/teams', async (req, res) => {
   }
 });
 
+// Get items for a board (Admin only)
+router.get('/admin/boards/:id/items', isAdmin, async (req, res) => {
+  try {
+    const boardId = parseInt(req.params.id);
+    if (!boardId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid board ID'
+      });
+    }
+
+    const items = await BingoModel.getBingoItems(boardId);
+    res.json({
+      success: true,
+      items
+    });
+  } catch (error) {
+    console.error('Error fetching board items:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch board items'
+    });
+  }
+});
+
+// Get teams for a board (Admin only)
+router.get('/admin/boards/:id/teams', isAdmin, async (req, res) => {
+  try {
+    const boardId = parseInt(req.params.id);
+    if (!boardId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid board ID'
+      });
+    }
+
+    const teams = await BingoModel.getTeams(boardId);
+    res.json({
+      success: true,
+      teams
+    });
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch teams'
+    });
+  }
+});
+
 // Create new team (Admin only)
 router.post('/teams', isAdmin, async (req, res) => {
   try {
@@ -409,6 +459,31 @@ router.put('/teams/:id', isAdmin, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to update team'
+    });
+  }
+});
+
+// Get team members (Admin only)  
+router.get('/admin/teams/:id/members', isAdmin, async (req, res) => {
+  try {
+    const teamId = parseInt(req.params.id);
+    if (!teamId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid team ID'
+      });
+    }
+
+    const members = await BingoModel.getTeamMembers(teamId);
+    res.json({
+      success: true,
+      members
+    });
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch team members'
     });
   }
 });
@@ -860,6 +935,98 @@ router.get('/debug-board/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+// Manually mark a bingo square as complete (Admin only)
+router.post('/manual-complete', isAdmin, async (req, res) => {
+  try {
+    const { itemId, teamId, memberName, completionReason } = req.body;
+    
+    // Validation
+    if (!itemId || !teamId || !memberName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Item ID, team ID, and member name are required'
+      });
+    }
+
+    // Check if already completed
+    const existingCompletion = await BingoModel.getCompletion(itemId, teamId);
+    if (existingCompletion) {
+      return res.status(409).json({
+        success: false,
+        error: 'This square is already completed by this team'
+      });
+    }
+
+    // Get team details to find member info
+    const team = await BingoModel.getTeam(teamId);
+    if (!team) {
+      return res.status(404).json({
+        success: false,
+        error: 'Team not found'
+      });
+    }
+
+    const teamMembers = await BingoModel.getTeamMembers(teamId);
+    
+    // Find the member in the team
+    const memberNameLower = memberName.toLowerCase();
+    const member = teamMembers.find(m => {
+      const memberNames = [
+        m.member_name,
+        m.display_name,
+        m.guest_name,
+        m.clan_display_name
+      ].filter(Boolean).map(name => name.toLowerCase());
+      
+      return memberNames.includes(memberNameLower);
+    });
+
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        error: `Member "${memberName}" not found in team "${team.team_name}"`
+      });
+    }
+
+    // Determine member type and IDs
+    const isGuest = member.member_type === 'guest' || member.guest_member_id !== null;
+    const memberId = isGuest ? null : member.member_id;
+    const guestMemberId = isGuest ? member.guest_member_id : null;
+
+    // Mark as completed (no activity ID for manual completions)
+    const completionId = await BingoModel.markSquareComplete(
+      itemId,
+      teamId,
+      memberId,
+      null, // No activity ID for manual completions
+      guestMemberId,
+      memberName
+    );
+
+    // Log the manual completion
+    console.log(`🎯 [Manual Completion] Admin marked square complete:`, {
+      itemId,
+      teamId,
+      memberName,
+      completionReason: completionReason || 'Manual completion by admin',
+      completionId,
+      adminUser: req.user?.displayName || req.user?.email || 'Unknown admin'
+    });
+
+    res.json({
+      success: true,
+      message: `Square marked complete for "${memberName}" in team "${team.team_name}"`,
+      completionId
+    });
+  } catch (error) {
+    console.error('Error in manual completion:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to mark square complete'
     });
   }
 });

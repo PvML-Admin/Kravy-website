@@ -470,7 +470,7 @@ class BingoActivityProcessor {
           enhancedTerms.push('virtus', 'pernix', 'torva', 'virtus wand', 'pernix cowl', 'torva full helm');
           break;
         case 'subjugation':
-          enhancedTerms.push('subjugation hood', 'subjugation robe', 'subjugation garb');
+          enhancedTerms.push('subjugation hood', 'subjugation robe', 'subjugation garb', 'subjugation top', 'subjugation robe top', 'subjugation boots', 'subjugation gloves');
           break;
         case 'pernix':
           enhancedTerms.push('pernix cowl', 'pernix body', 'pernix chaps');
@@ -718,7 +718,11 @@ class BingoActivityProcessor {
       'bandos boots': ['gwd', 'god wars'],
       'subjugation hood': ['gwd', 'god wars', 'zamorak'],
       'subjugation robe': ['gwd', 'god wars', 'zamorak'],
-      'subjugation garb': ['gwd', 'god wars', 'zamorak']
+      'subjugation garb': ['gwd', 'god wars', 'zamorak'],
+      'subjugation top': ['gwd', 'god wars', 'zamorak'],
+      'subjugation robe top': ['gwd', 'god wars', 'zamorak'],
+      'subjugation boots': ['gwd', 'god wars', 'zamorak'],
+      'subjugation gloves': ['gwd', 'god wars', 'zamorak']
     };
     
     // Check if activity contains any items that should map to the bingo boss

@@ -6,8 +6,8 @@
       "createdAt": "2025-10-20T17:34:35.000Z",
       "url": "https://twitter.com/KravyRS/status/1980326796693319942",
       "metrics": {
-        "likes": 7,
-        "retweets": 3,
+        "likes": 11,
+        "retweets": 4,
         "replies": 0
       }
     },
@@ -17,7 +17,7 @@
       "createdAt": "2025-10-19T16:35:11.000Z",
       "url": "https://twitter.com/KravyRS/status/1979949458088423568",
       "metrics": {
-        "likes": 8,
+        "likes": 9,
         "retweets": 2,
         "replies": 0
       }
@@ -56,5 +56,5 @@
       }
     }
   ],
-  "timestamp": 1761037540069
+  "timestamp": 1761236145459
 }

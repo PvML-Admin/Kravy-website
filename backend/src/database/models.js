@@ -836,6 +836,8 @@ class BingoModel {
         bt.color as team_color,
         m.display_name as member_display_name,
         gm.display_name as guest_display_name,
+        a.text as activity_text,
+        a.details as activity_details,
         CASE 
           WHEN bc.member_id IS NOT NULL THEN m.display_name
           WHEN bc.guest_member_id IS NOT NULL THEN gm.display_name
@@ -846,6 +848,7 @@ class BingoModel {
       JOIN bingo_teams bt ON bc.team_id = bt.id
       LEFT JOIN members m ON bc.member_id = m.id
       LEFT JOIN bingo_guest_members gm ON bc.guest_member_id = gm.id
+      LEFT JOIN activities a ON bc.activity_id = a.id
       WHERE bt.board_id = ?
       ORDER BY bc.completed_at DESC
     `, [boardId]);

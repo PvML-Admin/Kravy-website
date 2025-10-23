@@ -56,7 +56,59 @@ function BingoActivity({ boardId, selectedTeam, user }) {
 
   const getActivityText = (completion) => {
     const memberName = completion.completed_by || completion.member_display_name || completion.guest_display_name || 'Unknown';
+    
+    // For manual completions, just show the bingo square
+    if (!completion.activity_text) {
+      return `${memberName} completed "${completion.item_name}"`;
+    }
+    
+    // For automatic completions, extract the actual item from activity text
+    const actualItem = extractItemFromActivity(completion.activity_text);
+    if (actualItem) {
+      return `${memberName} completed "${completion.item_name}" (${actualItem})`;
+    }
+    
     return `${memberName} completed "${completion.item_name}"`;
+  };
+
+  const extractItemFromActivity = (activityText) => {
+    if (!activityText) return null;
+    
+    // Common patterns in RuneMetrics activity text
+    const patterns = [
+      /I received a drop: (.+)/i,
+      /I received (.+) as a drop/i,
+      /I found (.+)/i,
+      /I got (.+)/i,
+      /(.+) has been added to your bank/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = activityText.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    return null;
+  };
+
+  const getRuneMetricsUrl = (memberName) => {
+    if (!memberName) return null;
+    
+    // Format: https://apps.runescape.com/runemetrics/app/overview/player/PlayerName
+    const encodedName = encodeURIComponent(memberName.replace(/ /g, '%20'));
+    return `https://apps.runescape.com/runemetrics/app/overview/player/${encodedName}`;
+  };
+
+  const handleActivityClick = (completion) => {
+    const memberName = completion.completed_by || completion.member_display_name || completion.guest_display_name;
+    if (memberName) {
+      const url = getRuneMetricsUrl(memberName);
+      if (url) {
+        window.open(url, '_blank');
+      }
+    }
   };
 
   const getTeamColor = (completion) => {
@@ -96,7 +148,11 @@ function BingoActivity({ boardId, selectedTeam, user }) {
         <div className="activity-list">
           {activities.map((completion, index) => (
             <React.Fragment key={`${completion.id}-${index}`}>
-              <div className="activity-item">
+              <div 
+                className="activity-item clickable-activity"
+                onClick={() => handleActivityClick(completion)}
+                title={`Click to view ${completion.completed_by || completion.member_display_name || completion.guest_display_name}'s RuneMetrics`}
+              >
                 <div 
                   className="activity-indicator"
                   style={{ backgroundColor: getTeamColor(completion) }}
@@ -113,6 +169,14 @@ function BingoActivity({ boardId, selectedTeam, user }) {
                     <span className="activity-square-position">
                       ({completion.row_number},{completion.column_number})
                     </span>
+                    {!completion.activity_id && (
+                      <>
+                        <span className="activity-separator">•</span>
+                        <span className="manual-completion-badge">
+                          Admin manual Add
+                        </span>
+                      </>
+                    )}
                   </div>
                   <div className="activity-date">
                     {formatActivityDate(completion.completed_at)}

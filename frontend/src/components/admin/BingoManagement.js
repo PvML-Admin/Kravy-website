@@ -3,6 +3,7 @@ import api from '../../services/api';
 import './BingoManagement.css';
 import BingoBoard from './BingoBoard';
 import BingoTeamManager from './BingoTeamManager';
+import ManualCompletionForm from './ManualCompletionForm';
 
 const BingoManagement = () => {
   const [boards, setBoards] = useState([]);
@@ -198,6 +199,12 @@ const BingoManagement = () => {
                 onClick={() => setActiveTab('teams')}
               >
                 Teams
+              </button>
+              <button 
+                className={`tab-button ${activeTab === 'manual' ? 'active' : ''}`}
+                onClick={() => setActiveTab('manual')}
+              >
+                Manual Complete
               </button>
             </>
           )}
@@ -462,6 +469,43 @@ const BingoManagement = () => {
           
           <BingoTeamManager 
             board={selectedBoard}
+          />
+        </div>
+      )}
+
+      {/* Manual Completion Tab */}
+      {activeTab === 'manual' && selectedBoard && (
+        <div className="manual-completion-tab">
+          <div className="manual-header">
+            <h2>Manual Completion: {selectedBoard.title}</h2>
+            <button 
+              className="btn-back"
+              onClick={() => setActiveTab('boards')}
+            >
+              ← Back to Boards
+            </button>
+          </div>
+          
+          <div className="manual-completion-help">
+            <div className="help-box">
+              <h3>ℹ️ Manual Completion Guide</h3>
+              <p>Use this tool to manually mark bingo squares as complete when items aren't tracked by RuneMetrics (like TzKal-Zuk pieces).</p>
+              <ul>
+                <li><strong>Select Team:</strong> Choose which team completed the item</li>
+                <li><strong>Select Square:</strong> Pick the bingo square that was completed</li>
+                <li><strong>Member Name:</strong> Enter the exact display name who got the drop</li>
+                <li><strong>Reason:</strong> Optional note explaining why this was manually completed</li>
+              </ul>
+            </div>
+          </div>
+
+          <ManualCompletionForm 
+            board={selectedBoard}
+            onSuccess={() => {
+              setError(null);
+              // Could add a success message here
+            }}
+            onError={(errorMsg) => setError(errorMsg)}
           />
         </div>
       )}

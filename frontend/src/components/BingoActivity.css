@@ -73,6 +73,21 @@
   border-color: var(--accent-primary);
 }
 
+.clickable-activity {
+  cursor: pointer;
+}
+
+.clickable-activity:hover {
+  background-color: var(--background-light);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.clickable-activity:active {
+  transform: translateY(0);
+}
+
 .activity-indicator {
   width: 4px;
   height: 100%;
@@ -125,6 +140,18 @@
   background: var(--background-light);
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+.manual-completion-badge {
+  color: #fbbf24;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .activity-date {
