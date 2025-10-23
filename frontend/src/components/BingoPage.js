@@ -177,6 +177,11 @@ const BingoPage = () => {
       timestamp: new Date(completion.completed_at).getTime()
     }));
     
+    // DEBUG: Log milestone info for teams with 1 completion
+    if (completed === 1) {
+      console.log(`🎯 ${team.team_name}: 1 completion at ${milestones[0].timestamp} (${new Date(milestones[0].timestamp).toLocaleString()})`);
+    }
+    
     return {
       completed,
       total,
@@ -469,6 +474,12 @@ const BingoPage = () => {
                         if (!aLastMilestone && !bLastMilestone) return 0;
                         if (!aLastMilestone) return 1; // b wins
                         if (!bLastMilestone) return -1; // a wins
+                        
+                        // DEBUG: Log the comparison for teams with 1 completion
+                        if (a.progress.completed === 1 && b.progress.completed === 1) {
+                          console.log(`🔍 Comparing ${a.team_name} (${aLastMilestone.timestamp}) vs ${b.team_name} (${bLastMilestone.timestamp})`);
+                          console.log(`   Result: ${aLastMilestone.timestamp - bLastMilestone.timestamp}`);
+                        }
                         
                         // Earlier timestamp wins (ascending order)
                         return aLastMilestone.timestamp - bLastMilestone.timestamp;
