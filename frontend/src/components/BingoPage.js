@@ -154,20 +154,34 @@ const BingoPage = () => {
     setSelectedTeam(team);
   };
 
-  // Get team progress
+  // Get team progress with milestone timestamps for ranking tie-breakers
   const getTeamProgress = (team) => {
-    if (!boardData || !team || !selectedBoard) return { completed: 0, total: 0, percentage: 0 };
+    if (!boardData || !team || !selectedBoard) return { 
+      completed: 0, 
+      total: 0, 
+      percentage: 0, 
+      milestones: [] 
+    };
     
     const total = boardData.board.rows * boardData.board.columns;
-    const completed = Object.keys(completions).filter(key => 
-      key.endsWith(`-${team.id}`)
-    ).length;
+    const teamCompletions = Object.keys(completions)
+      .filter(key => key.endsWith(`-${team.id}`))
+      .map(key => completions[key])
+      .sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at));
     
+    const completed = teamCompletions.length;
+    
+    // Create milestone timestamps for tie-breaking (when team reached 1st, 2nd, 3rd completion, etc.)
+    const milestones = teamCompletions.map((completion, index) => ({
+      count: index + 1,
+      timestamp: new Date(completion.completed_at).getTime()
+    }));
     
     return {
       completed,
       total,
-      percentage: total > 0 ? Math.round((completed / total) * 100) : 0
+      percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+      milestones
     };
   };
 
@@ -440,7 +454,25 @@ const BingoPage = () => {
                     </div>
                     {teams
                       .map(team => ({ ...team, progress: getTeamProgress(team) }))
-                      .sort((a, b) => b.progress.completed - a.progress.completed)
+                      .sort((a, b) => {
+                        // Primary sort: by number of completions (descending)
+                        const completionDiff = b.progress.completed - a.progress.completed;
+                        if (completionDiff !== 0) return completionDiff;
+                        
+                        // Tie-breaker: compare milestone timestamps
+                        // Team that achieved their highest completion count first wins
+                        if (a.progress.completed === 0) return 0; // Both teams have 0 completions
+                        
+                        const aLastMilestone = a.progress.milestones[a.progress.completed - 1];
+                        const bLastMilestone = b.progress.milestones[b.progress.completed - 1];
+                        
+                        if (!aLastMilestone && !bLastMilestone) return 0;
+                        if (!aLastMilestone) return 1; // b wins
+                        if (!bLastMilestone) return -1; // a wins
+                        
+                        // Earlier timestamp wins (ascending order)
+                        return aLastMilestone.timestamp - bLastMilestone.timestamp;
+                      })
                       .map((team, index) => (
                         <div key={team.id} className="standings-row">
                           <div className="rank">#{index + 1}</div>

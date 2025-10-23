@@ -988,7 +988,7 @@ router.post('/manual-complete', isAdmin, async (req, res) => {
     if (!member) {
       return res.status(404).json({
         success: false,
-        error: `Member "${memberName}" not found in team "${team.team_name}"`
+        error: `Member "${memberName}" not found in team "${team.team_name}". Please verify the member is part of this team before manually completing.`
       });
     }
 
