@@ -62,10 +62,15 @@ function BingoActivity({ boardId, selectedTeam, user }) {
       return `${memberName} completed "${completion.item_name}"`;
     }
     
-    // For automatic completions, extract the actual item from activity text
-    const actualItem = extractItemFromActivity(completion.activity_text);
-    if (actualItem) {
-      return `${memberName} completed "${completion.item_name}" (${actualItem})`;
+    // Only show actual item for "Any [Item Type]" bingo squares
+    const isAnyItemSquare = completion.item_name && completion.item_name.toLowerCase().startsWith('any ');
+    
+    if (isAnyItemSquare) {
+      // For "Any Item" squares, extract the actual item from activity text
+      const actualItem = extractItemFromActivity(completion.activity_text);
+      if (actualItem) {
+        return `${memberName} completed "${completion.item_name}" (${actualItem})`;
+      }
     }
     
     return `${memberName} completed "${completion.item_name}"`;
