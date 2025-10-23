@@ -500,7 +500,7 @@ class BingoActivityProcessor {
           enhancedTerms.push('dragon scimitar', 'dragon longsword', 'dragon dagger', 'dragon claws', 'dragon defender');
           break;
         case 'abyssal':
-          enhancedTerms.push('abyssal whip', 'abyssal dagger', 'abyssal orb', 'abyssal wand');
+          enhancedTerms.push('abyssal whip', 'abyssal orb', 'abyssal wand');
           break;
         case 'barrows':
           enhancedTerms.push('dharok', 'ahrim', 'karil', 'torag', 'guthan', 'verac');
@@ -519,10 +519,10 @@ class BingoActivityProcessor {
           enhancedTerms.push('bow of the last guardian', 'last guardian bow', 'top of the last guardian', 'bottom of the last guardian', 'divine bowstring');
           break;
         case 'mainhand drygore':
-          enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'mainhand', 'kalphite king');
+          enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'mainhand drygore');
           break;
         case 'offhand drygore':
-          enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'offhand', 'off-hand', 'kalphite king');
+          enhancedTerms.push('drygore longsword', 'drygore mace', 'drygore rapier', 'offhand drygore', 'off-hand drygore');
           break;
         case 'zamorak':
           enhancedTerms.push('zamorak godsword', 'zamorak hilt', 'zamorak spear', 'subjugation');
