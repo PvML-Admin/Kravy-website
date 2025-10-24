@@ -352,14 +352,18 @@ class BingoActivityProcessor {
           const memberInfo = this.getMemberInfo(memberName, team.members);
           
 
-          // Mark as completed with proper member/guest handling
+          // Get the original activity date from RuneMetrics (convert from Unix timestamp to Date)
+          const activityDate = new Date(parseInt(activity.date || activity.activity_date));
+          
+          // Mark as completed with proper member/guest handling and original activity date
           const completionId = await BingoModel.markSquareComplete(
             item.id,
             team.id,
             memberInfo.isGuest ? null : memberInfo.memberId,
             activity.id || null,
             memberInfo.isGuest ? memberInfo.memberId : null,
-            memberName
+            memberName,
+            activityDate // Pass the original RuneMetrics date
           );
 
 

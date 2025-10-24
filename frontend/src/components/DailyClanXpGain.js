@@ -111,7 +111,7 @@ function DailyClanXpGain() {
         <div className="clan-xp-item weekly">
           <div className="xp-period">
             <span className="period-label">This Week</span>
-            <span className="reset-timer">Resets {getTimeUntilReset('weekly')}</span>
+            <span className="reset-timer">Resets in {getTimeUntilReset('weekly')}</span>
           </div>
           <span className="xp-gain weekly-xp">{formatXp(currentWeeklyXp)}</span>
         </div>
@@ -119,7 +119,7 @@ function DailyClanXpGain() {
         <div className="clan-xp-item monthly">
           <div className="xp-period">
             <span className="period-label">This Month</span>
-            <span className="reset-timer">Resets {getTimeUntilReset('monthly')}</span>
+            <span className="reset-timer">Resets in {getTimeUntilReset('monthly')}</span>
           </div>
           <span className="xp-gain monthly-xp">{formatXp(currentMonthlyXp)}</span>
         </div>

@@ -19,6 +19,15 @@ const PlayerDisplayName = ({ member }) => {
   
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      {!!member.is_grandmaster_ca && (
+        <img 
+          src="/grandmaster_chaticon.png" 
+          alt="Grandmaster Combat Achievements" 
+          title="Grandmaster Combat Achievements"
+          className="grandmaster-ca-icon"
+          style={{ width: '18px', height: '18px' }}
+        />
+      )}
       {!!member.is_discord_booster && (
         <img 
           src="/discord_booster.png" 

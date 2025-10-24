@@ -595,6 +595,14 @@ function MemberManagement() {
               <div key={member.id} className="booster-result-item">
                 <div className="booster-member-info">
                   <span className={`booster-member-name ${member.is_grandmaster_ca ? 'is-grandmaster-ca' : ''}`}>
+                    {member.is_grandmaster_ca && (
+                      <img 
+                        src="/grandmaster_chaticon.png" 
+                        alt="Grandmaster Combat Achievements" 
+                        className="grandmaster-ca-icon"
+                        style={{ width: '18px', height: '18px' }}
+                      />
+                    )}
                     {member.display_name || member.name}
                   </span>
                   <span className="booster-member-meta">

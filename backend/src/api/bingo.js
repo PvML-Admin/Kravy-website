@@ -1148,12 +1148,19 @@ async function processBingoActivities(activities) {
                 continue; // Already completed
               }
 
+              // Get the original activity date from RuneMetrics (convert from Unix timestamp to Date)
+              const activityDate = activity.date || activity.activity_date ? 
+                new Date(parseInt(activity.date || activity.activity_date)) : null;
+
               // Mark as completed
               const completionId = await BingoModel.markSquareComplete(
                 item.id,
                 team.id,
                 getMemberId(activity.memberName || activity.member_name, team.members),
-                activity.id || null
+                activity.id || null,
+                null, // guestMemberId
+                null, // completedByName
+                activityDate // Pass the original RuneMetrics date
               );
 
               results.newCompletions.push({

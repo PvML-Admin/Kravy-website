@@ -708,6 +708,7 @@ class BingoModel {
         m.id as clan_member_id,
         m.name as member_name,
         m.display_name as clan_display_name,
+        m.is_grandmaster_ca,
         tm.joined_at,
         CASE 
           WHEN tm.member_id IS NOT NULL THEN 'clan'
@@ -835,6 +836,7 @@ class BingoModel {
         bt.team_name,
         bt.color as team_color,
         m.display_name as member_display_name,
+        m.is_grandmaster_ca as member_is_grandmaster_ca,
         gm.display_name as guest_display_name,
         a.text as activity_text,
         a.details as activity_details,
@@ -863,11 +865,19 @@ class BingoModel {
   }
 
   // Mark a bingo square as completed
-  static async markSquareComplete(itemId, teamId, memberId = null, activityId = null, guestMemberId = null, completedByName = null) {
-    const result = await db.runAsync(`
-      INSERT INTO bingo_completions (item_id, team_id, member_id, activity_id, guest_member_id, completed_by_name)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `, [itemId, teamId, memberId, activityId, guestMemberId, completedByName]);
+  static async markSquareComplete(itemId, teamId, memberId = null, activityId = null, guestMemberId = null, completedByName = null, completedAt = null) {
+    // If completedAt is provided, use it; otherwise use CURRENT_TIMESTAMP
+    const query = completedAt ? 
+      `INSERT INTO bingo_completions (item_id, team_id, member_id, activity_id, guest_member_id, completed_by_name, completed_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)` :
+      `INSERT INTO bingo_completions (item_id, team_id, member_id, activity_id, guest_member_id, completed_by_name)
+       VALUES (?, ?, ?, ?, ?, ?)`;
+    
+    const params = completedAt ? 
+      [itemId, teamId, memberId, activityId, guestMemberId, completedByName, completedAt] :
+      [itemId, teamId, memberId, activityId, guestMemberId, completedByName];
+    
+    const result = await db.runAsync(query, params);
     return result.lastID;
   }
 }
